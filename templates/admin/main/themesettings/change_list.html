@@ -1,0 +1,47 @@
+{% extends 'unfold/layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="theme-landing-page" style="padding: 24px; max-width: 1200px; margin: 0 auto; color: #1f2937;">
+    <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 8px; color: #111827;">Giao diện</h1>
+    <a href="/" target="_blank" style="color: #6b7280; font-size: 14px; margin-bottom: 32px; display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        Xem website của bạn
+    </a>
+
+    <div style="display: flex; gap: 40px; margin-top: 32px;">
+        <!-- Cột trái (Thông tin) -->
+        <div style="flex: 1; max-width: 300px;">
+            <h2 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #111827;">Giao diện đang sử dụng</h2>
+            <p style="font-size: 14px; color: #6b7280; line-height: 1.5;">Khách hàng sẽ thấy giao diện này khi họ xem website của bạn.</p>
+        </div>
+
+        <!-- Cột phải (Card giao diện) -->
+        <div style="flex: 2; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden;">
+            <div style="padding: 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e5e7eb;">
+                <div>
+                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 4px; color: #111827;">Theme Sông Hồng</h3>
+                    <p style="font-size: 13px; color: #6b7280; margin: 0;">Lần sửa cuối lúc: Hôm nay</p>
+                </div>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <a href="/admin/main/themesettings/1/change/" style="display: inline-block; padding: 8px 16px; background-color: #3b82f6; color: white; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 14px; transition: background-color 0.2s;">
+                        Tùy chỉnh giao diện
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Phần hình ảnh mô phỏng giống mockup -->
+            <div style="padding: 24px; background: #f9fafb; display: flex; justify-content: center; position: relative;">
+                <div style="width: 100%; max-width: 800px; position: relative; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                    <img src="{% static 'images/construction_bg_engineering.jpg' %}" alt="Theme Preview" style="width: 100%; display: block; opacity: 0.8;">
+                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to bottom, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
+                        <img src="{% static 'images/Logo.png' %}" alt="Logo" style="width: 120px; margin-bottom: 20px;">
+                        <h2 style="color: #ea580c; font-weight: bold; font-size: 28px; text-transform: uppercase; text-shadow: 1px 1px 2px rgba(255,255,255,0.8);">Keo Vữa Sông Hồng</h2>
+                        <p style="color: #333; font-size: 16px; font-weight: 500; margin-top: 10px;">Vững như Sông Hồng - Bền cùng năm tháng</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

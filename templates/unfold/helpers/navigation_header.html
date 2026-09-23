@@ -1,0 +1,25 @@
+{% load unfold %}
+
+<div class="border-b-0 border-none flex items-center h-[76px] mb-2 px-2.5 relative {% element_classes 'navigation_header' %}">
+    <!-- Khi sidebar mở: hiển thị Logo SHK MORTAR và nút thu nhỏ < -->
+    <div x-show="sidebarOpen" class="flex items-center justify-between w-full">
+        <a href="{% url 'admin:index' %}" class="shk-admin-brand-wrap group grow">
+            <span class="shk-admin-brand-main">SHK</span>
+            <span class="shk-admin-brand-sub">MORTAR</span>
+        </a>
+
+        <!-- Nút thu nhỏ < -->
+        <button type="button" @click="sidebarToggle()" class="sidebar-toggle-btn" title="Thu gọn menu (<)">
+            <span class="material-symbols-outlined">chevron_left</span>
+        </button>
+    </div>
+
+    <!-- Khi sidebar thu gọn: chỉ hiển thị nút mở rộng > -->
+    <div x-show="!sidebarOpen" x-cloak class="flex items-center justify-center w-full">
+        <button type="button" @click="sidebarToggle()" class="sidebar-toggle-btn-collapsed" title="Mở rộng menu (>)">
+            <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+    </div>
+
+    {% include "unfold/helpers/site_dropdown.html" %}
+</div>

@@ -1,0 +1,1333 @@
+{% extends 'unfold/layouts/skeleton.html' %}
+{% load i18n admin_urls static admin_modify unfold %}
+
+{% block base %}
+<div class="sapo-fullscreen-app">
+    
+    <!-- ── 1. TOPBAR (HEADER CHUẨN SAPO) ── -->
+    <header class="sapo-topbar">
+        <!-- Brand / App Info -->
+        <div class="topbar-left">
+            <a href="{% url 'admin:index' %}" class="sapo-logo-btn" title="Quay lại Bảng điều khiển Admin">
+                <span class="sapo-brand-badge">S</span>
+            </a>
+            <div class="topbar-brand-title">
+                <span class="brand-name">Keo Vữa Sông Hồng</span>
+                <span class="theme-label">Thiết lập giao diện</span>
+            </div>
+        </div>
+
+        <!-- Center: Device Viewport Switcher -->
+        <div class="topbar-center">
+            <div class="device-switcher">
+                <button type="button" class="dev-btn" id="btn-dev-mobile" onclick="setViewport('375px', this)" title="Điện thoại (Mobile - 375px)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+                </button>
+                <button type="button" class="dev-btn active" id="btn-dev-desktop" onclick="setViewport('100%', this)" title="Máy tính (Desktop - 100%)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                </button>
+                <button type="button" class="dev-btn" onclick="openFullscreenWebsite()" title="Mở trang web toàn màn hình">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
+                </button>
+                <div class="dev-sep"></div>
+                <button type="button" class="dev-btn" onclick="reloadPreview()" title="Tải lại website">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Right: Status & Save Button -->
+        <div class="topbar-right">
+            <div class="live-status">
+                <span class="live-dot"></span>
+                <span>Live</span>
+            </div>
+            <button type="button" class="sapo-save-btn" onclick="submitThemeForm()">
+                <span>Lưu</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ── 2. WORKSPACE: SIDEBAR (LEFT) + PREVIEW (RIGHT) ── -->
+    <div class="sapo-workspace">
+        
+        <!-- SIDEBAR -->
+        <aside class="sapo-sidebar">
+            <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}action="{{ form_url }}" method="post" id="themesettings_form" novalidate style="display:flex;flex-direction:column;height:100%;">
+                {% csrf_token %}
+                {% block form_top %}{% endblock %}
+                <input type="hidden" name="_continue" value="Lưu thay đổi">
+
+                <!-- Sidebar Top Breadcrumb / Title Bar -->
+                <div class="sidebar-top-bar">
+                    <button type="button" id="btn-back" class="sidebar-back-btn" onclick="navGoBack()" style="display: none;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </button>
+                    <h2 id="sidebar-current-title" class="sidebar-title">THIẾT LẬP GIAO DIỆN</h2>
+                </div>
+
+                {% if errors %}
+                <div style="background: #fef2f2; border-bottom: 1px solid #fecaca; padding: 10px 14px; font-size: 12px; color: #b91c1c;">
+                    <div style="font-weight: 700; margin-bottom: 4px;">⚠️ Vui lòng kiểm tra lại:</div>
+                    {% for error in errors %}
+                        <div>• {{ error }}</div>
+                    {% endfor %}
+                    {% for field, err_list in adminform.form.errors.items %}
+                        {% for err in err_list %}
+                            <div>• <strong>{{ field }}</strong>: {{ err }}</div>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Sidebar Body (3-level navigation) -->
+                <div class="sidebar-content sapo-scrollbar">
+                    
+                    <!-- ── LEVEL 1: MAIN CATEGORIES (TRANG CHỦ & GIỚI THIỆU) ── -->
+                    <div id="view-level-1" class="sapo-nav-list">
+                        
+                        <!-- 1. TRANG CHỦ -->
+                        <div class="sapo-menu-row" onclick="navGoToLevel2('home')">
+                            <div class="row-left">
+                                <span class="row-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg></span>
+                                <div class="row-texts">
+                                    <span class="row-title">Trang chủ</span>
+                                    <span class="row-sub">7 module hiển thị</span>
+                                </div>
+                            </div>
+                            <svg class="row-arrow" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </div>
+
+                        <!-- 2. GIỚI THIỆU -->
+                        <div class="sapo-menu-row" onclick="navGoToAbout()">
+                            <div class="row-left">
+                                <span class="row-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span>
+                                <div class="row-texts">
+                                    <span class="row-title">Giới thiệu</span>
+                                    <span class="row-sub">Trang Về chúng tôi & Video</span>
+                                </div>
+                            </div>
+                            <svg class="row-arrow" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </div>
+
+                    </div>
+
+                    <!-- ── LEVEL 2: TRANG CHỦ -> 7 MỤC NHỎ ── -->
+                    <div id="view-level-2-home" class="sapo-nav-list" style="display: none;">
+                        <div class="group-header-label">CÁC MODULE TRÊN TRANG CHỦ</div>
+
+                        <!-- 1. Đầu trang & Logo -->
+                        <div class="sapo-menu-row" onclick="navOpenModule('mod-header', '1. Đầu trang & Logo')">
+                            <div class="row-left">
+                                <span class="bullet-dot">::</span>
+                                <span class="sub-item-title">1. Đầu trang & Logo</span>
+                            </div>
+                            <svg class="row-arrow" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </div>
+
+                        <!-- 2. Module Giới thiệu -->
+                        <div class="sapo-menu-row" onclick="navOpenModule('mod-intro', '2. Module Giới thiệu & Video')">
+                            <div class="row-left">
+                                <span class="bullet-dot">::</span>
+                                <span class="sub-item-title">2. Module Giới thiệu & Video</span>
+                            </div>
+                            <svg class="row-arrow" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </div>
+
+                        <!-- 3. Danh mục sản phẩm -->
+                        <div class="sapo-menu-row" onclick="navOpenModule('mod-products', '3. Danh mục sản phẩm')">
+                            <div class="row-left">
+                                <span class="bullet-dot">::</span>
+                                <span class="sub-item-title">3. Danh mục sản phẩm</span>
+                            </div>
+                            <svg class="row-arrow" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </div>
+
+                        <!-- 4. Phóng sự thực tế -->
+                        <div class="sapo-menu-row" onclick="navOpenModule('mod-phongsu', '4. Phóng sự thực tế')">
+                            <div class="row-left">
+                                <span class="bullet-dot">::</span>
+                                <span class="sub-item-title">4. Phóng sự thực tế</span>
+                            </div>
+                            <svg class="row-arrow" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </div>
+
+                        <!-- 5. Minh chứng chất lượng -->
+                        <div class="sapo-menu-row" onclick="navOpenModule('mod-quality', '5. Minh chứng chất lượng')">
+                            <div class="row-left">
+                                <span class="bullet-dot">::</span>
+                                <span class="sub-item-title">5. Minh chứng chất lượng</span>
+                            </div>
+                            <svg class="row-arrow" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </div>
+
+                        <!-- 6. Module Đối tác -->
+                        <div class="sapo-menu-row" onclick="navOpenModule('mod-partner', '6. Module Đối tác')">
+                            <div class="row-left">
+                                <span class="bullet-dot">::</span>
+                                <span class="sub-item-title">6. Module Đối tác</span>
+                            </div>
+                            <svg class="row-arrow" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </div>
+
+                        <!-- 7. Chân trang (Footer) -->
+                        <div class="sapo-menu-row" onclick="navOpenModule('mod-footer', '7. Chân trang (Footer)')">
+                            <div class="row-left">
+                                <span class="bullet-dot">::</span>
+                                <span class="sub-item-title">7. Chân trang (Footer)</span>
+                            </div>
+                            <svg class="row-arrow" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </div>
+                    </div>
+
+                    <!-- ── LEVEL 3: CHI TIẾT CÁC FORM NHẬP LIỆU ── -->
+                    <div id="view-level-forms" style="display: none; padding: 16px;">
+                        
+                        <!-- FORM 1: ĐẦU TRANG & LOGO -->
+                        <div id="mod-header" class="sapo-form-panel" style="display: none;">
+                            <div class="sapo-box">
+                                <span class="box-title">LOGO CÔNG TY</span>
+                                <div style="margin-bottom: 12px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                                    <img id="adminLogoPreview" src="{% if original and original.logo %}{{ original.logo.url }}{% elif adminform.form.instance and adminform.form.instance.logo %}{{ adminform.form.instance.logo.url }}{% else %}{% static 'images/Logo.png' %}{% endif %}?v=3" alt="Logo hiện tại" style="max-height: 64px; max-width: 100%; object-fit: contain;">
+                                    <span style="font-size: 11px; color: #64748b;">(Ảnh logo đang sử dụng)</span>
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">Chọn ảnh Logo mới (.PNG trong suốt)</label>
+                                    {{ adminform.form.logo }}
+                                    <small class="sapo-help">Kích thước khuyên dùng: 280 x 70 px</small>
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">BANNER CHÍNH ĐẦU TRANG (HERO BANNER)</span>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.hero_title.label }}</label>
+                                    {{ adminform.form.hero_title }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.hero_desc.label }}</label>
+                                    {{ adminform.form.hero_desc }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.hero_btn_text.label }}</label>
+                                    {{ adminform.form.hero_btn_text }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.hero_btn_link.label }}</label>
+                                    {{ adminform.form.hero_btn_link }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.hero_video_file.label }}</label>
+                                    {{ adminform.form.hero_video_file }}
+                                    <small class="sapo-help">Tải trực tiếp video clip định dạng .mp4 từ máy tính</small>
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.hero_video_url.label }}</label>
+                                    {{ adminform.form.hero_video_url }}
+                                    <small class="sapo-help">Hỗ trợ dán link YouTube (VD: https://www.youtube.com/watch?v=...) hoặc link video MP4</small>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- FORM 2: MODULE GIỚI THIỆU -->
+                        <div id="mod-intro" class="sapo-form-panel" style="display: none;">
+                            <div class="sapo-box">
+                                <label class="sapo-switch-row">
+                                    {{ adminform.form.show_intro }}
+                                    <span>{{ adminform.form.show_intro.label }}</span>
+                                </label>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">NỘI DUNG GIỚI THIỆU</span>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.intro_badge.label }}</label>
+                                    {{ adminform.form.intro_badge }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.intro_title.label }}</label>
+                                    {{ adminform.form.intro_title }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.intro_description.label }}</label>
+                                    {{ adminform.form.intro_description }}
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">VIDEO YOUTUBE</span>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.intro_youtube_url.label }}</label>
+                                    {{ adminform.form.intro_youtube_url }}
+                                    <small class="sapo-help">Hỗ trợ: Link YouTube (https://www.youtube.com/watch?v=...), link rút gọn (youtu.be/...), mã nhúng iframe hoặc ID video</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FORM: DANH MỤC SẢN PHẨM -->
+                        <div id="mod-products" class="sapo-form-panel" style="display: none;">
+                            <div class="sapo-box">
+                                <label class="sapo-switch-row">
+                                    {{ adminform.form.show_products }}
+                                    <span>{{ adminform.form.show_products.label }}</span>
+                                </label>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">TIÊU ĐỀ & NÚT BẤM</span>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.products_badge.label }}</label>
+                                    {{ adminform.form.products_badge }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.products_title.label }}</label>
+                                    {{ adminform.form.products_title }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.products_btn_text.label }}</label>
+                                    {{ adminform.form.products_btn_text }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.products_btn_link.label }}</label>
+                                    {{ adminform.form.products_btn_link }}
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">4 DANH MỤC NỔI BẬT (TRANG CHỦ)</span>
+                                <small class="sapo-help" style="margin-bottom:14px;display:block;">Tùy chỉnh thông tin và ảnh đại diện cho 4 ô danh mục sản phẩm hiển thị trên trang chủ.</small>
+
+                                <!-- Ô 1 -->
+                                <div style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px; margin-bottom: 14px; background: #f8fafc;">
+                                    <div style="font-weight: 700; font-size: 13px; color: #8C5A2B; margin-bottom: 10px;">Ô 1: {{ adminform.form.prod_cat_1_title.value|default:"Vữa khô trộn sẵn" }}</div>
+                                    <div class="sapo-input-group">
+                                        <label class="sapo-label">{{ adminform.form.prod_cat_1_title.label }}</label>
+                                        {{ adminform.form.prod_cat_1_title }}
+                                    </div>
+                                    <div class="sapo-input-group">
+                                        <label class="sapo-label">{{ adminform.form.prod_cat_1_link.label }}</label>
+                                        {{ adminform.form.prod_cat_1_link }}
+                                    </div>
+                                    <div class="sapo-input-group">
+                                        <label class="sapo-label">{{ adminform.form.prod_cat_1_image.label }}</label>
+                                        {% if original and original.prod_cat_1_image %}
+                                        <div style="margin-bottom: 6px;"><img src="{{ original.prod_cat_1_image.url }}" alt="Ảnh ô 1" style="max-height: 54px; border-radius: 4px; object-fit: contain;"></div>
+                                        {% else %}
+                                        <div style="margin-bottom: 6px;"><img src="{% static 'images/Vua_kho_chon_san.png' %}" alt="Ảnh mặc định" style="max-height: 48px; opacity: 0.7;"> <span style="font-size:11px;color:#64748b;">(Ảnh mặc định)</span></div>
+                                        {% endif %}
+                                        {{ adminform.form.prod_cat_1_image }}
+                                    </div>
+                                </div>
+
+                                <!-- Ô 2 -->
+                                <div style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px; margin-bottom: 14px; background: #f8fafc;">
+                                    <div style="font-weight: 700; font-size: 13px; color: #8C5A2B; margin-bottom: 10px;">Ô 2: {{ adminform.form.prod_cat_2_title.value|default:"Vữa xây trát AAC" }}</div>
+                                    <div class="sapo-input-group">
+                                        <label class="sapo-label">{{ adminform.form.prod_cat_2_title.label }}</label>
+                                        {{ adminform.form.prod_cat_2_title }}
+                                    </div>
+                                    <div class="sapo-input-group">
+                                        <label class="sapo-label">{{ adminform.form.prod_cat_2_link.label }}</label>
+                                        {{ adminform.form.prod_cat_2_link }}
+                                    </div>
+                                    <div class="sapo-input-group">
+                                        <label class="sapo-label">{{ adminform.form.prod_cat_2_image.label }}</label>
+                                        {% if original and original.prod_cat_2_image %}
+                                        <div style="margin-bottom: 6px;"><img src="{{ original.prod_cat_2_image.url }}" alt="Ảnh ô 2" style="max-height: 54px; border-radius: 4px; object-fit: contain;"></div>
+                                        {% else %}
+                                        <div style="margin-bottom: 6px;"><img src="{% static 'images/Vua_kho.png' %}" alt="Ảnh mặc định" style="max-height: 48px; opacity: 0.7;"> <span style="font-size:11px;color:#64748b;">(Ảnh mặc định)</span></div>
+                                        {% endif %}
+                                        {{ adminform.form.prod_cat_2_image }}
+                                    </div>
+                                </div>
+
+                                <!-- Ô 3 -->
+                                <div style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px; margin-bottom: 14px; background: #f8fafc;">
+                                    <div style="font-weight: 700; font-size: 13px; color: #8C5A2B; margin-bottom: 10px;">Ô 3: {{ adminform.form.prod_cat_3_title.value|default:"Keo dán gạch" }}</div>
+                                    <div class="sapo-input-group">
+                                        <label class="sapo-label">{{ adminform.form.prod_cat_3_title.label }}</label>
+                                        {{ adminform.form.prod_cat_3_title }}
+                                    </div>
+                                    <div class="sapo-input-group">
+                                        <label class="sapo-label">{{ adminform.form.prod_cat_3_link.label }}</label>
+                                        {{ adminform.form.prod_cat_3_link }}
+                                    </div>
+                                    <div class="sapo-input-group">
+                                        <label class="sapo-label">{{ adminform.form.prod_cat_3_image.label }}</label>
+                                        {% if original and original.prod_cat_3_image %}
+                                        <div style="margin-bottom: 6px;"><img src="{{ original.prod_cat_3_image.url }}" alt="Ảnh ô 3" style="max-height: 54px; border-radius: 4px; object-fit: contain;"></div>
+                                        {% else %}
+                                        <div style="margin-bottom: 6px;"><img src="{% static 'images/keo_dan_gach_c1.png' %}" alt="Ảnh mặc định" style="max-height: 48px; opacity: 0.7;"> <span style="font-size:11px;color:#64748b;">(Ảnh mặc định)</span></div>
+                                        {% endif %}
+                                        {{ adminform.form.prod_cat_3_image }}
+                                    </div>
+                                </div>
+
+                                <!-- Ô 4 -->
+                                <div style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px; background: #f8fafc;">
+                                    <div style="font-weight: 700; font-size: 13px; color: #8C5A2B; margin-bottom: 10px;">Ô 4: {{ adminform.form.prod_cat_4_title.value|default:"Cát sấy khô" }}</div>
+                                    <div class="sapo-input-group">
+                                        <label class="sapo-label">{{ adminform.form.prod_cat_4_title.label }}</label>
+                                        {{ adminform.form.prod_cat_4_title }}
+                                    </div>
+                                    <div class="sapo-input-group">
+                                        <label class="sapo-label">{{ adminform.form.prod_cat_4_link.label }}</label>
+                                        {{ adminform.form.prod_cat_4_link }}
+                                    </div>
+                                    <div class="sapo-input-group">
+                                        <label class="sapo-label">{{ adminform.form.prod_cat_4_image.label }}</label>
+                                        {% if original and original.prod_cat_4_image %}
+                                        <div style="margin-bottom: 6px;"><img src="{{ original.prod_cat_4_image.url }}" alt="Ảnh ô 4" style="max-height: 54px; border-radius: 4px; object-fit: contain;"></div>
+                                        {% else %}
+                                        <div style="margin-bottom: 6px;"><img src="{% static 'images/Cat_say.png' %}" alt="Ảnh mặc định" style="max-height: 48px; opacity: 0.7;"> <span style="font-size:11px;color:#64748b;">(Ảnh mặc định)</span></div>
+                                        {% endif %}
+                                        {{ adminform.form.prod_cat_4_image }}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- FORM 4: PHÓNG SỰ THỰC TẾ -->
+                        <div id="mod-phongsu" class="sapo-form-panel" style="display: none;">
+                            <div class="sapo-box">
+                                <label class="sapo-switch-row">
+                                    {{ adminform.form.show_phong_su }}
+                                    <span>{{ adminform.form.show_phong_su.label }}</span>
+                                </label>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">BANNER PHÓNG SỰ THỰC TẾ</span>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.phong_su_badge.label }}</label>
+                                    {{ adminform.form.phong_su_badge }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.phong_su_title.label }}</label>
+                                    {{ adminform.form.phong_su_title }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.phong_su_desc.label }}</label>
+                                    {{ adminform.form.phong_su_desc }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.phong_su_btn_text.label }}</label>
+                                    {{ adminform.form.phong_su_btn_text }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.phong_su_btn_link.label }}</label>
+                                    {{ adminform.form.phong_su_btn_link }}
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">DANH SÁCH VIDEO</span>
+                                <small class="sapo-help" style="display:block;">Danh sách video hiển thị ở đây được lấy trực tiếp từ các bài viết thuộc danh mục <strong>"Phóng sự thực tế"</strong> trong Tin tức. Để thêm, sửa hoặc xóa video, hãy vào <a href="{% url 'admin:main_news_changelist' %}" target="_blank">Tin tức</a>, tạo/chỉnh bài viết với danh mục "Phóng sự thực tế" và điền link YouTube + ảnh thumbnail (upload file hoặc dán link ảnh) tại đó — trang chủ sẽ tự động đồng bộ theo.</small>
+                            </div>
+                        </div>
+
+                        <!-- FORM 4: MINH CHỨNG CHẤT LƯỢNG -->
+                        <div id="mod-quality" class="sapo-form-panel" style="display: none;">
+                            <div class="sapo-box">
+                                <label class="sapo-switch-row">
+                                    {{ adminform.form.show_quality }}
+                                    <span>{{ adminform.form.show_quality.label }}</span>
+                                </label>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">THÊM ẢNH CHỨNG NHẬN VÀO SLIDER</span>
+                                <small class="sapo-help" style="margin-bottom: 10px; margin-top: -6px;">11 ảnh chứng nhận hiện tại (ISO, TCVN...) luôn được giữ nguyên trên website. Chọn ảnh tại đây nếu bạn muốn bổ sung thêm ảnh mới vào slider.</small>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">Chọn ảnh chứng nhận bổ sung</label>
+                                    {{ adminform.form.quality_image }}
+                                    <small class="sapo-help">Định dạng .jpg, .png. Kích thước khuyên dùng: tỉ lệ khổ đứng A4 (800 x 1130 px)</small>
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">TIÊU CHUẨN & NỘI DUNG CHỨNG NHẬN</span>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.quality_title.label }}</label>
+                                    {{ adminform.form.quality_title }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.quality_description_html.label }}</label>
+                                    {{ adminform.form.quality_description_html }}
+                                    <small class="sapo-help">Nhập văn bản thông thường. Dùng dấu gạch đầu dòng (-) cho các tiêu chuẩn để tự động tạo danh sách.</small>
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">HỒ SƠ KIỂM NGHIỆM (GOOGLE DRIVE)</span>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.quality_drive_link.label }}</label>
+                                    {{ adminform.form.quality_drive_link }}
+                                    <small class="sapo-help">Link thư mục Google Drive chứa hồ sơ kiểm nghiệm</small>
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.quality_drive_btn_text.label }}</label>
+                                    {{ adminform.form.quality_drive_btn_text }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FORM 5: MODULE ĐỐI TÁC -->
+                        <div id="mod-partner" class="sapo-form-panel" style="display: none;">
+                            <div class="sapo-box">
+                                <span class="box-title">THÊM MỚI ĐỐI TÁC (ĐẨY Ở CUỐI SLIDER)</span>
+                                <small class="sapo-help" style="margin-bottom:12px;display:block;">
+                                    27 đối tác mặc định trên trang chủ luôn được giữ nguyên. Khi thêm mới logo đối tác tại đây, đối tác sẽ tự động được đẩy hiển thị nối tiếp ở cuối danh sách slider.
+                                </small>
+                                
+                                {% for inline_admin_formset in inline_admin_formsets %}
+                                    {% if inline_admin_formset.opts.verbose_name == "Đối tác" %}
+                                    {{ inline_admin_formset.formset.management_form }}
+                                    {% for form in inline_admin_formset.formset %}
+                                        <div class="partner-card">
+                                            {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                                                <span style="font-weight:600;font-size:12px;color:#334155;">Đối tác #{{ forloop.counter }}</span>
+                                                {% if form.instance.pk and form.DELETE %}
+                                                    <label style="font-size:11px;color:#ef4444;cursor:pointer;">{{ form.DELETE }} Xóa</label>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <label class="sapo-label">Logo / Ảnh đối tác</label>
+                                                {{ form.image }}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- FORM 6: CHÂN TRANG (FOOTER) -->
+                        <div id="mod-footer" class="sapo-form-panel" style="display: none;">
+                            <div class="sapo-box">
+                                <span class="box-title">THÔNG TIN DOANH NGHIỆP</span>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.footer_company_name.label }}</label>
+                                    {{ adminform.form.footer_company_name }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.footer_address.label }}</label>
+                                    {{ adminform.form.footer_address }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.footer_office_address.label }}</label>
+                                    {{ adminform.form.footer_office_address }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.footer_phone.label }}</label>
+                                    {{ adminform.form.footer_phone }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.footer_email.label }}</label>
+                                    {{ adminform.form.footer_email }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.footer_media_email.label }}</label>
+                                    {{ adminform.form.footer_media_email }}
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">CỘT TÀI LIỆU THAM KHẢO</span>
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                                    <div class="sapo-input-group">
+                                        <label class="sapo-label">{{ adminform.form.footer_doc_1_title.label }}</label>
+                                        {{ adminform.form.footer_doc_1_title }}
+                                    </div>
+                                    <div class="sapo-input-group">
+                                        <label class="sapo-label">{{ adminform.form.footer_doc_1_link.label }}</label>
+                                        {{ adminform.form.footer_doc_1_link }}
+                                    </div>
+                                </div>
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                                    <div class="sapo-input-group">
+                                        <label class="sapo-label">{{ adminform.form.footer_doc_2_title.label }}</label>
+                                        {{ adminform.form.footer_doc_2_title }}
+                                    </div>
+                                    <div class="sapo-input-group">
+                                        <label class="sapo-label">{{ adminform.form.footer_doc_2_link.label }}</label>
+                                        {{ adminform.form.footer_doc_2_link }}
+                                    </div>
+                                </div>
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                                    <div class="sapo-input-group">
+                                        <label class="sapo-label">{{ adminform.form.footer_doc_3_title.label }}</label>
+                                        {{ adminform.form.footer_doc_3_title }}
+                                    </div>
+                                    <div class="sapo-input-group">
+                                        <label class="sapo-label">{{ adminform.form.footer_doc_3_link.label }}</label>
+                                        {{ adminform.form.footer_doc_3_link }}
+                                    </div>
+                                </div>
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                                    <div class="sapo-input-group">
+                                        <label class="sapo-label">{{ adminform.form.footer_doc_4_title.label }}</label>
+                                        {{ adminform.form.footer_doc_4_title }}
+                                    </div>
+                                    <div class="sapo-input-group">
+                                        <label class="sapo-label">{{ adminform.form.footer_doc_4_link.label }}</label>
+                                        {{ adminform.form.footer_doc_4_link }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">MẠNG XÃ HỘI</span>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.footer_group.label }}</label>
+                                    {{ adminform.form.footer_group }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.footer_facebook.label }}</label>
+                                    {{ adminform.form.footer_facebook }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.footer_zalo.label }}</label>
+                                    {{ adminform.form.footer_zalo }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.footer_youtube.label }}</label>
+                                    {{ adminform.form.footer_youtube }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.footer_tiktok.label }}</label>
+                                    {{ adminform.form.footer_tiktok }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.footer_linkedin.label }}</label>
+                                    {{ adminform.form.footer_linkedin }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.footer_shopee.label }}</label>
+                                    {{ adminform.form.footer_shopee }}
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">BẢN ĐỒ & BẢN QUYỀN</span>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.footer_map_iframe.label }}</label>
+                                    {{ adminform.form.footer_map_iframe }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.footer_copyright.label }}</label>
+                                    {{ adminform.form.footer_copyright }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FORM GIỚI THIỆU (ABOUT PAGE) -->
+                        <div id="mod-about-page" class="sapo-form-panel" style="display: none;">
+                            <!-- 1. Banner Đầu trang -->
+                            <div class="sapo-box">
+                                <span class="box-title">1. BANNER ĐẦU TRANG</span>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.about_hero_title.label }}</label>
+                                    {{ adminform.form.about_hero_title }}
+                                </div>
+                            </div>
+
+                            <!-- 2. Giới thiệu chung -->
+                            <div class="sapo-box">
+                                <span class="box-title">2. GIỚI THIỆU CHUNG (PHẦN 1)</span>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.about_main_heading.label }}</label>
+                                    {{ adminform.form.about_main_heading }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.about_intro_image.label }}</label>
+                                    {{ adminform.form.about_intro_image }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.about_intro_content.label }}</label>
+                                    {{ adminform.form.about_intro_content }}
+                                    <small class="sapo-help">Mỗi đoạn văn cách nhau bằng 1 dòng trống</small>
+                                </div>
+                            </div>
+
+                            <!-- 3. Thông điệp & Năng lực -->
+                            <div class="sapo-box">
+                                <span class="box-title">3. THÔNG ĐIỆP & NĂNG LỰC CỐT LÕI (PHẦN 2)</span>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.about_statement_heading.label }}</label>
+                                    {{ adminform.form.about_statement_heading }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.about_statement_col1.label }}</label>
+                                    {{ adminform.form.about_statement_col1 }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.about_statement_col2.label }}</label>
+                                    {{ adminform.form.about_statement_col2 }}
+                                </div>
+                            </div>
+
+                            <!-- 4. Câu chuyện thương hiệu -->
+                            <div class="sapo-box">
+                                <span class="box-title">4. CÂU CHUYỆN THƯƠNG HIỆU (PHẦN 3)</span>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.about_story_heading.label }}</label>
+                                    {{ adminform.form.about_story_heading }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.about_story_image.label }}</label>
+                                    {{ adminform.form.about_story_image }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.about_story_content.label }}</label>
+                                    {{ adminform.form.about_story_content }}
+                                </div>
+                            </div>
+
+                            <!-- 5. Tầm nhìn & Cam kết -->
+                            <div class="sapo-box">
+                                <span class="box-title">5. TẦM NHÌN & CAM KẾT (PHẦN 4)</span>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.about_vision_title.label }}</label>
+                                    {{ adminform.form.about_vision_title }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.about_vision_desc.label }}</label>
+                                    {{ adminform.form.about_vision_desc }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.about_commitment_title.label }}</label>
+                                    {{ adminform.form.about_commitment_title }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.about_commitment_desc.label }}</label>
+                                    {{ adminform.form.about_commitment_desc }}
+                                </div>
+                            </div>
+
+                            <!-- 6. Thư viện ảnh -->
+                            <div class="sapo-box">
+                                <span class="box-title">6. THƯ VIỆN ẢNH (PHẦN 5)</span>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.about_gallery_title.label }}</label>
+                                    {{ adminform.form.about_gallery_title }}
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">DANH SÁCH ẢNH THƯ VIỆN</span>
+                                <small class="sapo-help" style="margin-bottom:12px;display:block;">Thêm, sửa, xóa hoặc đổi thứ tự ảnh hiển thị ở mục Thư viện ảnh trên trang Giới thiệu. Có thể tải ảnh lên hoặc dán link ảnh ngoài.</small>
+
+                                {% for inline_admin_formset in inline_admin_formsets %}
+                                    {% if inline_admin_formset.opts.verbose_name == "Ảnh Thư viện (Giới thiệu)" %}
+                                    {{ inline_admin_formset.formset.management_form }}
+                                    <div style="display:flex;flex-direction:column;gap:10px;">
+                                        {% for form in inline_admin_formset.formset %}
+                                        <div class="partner-card">
+                                            {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                                                <span style="font-weight:600;font-size:12px;color:#334155;">Ảnh #{{ forloop.counter }}</span>
+                                                {% if form.instance.pk and form.DELETE %}
+                                                    <label style="font-size:11px;color:#ef4444;cursor:pointer;">{{ form.DELETE }} Xóa</label>
+                                                {% endif %}
+                                            </div>
+                                            {% if form.instance.pk and form.instance.display_url %}
+                                            <img src="{{ form.instance.display_url }}" alt="" style="width:100%;height:90px;object-fit:cover;border-radius:6px;margin-bottom:8px;">
+                                            {% endif %}
+                                            <div style="margin-bottom:6px;">
+                                                <label class="sapo-label">Ảnh (tải lên)</label>
+                                                {{ form.image }}
+                                            </div>
+                                            <div style="margin-bottom:6px;">
+                                                <label class="sapo-label">Hoặc dán link ảnh (URL)</label>
+                                                {{ form.image_url }}
+                                            </div>
+                                            <div style="margin-bottom:6px;">
+                                                <label class="sapo-label">Chú thích</label>
+                                                {{ form.caption }}
+                                            </div>
+                                            <div>
+                                                <label class="sapo-label">Tỉ lệ khung ảnh</label>
+                                                {{ form.ratio }}
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Sidebar Bottom Bar -->
+                <div class="sidebar-bottom-bar">
+                    <span style="font-size: 12px; color: #64748b;">SHK Mortar Customizer</span>
+                    <a href="{% url 'admin:index' %}" style="font-size: 12px; color: #2563eb; text-decoration: none;">Thoát</a>
+                </div>
+            </form>
+        </aside>
+
+        <!-- PREVIEW IFRAME (RIGHT) -->
+        <main class="sapo-preview-area">
+            <div class="preview-stage">
+                <div id="device-wrapper" class="device-wrapper" style="width: 100%;">
+                    <iframe id="mainPreviewIframe" src="/" title="Website Preview" class="preview-iframe"></iframe>
+                </div>
+            </div>
+        </main>
+
+    </div>
+
+</div>
+
+<style>
+/* Reset & Fullscreen container */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    height: 100% !important;
+    width: 100% !important;
+}
+
+.sapo-fullscreen-app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    background: #f1f5f9;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #1e293b;
+    overflow: hidden;
+}
+
+/* TOPBAR */
+.sapo-topbar {
+    height: 50px;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    flex-shrink: 0;
+    z-index: 50;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.sapo-logo-btn {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+.sapo-brand-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: #0284c7;
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 16px;
+    border-radius: 6px;
+}
+.topbar-brand-title {
+    display: flex;
+    flex-direction: column;
+}
+.brand-name {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.2;
+}
+.theme-label {
+    font-size: 11px;
+    color: #64748b;
+}
+
+/* Device Switcher */
+.topbar-center {
+    display: flex;
+    align-items: center;
+}
+.device-switcher {
+    display: flex;
+    align-items: center;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 2px 4px;
+    gap: 2px;
+}
+.dev-btn {
+    background: none;
+    border: none;
+    padding: 5px 8px;
+    border-radius: 4px;
+    color: #64748b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+}
+.dev-btn:hover { color: #0f172a; }
+.dev-btn.active {
+    background: #ffffff;
+    color: #0284c7;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+.dev-sep {
+    width: 1px;
+    height: 14px;
+    background: #cbd5e1;
+    margin: 0 3px;
+}
+
+/* Topbar Right */
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.live-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #15803d;
+}
+.live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #22c55e;
+}
+.sapo-save-btn {
+    padding: 6px 20px;
+    background: #2563eb;
+    hover:background: #1d4ed8;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 13.5px;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(37,99,235,0.2);
+    transition: background 0.15s;
+}
+
+/* WORKSPACE */
+.sapo-workspace {
+    display: flex;
+    flex: 1;
+    height: calc(100vh - 50px);
+    overflow: hidden;
+}
+
+/* SIDEBAR */
+.sapo-sidebar {
+    width: 380px;
+    min-width: 380px;
+    background: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    z-index: 20;
+}
+
+.sidebar-top-bar {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+    background: #ffffff;
+}
+.sidebar-back-btn {
+    background: none;
+    border: none;
+    color: #2563eb;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    margin-left: -4px;
+}
+.sidebar-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    background: #ffffff;
+}
+
+.sidebar-bottom-bar {
+    padding: 10px 16px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* SAPO MENU ROW */
+.sapo-menu-row {
+    padding: 13px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    background: #ffffff;
+    transition: background 0.15s;
+}
+.sapo-menu-row:hover {
+    background: #f8fafc;
+}
+.row-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.row-icon {
+    color: #8C5A2B;
+    display: flex;
+    align-items: center;
+}
+.row-texts {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.row-title {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #0f172a;
+}
+.row-sub {
+    font-size: 11.5px;
+    color: #64748b;
+}
+.row-arrow {
+    color: #94a3b8;
+}
+.group-header-label {
+    padding: 12px 16px 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.bullet-dot {
+    color: #94a3b8;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+.sub-item-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #1e293b;
+}
+
+/* SAPO FORM PANELS */
+.sapo-box {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+}
+.box-title {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 10px;
+}
+.sapo-input-group {
+    margin-bottom: 10px;
+}
+.sapo-input-group:last-child {
+    margin-bottom: 0;
+}
+.sapo-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 4px;
+}
+.sapo-help {
+    display: block;
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 3px;
+}
+.sapo-switch-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f172a;
+    cursor: pointer;
+}
+
+/* Inputs & Textareas */
+.sapo-sidebar input[type="text"],
+.sapo-sidebar input[type="url"],
+.sapo-sidebar input[type="email"],
+.sapo-sidebar input[type="number"],
+.sapo-sidebar select {
+    width: 100% !important;
+    padding: 7px 10px !important;
+    font-size: 13px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 4px !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    box-sizing: border-box !important;
+    outline: none !important;
+}
+.sapo-sidebar textarea {
+    width: 100% !important;
+    padding: 7px 10px !important;
+    font-size: 13px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 4px !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    min-height: 70px;
+    resize: vertical;
+    box-sizing: border-box !important;
+}
+.sapo-sidebar input:focus,
+.sapo-sidebar textarea:focus,
+.sapo-sidebar select:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 2px rgba(37,99,235,0.15) !important;
+}
+
+.partner-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+/* Ẩn dòng preview "Hiện nay: <link>" mà Unfold tự sinh dưới ô nhập URL */
+.partner-card p.text-xs {
+    display: none !important;
+}
+
+/* PREVIEW AREA */
+.sapo-preview-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #e2e8f0;
+    overflow: hidden;
+}
+.preview-stage {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    overflow: hidden;
+    height: 100%;
+}
+.device-wrapper {
+    height: 100%;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #ffffff;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+.preview-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: #ffffff;
+}
+
+/* Custom Scrollbar */
+.sapo-scrollbar::-webkit-scrollbar { width: 5px; }
+.sapo-scrollbar::-webkit-scrollbar-track { background: #f8fafc; }
+.sapo-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+</style>
+
+<script>
+// State tracking
+let currentNavLevel = 1; // 1: Main (Trang chu, Gioi thieu), 2: Home modules, 3: Form detail
+
+function navGoToLevel2(section) {
+    if (section === 'home') {
+        currentNavLevel = 2;
+        document.getElementById('view-level-1').style.display = 'none';
+        document.getElementById('view-level-2-home').style.display = 'block';
+        document.getElementById('view-level-forms').style.display = 'none';
+        
+        document.getElementById('sidebar-current-title').innerText = 'TRANG CHỦ';
+        document.getElementById('btn-back').style.display = 'inline-flex';
+
+        // Set iframe to homepage
+        const iframe = document.getElementById('mainPreviewIframe');
+        if (iframe && !iframe.src.endsWith('/')) {
+            iframe.src = '/';
+        }
+    }
+}
+
+function navGoToAbout() {
+    currentNavLevel = 3;
+    document.getElementById('view-level-1').style.display = 'none';
+    document.getElementById('view-level-2-home').style.display = 'none';
+    document.getElementById('view-level-forms').style.display = 'block';
+    
+    // Hide all form panels, show about panel
+    document.querySelectorAll('.sapo-form-panel').forEach(p => p.style.display = 'none');
+    document.getElementById('mod-about-page').style.display = 'block';
+
+    document.getElementById('sidebar-current-title').innerText = 'GIỚI THIỆU';
+    document.getElementById('btn-back').style.display = 'inline-flex';
+
+    // Switch iframe to About page
+    const iframe = document.getElementById('mainPreviewIframe');
+    if (iframe) {
+        iframe.src = '/gioi-thieu/';
+    }
+}
+
+function navOpenModule(modId, modTitle) {
+    currentNavLevel = 3;
+    document.getElementById('view-level-2-home').style.display = 'none';
+    document.getElementById('view-level-forms').style.display = 'block';
+
+    // Hide all form panels
+    document.querySelectorAll('.sapo-form-panel').forEach(p => p.style.display = 'none');
+
+    // Show target panel
+    const target = document.getElementById(modId);
+    if (target) target.style.display = 'block';
+
+    document.getElementById('sidebar-current-title').innerText = modTitle;
+    document.getElementById('btn-back').style.display = 'inline-flex';
+
+    // Ensure iframe is on homepage
+    const iframe = document.getElementById('mainPreviewIframe');
+    if (iframe && iframe.src.includes('/gioi-thieu/')) {
+        iframe.src = '/';
+    }
+}
+
+function navGoBack() {
+    if (currentNavLevel === 3) {
+        // Check if we came from About or Home module
+        const aboutVisible = document.getElementById('mod-about-page').style.display === 'block';
+        if (aboutVisible) {
+            // Back to Level 1
+            currentNavLevel = 1;
+            document.getElementById('view-level-forms').style.display = 'none';
+            document.getElementById('view-level-1').style.display = 'block';
+            document.getElementById('sidebar-current-title').innerText = 'THIẾT LẬP GIAO DIỆN';
+            document.getElementById('btn-back').style.display = 'none';
+        } else {
+            // Back to Level 2 (Home modules list)
+            currentNavLevel = 2;
+            document.getElementById('view-level-forms').style.display = 'none';
+            document.getElementById('view-level-2-home').style.display = 'block';
+            document.getElementById('sidebar-current-title').innerText = 'TRANG CHỦ';
+            document.getElementById('btn-back').style.display = 'inline-flex';
+        }
+    } else if (currentNavLevel === 2) {
+        // Back to Level 1
+        currentNavLevel = 1;
+        document.getElementById('view-level-2-home').style.display = 'none';
+        document.getElementById('view-level-1').style.display = 'block';
+        document.getElementById('sidebar-current-title').innerText = 'THIẾT LẬP GIAO DIỆN';
+        document.getElementById('btn-back').style.display = 'none';
+    }
+}
+
+function setViewport(width, btn) {
+    document.getElementById('device-wrapper').style.width = width;
+    document.querySelectorAll('.dev-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+}
+
+function openFullscreenWebsite() {
+    const iframe = document.getElementById('mainPreviewIframe');
+    window.open(iframe ? iframe.src : '/', '_blank');
+}
+
+function reloadPreview() {
+    const iframe = document.getElementById('mainPreviewIframe');
+    if (iframe) iframe.src = iframe.src;
+}
+
+function submitThemeForm() {
+    const form = document.getElementById('themesettings_form');
+    form.submit();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const logoInput = document.querySelector('input[name="logo"]');
+    const previewImg = document.getElementById('adminLogoPreview');
+    if (logoInput && previewImg) {
+        logoInput.addEventListener('change', function(e) {
+            const file = e.target.files && e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    previewImg.src = evt.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    const qualityInput = document.querySelector('input[name="quality_image"]');
+    const qualityPreview = document.getElementById('adminQualityPreview');
+    if (qualityInput && qualityPreview) {
+        qualityInput.addEventListener('change', function(e) {
+            const file = e.target.files && e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    qualityPreview.src = evt.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

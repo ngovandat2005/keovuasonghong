@@ -1,0 +1,1460 @@
+/* ==========================================================================
+   SHK MORTAR ADMIN DESIGN SYSTEM
+   Tuân thủ nghiêm ngặt file quy định dự án (cac quy dinh trong du an)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+
+/* ── 1. ĐẶC BIỆT: BẢO VỆ TOÀN BỘ ICON (MATERIAL SYMBOLS & FONT AWESOME) ── */
+.material-symbols-outlined,
+.material-symbols-outlined *,
+[class*="material-symbols"],
+[class*="material-symbols"] *,
+.material-icons,
+[class*="material-icons"] {
+  font-family: 'Material Symbols Outlined' !important;
+  font-weight: normal !important;
+  font-style: normal !important;
+  line-height: 1 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  display: inline-block !important;
+  white-space: nowrap !important;
+  word-wrap: normal !important;
+  direction: ltr !important;
+  font-feature-settings: 'liga' 1 !important;
+  -webkit-font-feature-settings: 'liga' 1 !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+
+.fa,
+.fas,
+.far,
+.fal,
+.fab,
+[class*="fa-"] {
+  font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "FontAwesome" !important;
+}
+
+/* ── 2. FONT & TYPOGRAPHY CỐT LÕI (BẮT BUỘC BAI JAMJUREE CHO TOÀN BỘ CHỮ) ── */
+:root {
+  --font-sans: 'Bai Jamjuree', sans-serif !important;
+  --font-serif: 'Bai Jamjuree', sans-serif !important;
+  --border-radius: 0px !important;
+  --color-orange: #FF7E2E;
+  --color-brown: #8C5A2B;
+  --color-gray: #808080;
+  --color-success: #6F8A3A;
+  --color-error: #7A0000;
+  --color-black: #000000;
+  --color-white: #FFFFFF;
+}
+
+html {
+  overflow-y: scroll !important;
+  scrollbar-gutter: stable !important;
+}
+
+html,
+body {
+  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-size: 17px !important;
+  font-weight: 400 !important;
+  line-height: 27px !important;
+  color: #111827;
+  background-color: #FFFFFF;
+}
+
+html.dark,
+html.dark body {
+  color: #F9FAFB !important;
+  background-color: #0B0F17 !important;
+}
+
+/* Áp dụng Bai Jamjuree cho các phần tử chữ (loại trừ icon) */
+body *:not(.material-symbols-outlined):not([class*="material-symbols"]):not([class*="fa"]):not([class*="fa-"]) {
+  font-family: 'Bai Jamjuree', sans-serif;
+}
+
+p,
+span:not(.material-symbols-outlined):not([class*="material-symbols"]):not([class*="fa"]),
+a:not(.material-symbols-outlined):not([class*="material-symbols"]):not([class*="fa"]),
+td:not(.material-symbols-outlined),
+th:not(.material-symbols-outlined),
+label,
+input,
+select,
+textarea {
+  font-family: 'Bai Jamjuree', sans-serif !important;
+}
+
+/* ── 3. TYPOGRAPHY (H1: 30px theo yêu cầu người dùng) ── */
+h1:not(.material-symbols-outlined),
+.h1,
+[class*="text-2xl"]:not(.material-symbols-outlined):not([class*="material-symbols"]),
+[class*="text-3xl"]:not(.material-symbols-outlined):not([class*="material-symbols"]) {
+  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-size: 30px !important;
+  font-weight: 600 !important;
+  line-height: 42px !important;
+  color: #FF7E2E !important;
+}
+
+/* Header breadcrumbs (Main > Sản phẩm) ẩn theo yêu cầu */
+#header-inner h1,
+#header-inner .block.h-5.w-px,
+#header-inner .block.bg-base-200.h-5 {
+  display: none !important;
+}
+
+/* Xóa phần dưới này (footer hiển thị số lượng ở đáy trang) */
+#main>div.sticky,
+.scrollable-top,
+div[class*="backdrop-blur"]:has(.py-4) {
+  display: none !important;
+}
+
+/* Danh sách sản phẩm: 22px và chữ đen */
+.sp-wrap h1,
+.sp-page-title,
+.sp-wrap [class*="text-2xl font-bold"] {
+  font-size: 22px !important;
+  line-height: 28px !important;
+  font-weight: 700 !important;
+  color: #111827 !important;
+}
+
+html.dark .sp-wrap h1,
+html.dark .sp-page-title,
+html.dark .sp-wrap [class*="text-2xl font-bold"] {
+  color: #F9FAFB !important;
+}
+
+/* Chi tiết sản phẩm: cỡ chữ nhỏ gọn, cân bằng, chữ trong ô text là màu đen */
+.pd-wrap h1,
+.pd-wrap .pd-h1 {
+  font-size: 18px !important;
+  line-height: 24px !important;
+  font-weight: 700 !important;
+  color: #111827 !important;
+}
+
+html.dark .pd-wrap h1,
+html.dark .pd-wrap .pd-h1 {
+  color: #F9FAFB !important;
+}
+
+.pd-wrap h2,
+.pd-wrap h3,
+.pd-wrap .pd-card-title,
+.pd-wrap .pd-media-title {
+  font-size: 14.5px !important;
+  line-height: 20px !important;
+  font-weight: 700 !important;
+  color: #111827 !important;
+}
+
+html.dark .pd-wrap h2,
+html.dark .pd-wrap h3,
+html.dark .pd-wrap .pd-card-title,
+html.dark .pd-wrap .pd-media-title {
+  color: #F9FAFB !important;
+}
+
+.pd-wrap input,
+.pd-wrap select,
+.pd-wrap textarea {
+  color: #111827;
+  font-size: 13.5px !important;
+}
+
+html.dark .pd-wrap input,
+html.dark .pd-wrap select,
+html.dark .pd-wrap textarea {
+  color: #F3F4F6 !important;
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+}
+
+.sp-plain-text,
+.sp-plain-text:hover {
+  color: inherit;
+}
+
+html.dark .sp-plain-text,
+html.dark .sp-plain-text:hover {
+  color: #F3F4F6 !important;
+}
+
+/* H2: 24px / 600 / 31px / #808080 */
+h2,
+.h2,
+[class*="text-xl"] {
+  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-size: 24px !important;
+  font-weight: 600 !important;
+  line-height: 31px !important;
+  color: #808080 !important;
+}
+
+/* H3: 20px / 600 */
+h3,
+.h3,
+[class*="text-lg"] {
+  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-size: 20px !important;
+  font-weight: 600 !important;
+}
+
+/* H4: 18px / 600 */
+h4,
+.h4 {
+  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+}
+
+/* ── 4. BUTTONS (Theo quy định: Brown #8C5A2B - White text - Radius 0px - Text 16px) ── */
+button,
+input[type="submit"],
+input[type="button"],
+.button,
+a[class*="button"],
+a[class*="btn"] {
+  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  border-radius: 0px !important;
+  box-shadow: none !important;
+}
+
+/* Icon nằm trong button vẫn giữ nguyên icon font */
+button .material-symbols-outlined,
+button [class*="material-symbols"],
+.button .material-symbols-outlined,
+a[class*="button"] .material-symbols-outlined,
+a[class*="btn"] .material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+  font-size: 18px !important;
+}
+
+/* Nút Thêm mới dạng Button màu nâu #8C5A2B */
+.sp-btn-add,
+a.sp-btn-add {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background-color: #8C5A2B !important;
+  color: #FFFFFF !important;
+  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  padding: 8px 16px !important;
+  border-radius: 6px !important;
+  text-decoration: none !important;
+  border: 1px solid #8C5A2B !important;
+  cursor: pointer !important;
+  transition: background-color 0.15s ease, border-color 0.15s ease !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  line-height: 1.4 !important;
+  box-sizing: border-box !important;
+}
+
+.sp-btn-add:hover,
+a.sp-btn-add:hover {
+  background-color: #70441E !important;
+  border-color: #70441E !important;
+  color: #FFFFFF !important;
+}
+
+.sp-btn-add span,
+.sp-btn-add .material-symbols-outlined {
+  color: #FFFFFF !important;
+}
+
+/* Nút submit/thao tác chính */
+input[type="submit"][name="_save"],
+button[type="submit"]:not([class*="delete"]):not([class*="secondary"]):not(.sp-search-icon-btn):not(#command-submit):not(.header-search-bar):not([class*="search"]):not(.sidebar-toggle-btn):not(.sidebar-toggle-btn-collapsed) {
+  background-color: #8C5A2B !important;
+  border-color: #8C5A2B !important;
+  color: #FFFFFF !important;
+  border-radius: 0px !important;
+}
+
+input[type="submit"][name="_save"]:hover,
+button[type="submit"]:not([class*="delete"]):not([class*="secondary"]):not(.sp-search-icon-btn):not(#command-submit):not(.header-search-bar):not([class*="search"]):not(.sidebar-toggle-btn):not(.sidebar-toggle-btn-collapsed):hover {
+  background-color: #FF7E2E !important;
+  border-color: #FF7E2E !important;
+}
+
+/* ── SEARCH ICON & SEARCH FORM BUTTON RESET ── */
+.sp-search-icon-btn,
+button.sp-search-icon-btn,
+#sp-search-form button:first-of-type,
+form[id*="search"] button:first-of-type,
+.header-search-bar,
+#command-submit {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #9CA3AF !important;
+  padding: 4px !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  cursor: pointer !important;
+}
+
+.sp-search-icon-btn:hover,
+button.sp-search-icon-btn:hover,
+#sp-search-form button:first-of-type:hover,
+form[id*="search"] button:first-of-type:hover,
+.header-search-bar:hover {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #8C5A2B !important;
+  border: none !important;
+}
+
+.sp-search-icon-btn span,
+#sp-search-form button:first-of-type span,
+form[id*="search"] button:first-of-type span {
+  color: inherit !important;
+}
+
+/* ── 5. KHÔNG BO GÓC (border-radius: 0px) theo quy định ── */
+button,
+input,
+select,
+textarea,
+.rounded,
+.rounded-sm,
+.rounded-md,
+.rounded-lg,
+.rounded-xl,
+.rounded-2xl,
+.rounded-full,
+[class*="rounded-"],
+div,
+section,
+aside,
+nav,
+table,
+tr,
+td,
+th,
+img {
+  border-radius: 0px !important;
+}
+
+/* ── 6. FORM INPUTS & LABELS ── */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+input[type="url"],
+input[type="date"],
+select,
+textarea {
+  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-size: 16px !important;
+  border-radius: 0px !important;
+  border-color: #808080;
+  color: #111827;
+}
+
+html.dark input[type="text"],
+html.dark input[type="password"],
+html.dark input[type="email"],
+html.dark input[type="number"],
+html.dark input[type="url"],
+html.dark input[type="date"],
+html.dark select,
+html.dark textarea {
+  color: #F3F4F6 !important;
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #FF7E2E !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(255, 126, 46, 0.2) !important;
+}
+
+/* ── 7. SIDEBAR & NAVIGATION ── */
+aside,
+nav,
+.sidebar {
+  font-family: 'Bai Jamjuree', sans-serif !important;
+}
+
+aside a,
+nav a {
+  font-size: 15px !important;
+  font-weight: 500 !important;
+}
+
+#nav-sidebar-apps a .material-symbols-outlined,
+#nav-sidebar-apps .nav-item-icon {
+  font-size: 15px !important;
+  width: 15px !important;
+  min-width: 15px !important;
+  height: 15px !important;
+  margin-right: 9px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  vertical-align: middle !important;
+}
+
+aside a:hover,
+nav a:hover {
+  color: #FF7E2E !important;
+}
+
+/* Section titles in sidebar */
+aside [class*="font-semibold"],
+aside [class*="font-bold"] {
+  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-weight: 600 !important;
+}
+
+/* ── 8. HOVER COLOR: Text chuyển sang #FF7E2E ── */
+a:hover {
+  color: #FF7E2E !important;
+}
+
+/* ── 9. SUCCESS & ERROR COLORS ── */
+.text-success,
+[class*="text-green"],
+[class*="success"] {
+  color: #6F8A3A !important;
+}
+
+.text-danger,
+.text-error,
+[class*="text-red"],
+[class*="danger"],
+[class*="error"] {
+  color: #7A0000 !important;
+}
+
+/* ── 10. ẨN PHẦN HOẠT ĐỘNG GẦN ĐÂY VÀ XÁC THỰC & ỦY QUYỀN TRÊN ADMIN DASHBOARD ── */
+#content-related,
+#recent-actions-module,
+.app-auth {
+  display: none !important;
+}
+
+/* ── 11. ẨN NÚT 3 CHẤM (MORE_VERT / RELATED WIDGET) TRÊN CÁC FORM QUẢN TRỊ ── */
+.pd-wrap .related-widget-wrapper [x-data],
+.pd-wrap .related-widget-wrapper [x-ref],
+.pd-wrap .related-widget-wrapper .related-widget-wrapper-link,
+.pd-wrap div:has(> [x-ref*="relatedWidgetWrapper"]) {
+  display: none !important;
+}
+
+/* ── 12. SHK MORTAR SIDEBAR BRANDING (CĂN GIỮA, CHỮ TO ĐẬM CAPSLOCK MÀU ĐEN) ── */
+.shk-admin-brand-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  width: 100% !important;
+  text-decoration: none !important;
+  padding: 4px 0 !important;
+}
+
+.shk-admin-brand-main {
+  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-size: 24px !important;
+  font-weight: 900 !important;
+  color: #000000 !important;
+  letter-spacing: 0.08em !important;
+  line-height: 1 !important;
+  text-transform: uppercase !important;
+  display: block !important;
+  text-align: center !important;
+  margin-bottom: 2px !important;
+  transition: opacity 0.15s ease;
+}
+
+.shk-admin-brand-sub {
+  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 900 !important;
+  color: #1F2937 !important;
+  /* letter-spacing được JS tính lại để chiều rộng bằng đúng dòng SHK phía trên */
+  letter-spacing: normal !important;
+  margin-right: 0 !important;
+  line-height: 1.15 !important;
+  text-transform: uppercase !important;
+  display: inline-block !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+}
+
+/* Bỏ divider / đường gạch ngang dưới logo sidebar */
+#nav-sidebar .navigation_header,
+#nav-sidebar [class*="navigation_header"],
+.navigation_header,
+#nav-sidebar>div>div:has(.shk-admin-brand-wrap),
+#nav-sidebar .border-b {
+  border-bottom: none !important;
+  border-bottom-width: 0px !important;
+}
+
+/* ── SIDEBAR TOGGLE ICONS (< VÀ >) ── */
+.sidebar-toggle-btn,
+.sidebar-toggle-btn-collapsed {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  padding: 4px !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #64748B !important;
+  cursor: pointer !important;
+  transition: color 0.15s ease, transform 0.15s ease !important;
+  flex-shrink: 0 !important;
+  margin-left: 2px !important;
+}
+
+.sidebar-toggle-btn:hover,
+.sidebar-toggle-btn-collapsed:hover {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #8C5A2B !important;
+  transform: scale(1.15) !important;
+}
+
+.sidebar-toggle-btn .material-symbols-outlined {
+  font-size: 22px !important;
+  color: inherit !important;
+}
+
+.sidebar-toggle-btn-collapsed .material-symbols-outlined {
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  color: inherit !important;
+}
+
+/* ── KHI SIDEBAR THU GỌN (.sidebar-collapsed) ── */
+.sidebar-collapsed #nav-sidebar-apps h2,
+.sidebar-collapsed #nav-sidebar-apps hr,
+.sidebar-collapsed .sidebar-group-heading,
+.sidebar-collapsed #nav-sidebar-inner form,
+.sidebar-collapsed #nav-sidebar-inner [x-data*="search"] {
+  display: none !important;
+}
+
+.sidebar-collapsed #nav-sidebar-apps ol {
+  padding-left: 4px !important;
+  padding-right: 4px !important;
+}
+
+.sidebar-collapsed #nav-sidebar-apps li a {
+  justify-content: center !important;
+  padding: 8px 0 !important;
+  margin: 4px 0 !important;
+  width: 100% !important;
+  border-radius: 6px !important;
+}
+
+.sidebar-collapsed #nav-sidebar-apps li a>span:not(.nav-item-icon):not(.material-symbols-outlined) {
+  display: none !important;
+}
+
+.sidebar-collapsed #nav-sidebar-apps li a .nav-item-icon,
+.sidebar-collapsed #nav-sidebar-apps li a .material-symbols-outlined {
+  margin-right: 0 !important;
+  font-size: 20px !important;
+  width: 22px !important;
+  height: 22px !important;
+}
+
+.sidebar-collapsed #nav-sidebar-apps li ol {
+  display: none !important;
+}
+
+html.dark .shk-admin-brand-main {
+  color: #FFFFFF !important;
+}
+
+html.dark .shk-admin-brand-sub {
+  color: #E5E7EB !important;
+}
+
+.group:hover .shk-admin-brand-main {
+  opacity: 0.75;
+}
+
+/* ── 13. SIDEBAR GROUP HEADINGS (QUẢN LÝ HỆ THỐNG, KÊNH BÁN HÀNG MÀU NÂU) ── */
+#nav-sidebar-apps h2,
+.sidebar-group-heading {
+  font-family: 'Bai Jamjuree', sans-serif !important;
+  color: #8C5A2B !important;
+  font-weight: 800 !important;
+  font-size: 15px !important;
+  letter-spacing: 0.02em !important;
+  text-transform: none !important;
+  margin-top: 6px !important;
+  margin-bottom: 6px !important;
+}
+
+html.dark #nav-sidebar-apps h2,
+html.dark .sidebar-group-heading {
+  color: #D97706 !important;
+}
+
+/* ── 14. MODERN HEADER BAR (TÌM KIẾM, HỎI TRỢ LÝ AI, THÔNG BÁO, CÔNG TY DROPDOWN) ── */
+.header-search-bar {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 6px 14px !important;
+  background-color: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 6px !important;
+  color: #94A3B8 !important;
+  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  min-width: 240px !important;
+  transition: all 0.2s ease !important;
+  line-height: 1.2 !important;
+  outline: none !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+}
+
+.header-search-bar:hover {
+  background-color: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+  color: #64748B !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05) !important;
+}
+
+.header-search-bar .header-search-icon {
+  font-size: 18px !important;
+  color: #94A3B8 !important;
+  transition: color 0.2s ease !important;
+}
+
+.header-search-bar:hover .header-search-icon {
+  color: #64748B !important;
+}
+
+.header-search-placeholder {
+  font-size: 13px !important;
+  color: #94A3B8 !important;
+}
+
+/* Nút Hỏi trợ lý AI ✨ */
+.header-ai-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 5px 13px !important;
+  border-radius: 9999px !important;
+  position: relative !important;
+  border: 1.5px solid transparent !important;
+  background: linear-gradient(#FFFFFF, #FFFFFF) padding-box, linear-gradient(135deg, #EC4899, #8B5CF6, #06B6D4) border-box !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+  box-shadow: 0 1px 4px rgba(139, 92, 246, 0.12) !important;
+  transition: all 0.2s ease !important;
+}
+
+.header-ai-btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.22) !important;
+}
+
+.header-ai-icon-wrap {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.header-ai-icon {
+  width: 17px !important;
+  height: 17px !important;
+}
+
+.header-ai-text {
+  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #7C3AED !important;
+  line-height: 1 !important;
+}
+
+.header-ai-sparkle {
+  font-size: 13px !important;
+  line-height: 1 !important;
+}
+
+/* Nút icon tròn (? và 🔔) */
+.header-circle-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50% !important;
+  background-color: transparent !important;
+  border: none !important;
+  color: #64748B !important;
+  text-decoration: none !important;
+  transition: all 0.15s ease !important;
+  cursor: pointer !important;
+  position: relative !important;
+}
+
+.header-circle-btn:hover {
+  background-color: #F1F5F9 !important;
+  color: #1E293B !important;
+}
+
+.header-circle-btn .material-symbols-outlined {
+  font-size: 21px !important;
+  color: #64748B !important;
+}
+
+.header-circle-btn:hover .material-symbols-outlined {
+  color: #1E293B !important;
+}
+
+/* Badge số 9 đỏ trên chuông */
+.header-notify-badge {
+  position: absolute !important;
+  top: 1px !important;
+  right: 1px !important;
+  min-width: 16px !important;
+  height: 16px !important;
+  background-color: #EF4444 !important;
+  color: #FFFFFF !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  font-family: 'Bai Jamjuree', sans-serif !important;
+  border-radius: 9999px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1.5px solid #FFFFFF !important;
+  padding: 0 3px !important;
+  line-height: 1 !important;
+}
+
+/* Profile Company button */
+.header-company-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 3px 8px !important;
+  background-color: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  outline: none !important;
+}
+
+.header-company-btn:hover,
+.header-company-btn.active {
+  background-color: #F8FAFC !important;
+  border-color: #E2E8F0 !important;
+}
+
+.header-company-logo {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.header-company-badge {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 46px !important;
+  height: 24px !important;
+  background: #FFF7ED !important;
+  border: 1.2px solid #EA580C !important;
+  border-radius: 4px !important;
+  padding: 1px 2px !important;
+  box-shadow: 0 1px 2px rgba(234, 88, 12, 0.1) !important;
+}
+
+.header-company-badge .badge-top {
+  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-size: 8.5px !important;
+  font-weight: 900 !important;
+  color: #EA580C !important;
+  letter-spacing: 0.05em !important;
+  line-height: 1 !important;
+}
+
+.header-company-badge .badge-bottom {
+  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-size: 6px !important;
+  font-weight: 800 !important;
+  color: #9A3412 !important;
+  letter-spacing: 0.02em !important;
+  line-height: 1 !important;
+}
+
+.header-company-name {
+  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  color: #1E293B !important;
+}
+
+.header-company-arrow {
+  font-size: 18px !important;
+  color: #64748B !important;
+  transition: transform 0.2s ease !important;
+}
+
+/* Dropdown thông báo */
+.header-notify-dropdown {
+  position: absolute !important;
+  right: 0 !important;
+  top: calc(100% + 8px) !important;
+  width: 280px !important;
+  background-color: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+  z-index: 9999 !important;
+  overflow: hidden !important;
+  animation: fadeInDown 0.15s ease-out !important;
+}
+
+.header-notify-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 10px 14px !important;
+  background: #F8FAFC !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+}
+
+.header-dropdown-menu {
+  position: absolute !important;
+  right: 0 !important;
+  top: calc(100% + 6px) !important;
+  width: 250px !important;
+  background-color: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+  z-index: 9999 !important;
+  padding: 6px !important;
+  animation: fadeInDown 0.15s ease-out !important;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header-dropdown-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 6px 8px 8px 8px !important;
+}
+
+.header-dropdown-avatar {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 9999px !important;
+  background-color: #8C5A2B !important;
+  color: #FFFFFF !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+.header-dropdown-avatar .material-symbols-outlined {
+  font-size: 18px !important;
+  color: #FFFFFF !important;
+}
+
+.header-dropdown-name {
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  color: #111827 !important;
+  font-family: 'Bai Jamjuree', sans-serif !important;
+  line-height: 1.2 !important;
+}
+
+.header-dropdown-role {
+  font-size: 11px !important;
+  color: #6B7280 !important;
+  font-family: 'Bai Jamjuree', sans-serif !important;
+}
+
+.header-dropdown-divider {
+  height: 1px !important;
+  background-color: #F3F4F6 !important;
+  margin: 4px 0 !important;
+}
+
+.header-dropdown-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  padding: 7px 10px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #374151 !important;
+  border-radius: 6px !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  cursor: pointer !important;
+  text-align: left !important;
+  transition: all 0.15s ease !important;
+  font-family: 'Bai Jamjuree', sans-serif !important;
+  box-sizing: border-box !important;
+}
+
+.header-dropdown-item:hover {
+  background-color: #F9FAFB !important;
+  color: #8C5A2B !important;
+}
+
+.header-dropdown-item .material-symbols-outlined {
+  font-size: 17px !important;
+  color: inherit !important;
+}
+
+.header-dropdown-logout:hover {
+  background-color: #FEF2F2 !important;
+  color: #DC2626 !important;
+}
+
+/* Dark mode support */
+html.dark .header-search-pill {
+  background-color: #1F2937 !important;
+  border-color: #374151 !important;
+  color: #D1D5DB !important;
+}
+
+html.dark .header-search-pill:hover {
+  background-color: #111827 !important;
+  border-color: #D97706 !important;
+  color: #D97706 !important;
+}
+
+html.dark .header-search-kbd {
+  background: #374151 !important;
+  border-color: #4B5563 !important;
+  color: #9CA3AF !important;
+}
+
+html.dark .header-icon-btn {
+  background-color: #1F2937 !important;
+  border-color: #374151 !important;
+  color: #D1D5DB !important;
+}
+
+html.dark .header-icon-btn:hover {
+  background-color: #D97706 !important;
+  border-color: #D97706 !important;
+  color: #FFFFFF !important;
+}
+
+html.dark .header-admin-pill {
+  background-color: #1F2937 !important;
+  border-color: #374151 !important;
+  color: #F9FAFB !important;
+}
+
+html.dark .header-admin-name {
+  color: #F9FAFB !important;
+}
+
+html.dark .header-dropdown-menu {
+  background-color: #1F2937 !important;
+  border-color: #374151 !important;
+}
+
+html.dark .header-dropdown-name {
+  color: #F9FAFB !important;
+}
+
+html.dark .header-dropdown-divider {
+  background-color: #374151 !important;
+}
+
+html.dark .header-dropdown-item {
+  color: #D1D5DB !important;
+}
+
+html.dark .header-dropdown-item:hover {
+  background-color: #374151 !important;
+  color: #D97706 !important;
+}
+
+/* ── 15. GIAO DIỆN TRANG ĐỔI MẬT KHẨU (PASSWORD CHANGE STYLES) ── */
+.rounded-xl,
+div.rounded-xl {
+  border-radius: 12px !important;
+}
+
+.rounded-lg,
+div.rounded-lg,
+input.rounded-lg,
+button.rounded-lg,
+a.rounded-lg {
+  border-radius: 8px !important;
+}
+
+.rounded-full,
+div.rounded-full,
+button.rounded-full,
+span.rounded-full {
+  border-radius: 9999px !important;
+}
+
+#id_old_password,
+#id_new_password1,
+#id_new_password2 {
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  transition: all 0.2s ease !important;
+}
+
+#id_old_password:focus,
+#id_new_password1:focus,
+#id_new_password2:focus {
+  border-color: #8C5A2B !important;
+  box-shadow: 0 0 0 3px rgba(140, 90, 43, 0.15) !important;
+  background-color: #FFFFFF !important;
+}
+
+html.dark #id_old_password:focus,
+html.dark #id_new_password1:focus,
+html.dark #id_new_password2:focus {
+  border-color: #D97706 !important;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.2) !important;
+  background-color: #111827 !important;
+}
+
+/* ── 16. THÔNG TIN TÀI KHOẢN (EXACT 100% SCREENSHOT REPLICA) ── */
+.account-profile-page {
+  padding: 10px 10px 40px 10px !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+
+.account-page-title {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: #181C32 !important;
+  margin-bottom: 20px !important;
+  letter-spacing: -0.01em !important;
+}
+
+.account-form-card {
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 6px !important;
+  padding: 24px 28px !important;
+  background: #FFFFFF !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+}
+
+.account-form-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 16px 20px !important;
+}
+
+@media (max-width: 640px) {
+  .account-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.account-form-group {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.account-form-label {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #7E8299 !important;
+  margin-bottom: 6px !important;
+  display: block !important;
+  line-height: 1.2 !important;
+}
+
+.required-star {
+  color: #F1416C !important;
+  margin-left: 1px !important;
+}
+
+.account-input {
+  width: 100% !important;
+  height: 38px !important;
+  padding: 6px 12px !important;
+  border: 1px solid #D1D5DB !important;
+  border-radius: 4px !important;
+  font-size: 13.5px !important;
+  font-weight: 400 !important;
+  /* Không in đậm */
+  color: #181C32 !important;
+  background-color: #FFFFFF !important;
+  box-sizing: border-box !important;
+  outline: none !important;
+  transition: border-color 0.15s ease !important;
+}
+
+.account-input:focus {
+  border-color: #8C5A2B !important;
+}
+
+.account-input-disabled {
+  background-color: #E4E6EF !important;
+  color: #181C32 !important;
+  font-weight: 400 !important;
+  /* Không in đậm */
+  cursor: default !important;
+}
+
+.account-input-with-icon {
+  position: relative !important;
+  width: 100% !important;
+}
+
+.account-input-with-icon input {
+  padding-right: 36px !important;
+}
+
+.account-calendar-icon {
+  position: absolute !important;
+  right: 10px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  pointer-events: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.account-select-wrapper {
+  position: relative !important;
+  width: 100% !important;
+}
+
+.account-select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  padding-right: 28px !important;
+  cursor: pointer !important;
+}
+
+.account-arrow-icon {
+  position: absolute !important;
+  right: 12px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  font-size: 14px !important;
+  color: #7E8299 !important;
+  pointer-events: none !important;
+}
+
+.account-input-with-tools {
+  position: relative !important;
+  width: 100% !important;
+}
+
+.account-input-with-tools input {
+  padding-right: 42px !important;
+}
+
+.account-tools-right {
+  position: absolute !important;
+  right: 8px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+.account-tool-clear {
+  background: none !important;
+  border: none !important;
+  font-size: 10px !important;
+  color: #A1A5B7 !important;
+  cursor: pointer !important;
+  padding: 2px !important;
+  line-height: 1 !important;
+}
+
+.account-tool-clear:hover {
+  color: #181C32 !important;
+}
+
+.account-arrow-icon-subtle {
+  font-size: 13px !important;
+  color: #7E8299 !important;
+  pointer-events: none !important;
+  line-height: 1 !important;
+}
+
+.account-form-actions {
+  margin-top: 18px !important;
+  padding-top: 14px !important;
+  border-top: 1px solid #F3F4F6 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+}
+
+.account-save-btn {
+  background-color: #8C5A2B !important;
+  color: #FFFFFF !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  padding: 7px 16px !important;
+  border-radius: 4px !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.account-save-btn:hover {
+  background-color: #734720 !important;
+}
+
+/* Standardized Table Header across Admin */
+.sp-th {
+  color: #374151 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.1px;
+}
+
+html.dark .sp-th {
+  color: #e2e8f0 !important;
+}
+
+/* ==========================================================================
+   COMPREHENSIVE DARK MODE SUPPORT (TOÀN BỘ GIAO DIỆN ADMIN)
+   ========================================================================== */
+
+/* 1. Nền và chữ tổng quan */
+html.dark body,
+html.dark #main,
+html.dark #content,
+html.dark #content-main {
+  background-color: #0F172A !important;
+  color: #F8FAFC !important;
+}
+
+/* 2. Tiêu đề và liên kết */
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark h4,
+html.dark h5,
+html.dark h6 {
+  color: #F8FAFC !important;
+}
+
+html.dark a {
+  color: #E2E8F0;
+}
+
+html.dark a:hover {
+  color: #FF7E2E !important;
+}
+
+/* 3. Bảng dữ liệu (Tables) */
+html.dark table {
+  background-color: #0F172A !important;
+  border-color: #1E293B !important;
+}
+
+html.dark table th {
+  background-color: #1E293B !important;
+  color: #E2E8F0 !important;
+  border-color: #334155 !important;
+}
+
+html.dark table td {
+  color: #F1F5F9 !important;
+  border-color: #1E293B !important;
+}
+
+html.dark tr.border-b,
+html.dark .border-base-100,
+html.dark .border-base-200 {
+  border-color: #1E293B !important;
+}
+
+/* 4. Thẻ và khối nội dung (Cards & Containers) */
+html.dark .bg-white,
+html.dark .pd-media-section,
+html.dark .pd-card,
+html.dark .card,
+html.dark .module,
+html.dark fieldset {
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+html.dark .pd-media-title,
+html.dark .pd-card-title,
+html.dark .pd-h1,
+html.dark .sp-page-title {
+  color: #FFFFFF !important;
+}
+
+html.dark .pd-breadcrumb,
+html.dark .pd-breadcrumb a,
+html.dark .pd-sep {
+  color: #94A3B8 !important;
+}
+
+html.dark .pd-breadcrumb a:hover {
+  color: #FF7E2E !important;
+}
+
+/* 5. Nút bấm (Buttons) & Ghost buttons */
+html.dark .pd-btn-ghost {
+  background-color: #1E293B !important;
+  color: #FF7E2E !important;
+  border-color: #FF7E2E !important;
+}
+
+html.dark .pd-btn-ghost:hover {
+  background-color: #334155 !important;
+  color: #FFA566 !important;
+  border-color: #FFA566 !important;
+}
+
+/* 6. Form elements, Ô tìm kiếm & Select */
+html.dark input[type="text"],
+html.dark input[type="password"],
+html.dark input[type="email"],
+html.dark input[type="number"],
+html.dark input[type="url"],
+html.dark input[type="date"],
+html.dark input[type="search"],
+html.dark select,
+html.dark textarea {
+  background-color: #0F172A !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748B !important;
+}
+
+/* 7. Tabs & Filter Pills */
+html.dark .sp-tabs-toolbar {
+  background-color: #0F172A !important;
+  border-color: #1E293B !important;
+}
+
+html.dark .sp-tab-pill {
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+  color: #94A3B8 !important;
+}
+
+html.dark .sp-tab-pill:hover {
+  background-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+html.dark .sp-tab-pill.active {
+  background-color: #8C5A2B !important;
+  border-color: #8C5A2B !important;
+  color: #FFFFFF !important;
+}
+
+/* 8. Text helpers & Links trong danh sách */
+html.dark .sp-plain-text,
+html.dark .sp-plain-text:hover,
+html.dark .text-base-900,
+html.dark .text-gray-900 {
+  color: #F8FAFC !important;
+}
+
+html.dark .text-subtle,
+html.dark .text-base-500,
+html.dark .text-gray-500 {
+  color: #94A3B8 !important;
+}
+
+/* 9. Header Topbar & Search bar */
+html.dark .header-search-bar {
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+  color: #CBD5E1 !important;
+}
+
+html.dark .header-search-bar:hover {
+  background-color: #1E293B !important;
+  border-color: #64748B !important;
+  color: #F8FAFC !important;
+}
+
+html.dark .header-search-placeholder {
+  color: #64748B !important;
+}
+
+html.dark .header-company-name {
+  color: #F8FAFC !important;
+}
+
+html.dark .header-circle-btn {
+  color: #94A3B8 !important;
+}
+
+html.dark .header-circle-btn:hover {
+  background-color: #1E293B !important;
+  color: #F8FAFC !important;
+}
+
+/* 10. Switch Toggle */
+html.dark .sp-toggle-track {
+  background-color: #475569 !important;
+}
+
+html.dark .sp-toggle-track.sp-toggle-on {
+  background-color: #EA580C !important;
+}

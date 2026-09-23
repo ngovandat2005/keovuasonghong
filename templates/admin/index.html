@@ -1,0 +1,288 @@
+{% extends "admin/base.html" %}
+{% load i18n static admin_dashboard_tags %}
+
+{% block title %}{% trans "Quản lý hệ thống" %} | SHK Mortar Admin{% endblock %}
+
+{% block content %}
+{% get_dashboard_stats as stats %}
+
+<div class="px-4 py-6 md:px-8 max-w-7xl mx-auto font-sans">
+    
+    <!-- Welcome Section -->
+    <div class="mb-8 flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Tổng quan hệ thống</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Trang quản trị website Keo Vữa Sông Hồng</p>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        <!-- Stat: Products -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 flex items-center hover:shadow-md transition-shadow">
+            <div class="p-3 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 mr-4">
+                <span class="material-symbols-outlined text-3xl">inventory_2</span>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Sản phẩm</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total_products }}</p>
+            </div>
+        </div>
+        
+        <!-- Stat: Projects -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 flex items-center hover:shadow-md transition-shadow">
+            <div class="p-3 rounded-lg bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400 mr-4">
+                <span class="material-symbols-outlined text-3xl">apartment</span>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Dự án</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total_projects }}</p>
+            </div>
+        </div>
+
+        <!-- Stat: New Consultations -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 flex items-center hover:shadow-md transition-shadow relative overflow-hidden">
+            {% if stats.new_consultations > 0 %}
+            <div class="absolute top-0 right-0 w-2 h-full bg-red-500"></div>
+            {% endif %}
+            <div class="p-3 rounded-lg bg-orange-50 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400 mr-4">
+                <span class="material-symbols-outlined text-3xl">support_agent</span>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Yêu cầu tư vấn mới</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.new_consultations }}</p>
+            </div>
+        </div>
+
+        <!-- Stat: New Dealers -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 flex items-center hover:shadow-md transition-shadow relative overflow-hidden">
+            {% if stats.new_dealers > 0 %}
+            <div class="absolute top-0 right-0 w-2 h-full bg-red-500"></div>
+            {% endif %}
+            <div class="p-3 rounded-lg bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400 mr-4">
+                <span class="material-symbols-outlined text-3xl">how_to_reg</span>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Đăng ký ĐL mới</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.new_dealers }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <!-- Nhóm 1: Quản lý hệ thống -->
+        <div>
+            <div class="flex items-center mb-4">
+                <span class="material-symbols-outlined text-[#8C5A2B] dark:text-[#D97706] mr-2">settings_suggest</span>
+                <h2 class="text-lg font-bold text-[#8C5A2B] dark:text-[#D97706]">Quản lý hệ thống</h2>
+            </div>
+            
+            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
+                <!-- Row 1 -->
+                <div class="group flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <a href="{% url 'admin:main_product_changelist' %}" class="flex items-center flex-1">
+                        <div class="w-10 h-10 rounded-lg bg-[#8C5A2B]/10 flex items-center justify-center text-[#8C5A2B] dark:bg-[#D97706]/20 dark:text-[#D97706] mr-4 group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined">inventory_2</span>
+                        </div>
+                        <div>
+                            <span class="text-base font-semibold text-gray-900 dark:text-white group-hover:text-[#8C5A2B] dark:group-hover:text-[#38BDF8] transition-colors">Sản phẩm</span>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Quản lý danh sách & danh mục</p>
+                        </div>
+                    </a>
+                    <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <a href="{% url 'admin:main_product_changelist' %}" class="w-8 h-8 flex items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-[#8C5A2B] hover:text-white dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-[#38BDF8] dark:hover:text-white transition-colors" title="Xem danh sách">
+                            <span class="material-symbols-outlined text-sm">edit</span>
+                        </a>
+                        <a href="{% url 'admin:main_product_add' %}" class="w-8 h-8 flex items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-[#8C5A2B] hover:text-white dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-[#38BDF8] dark:hover:text-white transition-colors" title="Thêm mới">
+                            <span class="material-symbols-outlined text-sm">add</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Row 2 -->
+                <div class="group flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <a href="{% url 'admin:main_project_changelist' %}" class="flex items-center flex-1">
+                        <div class="w-10 h-10 rounded-lg bg-[#8C5A2B]/10 flex items-center justify-center text-[#8C5A2B] dark:bg-[#D97706]/20 dark:text-[#D97706] mr-4 group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined">apartment</span>
+                        </div>
+                        <div>
+                            <span class="text-base font-semibold text-gray-900 dark:text-white group-hover:text-[#8C5A2B] dark:group-hover:text-[#38BDF8] transition-colors">Dự án</span>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Công trình & Đối tác</p>
+                        </div>
+                    </a>
+                    <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <a href="{% url 'admin:main_project_changelist' %}" class="w-8 h-8 flex items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-[#8C5A2B] hover:text-white dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-[#38BDF8] dark:hover:text-white transition-colors" title="Xem danh sách">
+                            <span class="material-symbols-outlined text-sm">edit</span>
+                        </a>
+                        <a href="{% url 'admin:main_project_add' %}" class="w-8 h-8 flex items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-[#8C5A2B] hover:text-white dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-[#38BDF8] dark:hover:text-white transition-colors" title="Thêm mới">
+                            <span class="material-symbols-outlined text-sm">add</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Row 3 -->
+                <div class="group flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <a href="{% url 'admin:main_news_changelist' %}" class="flex items-center flex-1">
+                        <div class="w-10 h-10 rounded-lg bg-[#8C5A2B]/10 flex items-center justify-center text-[#8C5A2B] dark:bg-[#D97706]/20 dark:text-[#D97706] mr-4 group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined">newspaper</span>
+                        </div>
+                        <div>
+                            <span class="text-base font-semibold text-gray-900 dark:text-white group-hover:text-[#8C5A2B] dark:group-hover:text-[#38BDF8] transition-colors">Tin tức</span>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Bài viết & Thông báo</p>
+                        </div>
+                    </a>
+                    <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <a href="{% url 'admin:main_news_changelist' %}" class="w-8 h-8 flex items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-[#8C5A2B] hover:text-white dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-[#38BDF8] dark:hover:text-white transition-colors" title="Xem danh sách">
+                            <span class="material-symbols-outlined text-sm">edit</span>
+                        </a>
+                        <a href="{% url 'admin:main_news_add' %}" class="w-8 h-8 flex items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-[#8C5A2B] hover:text-white dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-[#38BDF8] dark:hover:text-white transition-colors" title="Thêm mới">
+                            <span class="material-symbols-outlined text-sm">add</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Row 4 -->
+                <div class="group flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <a href="{% url 'admin:main_distributor_changelist' %}" class="flex items-center flex-1">
+                        <div class="w-10 h-10 rounded-lg bg-[#8C5A2B]/10 flex items-center justify-center text-[#8C5A2B] dark:bg-[#D97706]/20 dark:text-[#D97706] mr-4 group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined">storefront</span>
+                        </div>
+                        <div>
+                            <span class="text-base font-semibold text-gray-900 dark:text-white group-hover:text-[#8C5A2B] dark:group-hover:text-[#38BDF8] transition-colors">Đại lý phân phối</span>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Hệ thống phân phối toàn quốc</p>
+                        </div>
+                    </a>
+                    <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <a href="{% url 'admin:main_distributor_changelist' %}" class="w-8 h-8 flex items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-[#8C5A2B] hover:text-white dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-[#38BDF8] dark:hover:text-white transition-colors" title="Xem danh sách">
+                            <span class="material-symbols-outlined text-sm">edit</span>
+                        </a>
+                        <a href="{% url 'admin:main_distributor_add' %}" class="w-8 h-8 flex items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-[#8C5A2B] hover:text-white dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-[#38BDF8] dark:hover:text-white transition-colors" title="Thêm mới">
+                            <span class="material-symbols-outlined text-sm">add</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Row 5 -->
+                <div class="group flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <a href="{% url 'admin:main_catalogue_changelist' %}" class="flex items-center flex-1">
+                        <div class="w-10 h-10 rounded-lg bg-[#8C5A2B]/10 flex items-center justify-center text-[#8C5A2B] dark:bg-[#D97706]/20 dark:text-[#D97706] mr-4 group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined">menu_book</span>
+                        </div>
+                        <div>
+                            <span class="text-base font-semibold text-gray-900 dark:text-white group-hover:text-[#8C5A2B] dark:group-hover:text-[#38BDF8] transition-colors">E-catalog</span>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Tài liệu trực tuyến (PDF)</p>
+                        </div>
+                    </a>
+                    <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <a href="{% url 'admin:main_catalogue_changelist' %}" class="w-8 h-8 flex items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-[#8C5A2B] hover:text-white dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-[#38BDF8] dark:hover:text-white transition-colors" title="Xem danh sách">
+                            <span class="material-symbols-outlined text-sm">edit</span>
+                        </a>
+                        <a href="{% url 'admin:main_catalogue_add' %}" class="w-8 h-8 flex items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-[#8C5A2B] hover:text-white dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-[#38BDF8] dark:hover:text-white transition-colors" title="Thêm mới">
+                            <span class="material-symbols-outlined text-sm">add</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nhóm 2: Khách hàng & Kênh bán hàng -->
+        <div class="space-y-8">
+            <!-- Tương tác khách hàng -->
+            <div>
+                <div class="flex items-center mb-4">
+                    <span class="material-symbols-outlined text-[#8C5A2B] dark:text-[#D97706] mr-2">contact_mail</span>
+                    <h2 class="text-lg font-bold text-[#8C5A2B] dark:text-[#D97706]">Tương tác khách hàng</h2>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
+                    <!-- Row: Đăng ký đại lý -->
+                    <div class="group flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <a href="{% url 'admin:main_dealerregistration_changelist' %}" class="flex items-center flex-1">
+                            <div class="relative w-10 h-10 rounded-lg bg-[#8C5A2B]/10 flex items-center justify-center text-[#8C5A2B] dark:bg-[#D97706]/20 dark:text-[#D97706] mr-4 group-hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined">how_to_reg</span>
+                                {% if stats.new_dealers > 0 %}
+                                <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 border-2 border-white dark:border-gray-800 rounded-full"></span>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <span class="text-base font-semibold text-gray-900 dark:text-white group-hover:text-[#8C5A2B] dark:group-hover:text-[#38BDF8] transition-colors">Đăng ký đại lý</span>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Phiếu đăng ký phân phối mới</p>
+                            </div>
+                        </a>
+                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <a href="{% url 'admin:main_dealerregistration_changelist' %}" class="w-8 h-8 flex items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-[#8C5A2B] hover:text-white dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-[#38BDF8] dark:hover:text-white transition-colors" title="Xem danh sách">
+                                <span class="material-symbols-outlined text-sm">visibility</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Row: Yêu cầu tư vấn -->
+                    <div class="group flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <a href="{% url 'admin:main_consultationrequest_changelist' %}" class="flex items-center flex-1">
+                            <div class="relative w-10 h-10 rounded-lg bg-[#8C5A2B]/10 flex items-center justify-center text-[#8C5A2B] dark:bg-[#D97706]/20 dark:text-[#D97706] mr-4 group-hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined">support_agent</span>
+                                {% if stats.new_consultations > 0 %}
+                                <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 border-2 border-white dark:border-gray-800 rounded-full"></span>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <span class="text-base font-semibold text-gray-900 dark:text-white group-hover:text-[#8C5A2B] dark:group-hover:text-[#38BDF8] transition-colors">Yêu cầu tư vấn</span>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Yêu cầu từ khách hàng</p>
+                            </div>
+                        </a>
+                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <a href="{% url 'admin:main_consultationrequest_changelist' %}" class="w-8 h-8 flex items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-[#8C5A2B] hover:text-white dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-[#38BDF8] dark:hover:text-white transition-colors" title="Xem danh sách">
+                                <span class="material-symbols-outlined text-sm">visibility</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cài đặt & Giao diện -->
+            <div>
+                <div class="flex items-center mb-4">
+                    <span class="material-symbols-outlined text-[#8C5A2B] dark:text-[#D97706] mr-2">design_services</span>
+                    <h2 class="text-lg font-bold text-[#8C5A2B] dark:text-[#D97706]">Giao diện & Cài đặt</h2>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
+                    <div class="group flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <a href="/admin/main/themesettings/" class="flex items-center flex-1">
+                            <div class="w-10 h-10 rounded-lg bg-[#8C5A2B]/10 flex items-center justify-center text-[#8C5A2B] dark:bg-[#D97706]/20 dark:text-[#D97706] mr-4 group-hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined">palette</span>
+                            </div>
+                            <div>
+                                <span class="text-base font-semibold text-gray-900 dark:text-white group-hover:text-[#8C5A2B] dark:group-hover:text-[#38BDF8] transition-colors">Cấu hình Giao diện</span>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Tuỳ chỉnh Logo, Footer, Thông tin chung</p>
+                            </div>
+                        </a>
+                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <a href="/admin/main/themesettings/" class="w-8 h-8 flex items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-[#8C5A2B] hover:text-white dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-[#38BDF8] dark:hover:text-white transition-colors" title="Chỉnh sửa">
+                                <span class="material-symbols-outlined text-sm">edit</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+/* Optional: Import Google Font if not loaded globally */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.font-sans {
+    font-family: 'Inter', sans-serif !important;
+}
+
+/* Material Symbols fix for crisp icons */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+</style>
+{% endblock %}

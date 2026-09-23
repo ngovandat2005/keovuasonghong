@@ -1,0 +1,183 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Dự Án – Keo Vữa Sông Hồng{% endblock %}
+{% block meta_desc %}Các dự án dân dụng và công nghiệp đã sử dụng sản phẩm Keo Vữa Sông Hồng – SHK Mortar{% endblock %}
+
+{% block content %}
+
+<!-- ── FULL-WIDTH HERO BANNER (ĐỒNG BỘ CÙNG HỆ THỐNG) ── -->
+<div class="cat-hero-banner-wrap">
+  <div class="cat-hero-bg">
+    <div class="cat-hero-overlay">
+      <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 0 32px;">
+        <div class="cat-hero-content">
+          <h1 class="cat-hero-title">Dự án</h1>
+          <nav class="cat-hero-breadcrumb">
+            <a href="{% url 'home' %}">Trang chủ</a>
+            <span class="sep">&gt;</span>
+            {% if current_category %}
+              <a href="{% url 'project_list' %}">Dự án</a>
+              <span class="sep">&gt;</span>
+              <span class="curr">{% if current_category == 'dan-dung' %}Dự án dân dụng{% elif current_category == 'cong-nghiep' %}Dự án công nghiệp{% else %}{{ current_category }}{% endif %}</span>
+            {% else %}
+              <span class="curr">Dự án</span>
+            {% endif %}
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── KHU VỰC NỘI DUNG DỰ ÁN ── -->
+<section class="news-page-section">
+  <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 0 32px;">
+    
+    <!-- WRAPPER 2 CỘT (SIDEBAR TRÁI - CONTENT PHẢI) -->
+    <div class="news-layout-wrapper">
+      
+        <!-- CỘT TRÁI: Thanh chọn chuyên mục (Filter Nav Tabs) -->
+      <aside class="news-sidebar">
+        <div class="news-filter-nav" style="display: flex; flex-direction: column; gap: 24px; font-weight: bold; text-transform: uppercase;">
+          <a href="{% url 'project_list' %}" class="{% if not current_category %}active{% endif %}" style="text-decoration: none; padding-bottom: 12px; border-bottom: 1px solid #965a19; font-size: 16px; {% if not current_category %}color: #965a19;{% else %}color: #0d3858;{% endif %}">
+            Danh mục
+          </a>
+          <a href="{% url 'project_list_category' 'dan-dung' %}" class="{% if current_category == 'dan-dung' %}active{% endif %}" style="text-decoration: none; font-size: 16px; {% if current_category == 'dan-dung' %}color: #965a19;{% else %}color: #0d3858;{% endif %}">
+            Dự án dân dụng
+          </a>
+          <a href="{% url 'project_list_category' 'cong-nghiep' %}" class="{% if current_category == 'cong-nghiep' %}active{% endif %}" style="text-decoration: none; font-size: 16px; line-height: 1.6; {% if current_category == 'cong-nghiep' %}color: #965a19;{% else %}color: #0d3858;{% endif %}">
+           Dự án công nghiệp
+          </a>
+        </div>
+      </aside>
+
+      <!-- CỘT PHẢI: Lưới dự án -->
+      <div class="news-main-content">
+        {% if projects %}
+        <div class="news-custom-grid">
+          {% for project in projects %}
+          <article class="news-item-card">
+            <!-- Ảnh tỷ lệ 4:3 -->
+            <a href="{% url 'project_detail' project.category project.slug %}" class="news-item-visual">
+              {% if project.image %}
+              <img src="{{ project.image.url }}" alt="{{ project.title }}" loading="lazy">
+              {% else %}
+              <img src="{% static 'images/construction_bg_mortar.jpg' %}" alt="{{ project.title }}" loading="lazy">
+              {% endif %}
+            </a>
+    
+            <!-- Thân thẻ bài viết -->
+            <div class="news-item-body">
+              <div class="news-item-meta">
+                <span class="news-item-cat">{{ project.get_category_display }}</span>
+                <span class="news-item-date">{{ project.published_at|date:"d/m/Y" }}</span>
+              </div>
+    
+              <h3 class="news-item-title">
+                <a href="{% url 'project_detail' project.category project.slug %}" title="{{ project.title }}">
+                  {{ project.title }}
+                </a>
+              </h3>
+    
+              <p class="news-item-summary">
+                {{ project.display_description }}
+              </p>
+    
+              <a href="{% url 'project_detail' project.category project.slug %}" class="news-item-readmore">
+                Xem chi tiết <i class="fa-solid fa-arrow-right-long"></i>
+              </a>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+
+        {% if page_obj and page_obj.has_other_pages %}
+        <!-- ── THANH CHUYỂN ĐỔI (SQUARES) ── -->
+        <div class="custom-pagination-wrap" style="display:flex; justify-content:center; gap:4px; margin-top: 16px; margin-bottom: 16px; padding-top: 0;">
+          {% if page_obj.has_previous %}
+            <a href="{% if current_category %}{% url 'project_list_category' current_category %}{% else %}{% url 'project_list' %}{% endif %}?page={{ page_obj.previous_page_number }}" class="page-next-btn"><i class="fas fa-chevron-left"></i></a>
+          {% endif %}
+
+          {% for i in page_obj.paginator.page_range %}
+            <a href="{% if current_category %}{% url 'project_list_category' current_category %}{% else %}{% url 'project_list' %}{% endif %}?page={{ i }}" class="{% if page_obj.number == i %}page-active{% endif %}">{{ i }}</a>
+          {% endfor %}
+
+          {% if page_obj.has_next %}
+            <a href="{% if current_category %}{% url 'project_list_category' current_category %}{% else %}{% url 'project_list' %}{% endif %}?page={{ page_obj.next_page_number }}" class="page-next-btn"><i class="fas fa-chevron-right"></i></a>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        {% else %}
+        <!-- Trạng thái trống nếu chưa có dự án -->
+        <div style="text-align: center; padding: 80px 20px; color: #888888;">
+          <i class="fa-solid fa-building" style="font-size: 56px; margin-bottom: 16px; opacity: 0.3; display: block;"></i>
+          <p style="font-size: 16px; margin-bottom: 0;">Hiện chưa có dự án nào trong chuyên mục này.</p>
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="cat-support-banner-section">
+  <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 0 32px;">
+    <div class="cat-support-inner">
+      
+      <!-- Cột Trái: Tiêu đề & phụ đề -->
+      <div class="cat-support-left">
+        <h2 class="cat-support-title">Yêu cầu hỗ trợ</h2>
+        <p class="cat-support-subtitle">Vui lòng liên hệ với đội ngũ của chúng tôi<br>để nhận được sự hỗ trợ nhanh chóng nhất</p>
+      </div>
+
+      <!-- Cột Phải: Thông tin liên hệ -->
+      <div class="cat-support-right">
+        <div class="cat-support-items">
+          
+          <!-- Zalo OA -->
+          <a href="https://zalo.me/3423135266242009757" target="_blank" rel="noopener noreferrer" class="cat-support-item">
+            <div class="cat-support-icon cat-zalo-icon-box">
+              <img src="{% static 'images/zalo-oa-logo.svg' %}" alt="Zalo Official Account" class="cat-zalo-img">
+            </div>
+            <div class="cat-support-info">
+              <span class="cat-support-label">Zalo OA</span>
+              <span class="cat-support-val">Công ty TNHH Keo Vữa Sông Hồng</span>
+            </div>
+          </a>
+
+          <!-- Email (Mở Gmail gửi đến admin@keovuasonghong.vn) -->
+          <a href="https://mail.google.com/mail/?view=cm&fs=1&to=admin@keovuasonghong.vn" target="_blank" rel="noopener noreferrer" class="cat-support-item" title="Soạn email gửi đến admin@keovuasonghong.vn qua Gmail">
+            <div class="cat-support-icon cat-circle-icon">
+              <i class="fa-solid fa-envelope"></i>
+            </div>
+            <div class="cat-support-info">
+              <span class="cat-support-label">Email</span>
+              <span class="cat-support-val">admin@keovuasonghong.vn</span>
+            </div>
+          </a>
+
+          <!-- Phone -->
+          <a href="tel:+84938016788" class="cat-support-item">
+            <div class="cat-support-icon cat-circle-icon">
+              <i class="fa-solid fa-phone"></i>
+            </div>
+            <div class="cat-support-info">
+              <span class="cat-support-label">Phone</span>
+              <span class="cat-support-val">+84 938 016 788 / +84 386 360 797</span>
+            </div>
+          </a>
+
+        </div>
+        <!-- Đường nét đứt trang trí bên dưới -->
+        <div class="cat-support-divider"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% endblock %}

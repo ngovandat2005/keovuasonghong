@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <!-- Nền tròn xanh Zalo -->
+  <circle cx="50" cy="50" r="48" fill="#2E88FF"/>
+  
+  <!-- Bong bóng chat màu trắng hơi nghiêng nhẹ -->
+  <path d="M50 18 C32 18 18 31 18 47 C18 56 23 64 31 69 L27 82 L42 75 C45 76 47 76 50 76 C68 76 82 63 82 47 C82 31 68 18 50 18 Z" fill="#FFFFFF"/>
+  
+  <!-- Chữ Zalo màu xanh nghiêng vui mắt -->
+  <g transform="rotate(-6 50 47)">
+    <text x="49" y="54" fill="#1877F2" font-family="'Bai Jamjuree', 'Segoe UI', Arial, sans-serif" font-weight="900" font-size="22" text-anchor="middle" letter-spacing="-0.8px">Zalo</text>
+  </g>
+</svg>

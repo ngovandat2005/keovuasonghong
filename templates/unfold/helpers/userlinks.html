@@ -1,0 +1,61 @@
+{% load i18n static unfold %}
+
+<div class="flex flex-row items-center ml-auto">
+    {% if environment %}
+        {% include "unfold/helpers/label.html" with text=environment.0 type=environment.1 %}
+    {% endif %}
+
+    <!-- Profile Dropdown: [Logo SHK] Công ty TNHH K... ⌄ -->
+    <div class="relative flex items-center" x-data="{ openAdminMenu: false }">
+        <button type="button" @click="openAdminMenu = !openAdminMenu" class="header-company-btn" :class="{ 'active': openAdminMenu }">
+            <div class="header-company-logo">
+                <div class="header-company-badge">
+                    <span class="badge-top">SHK</span>
+                    <span class="badge-bottom">KEO VỮA</span>
+                </div>
+            </div>
+            <span class="header-company-name">Công ty TNHH K...</span>
+            <span class="material-symbols-outlined header-company-arrow" :class="{ 'rotate-180': openAdminMenu }">expand_more</span>
+        </button>
+
+        <!-- Dropdown Menu -->
+        <div x-show="openAdminMenu" @click.outside="openAdminMenu = false" x-cloak class="header-dropdown-menu">
+            <div class="header-dropdown-header">
+                <div class="header-company-logo">
+                    <div class="header-company-badge">
+                        <span class="badge-top">SHK</span>
+                        <span class="badge-bottom">KEO VỮA</span>
+                    </div>
+                </div>
+                <div class="overflow-hidden">
+                    <div class="header-dropdown-name truncate">Công ty TNHH Keo Vữa Sông Hồng</div>
+                    <div class="header-dropdown-role">Quản trị viên ({{ request.user.username }})</div>
+                </div>
+            </div>
+
+            <div class="header-dropdown-divider"></div>
+
+            <a href="/" target="_blank" class="header-dropdown-item">
+                <span class="material-symbols-outlined">public</span>
+                <span>{% trans "Xem trang chủ Website" %}</span>
+            </a>
+
+            <a href="/admin/account/profile/" class="header-dropdown-item">
+                <span class="material-symbols-outlined">person</span>
+                <span>{% trans "Thông tin tài khoản" %}</span>
+            </a>
+
+            <div class="header-dropdown-divider"></div>
+
+            <form method="post" action="{% url 'admin:logout' %}" class="m-0">
+                {% csrf_token %}
+                <button type="submit" class="header-dropdown-item header-dropdown-logout">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span>{% trans "Đăng xuất" %}</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {% action_list %}
+</div>

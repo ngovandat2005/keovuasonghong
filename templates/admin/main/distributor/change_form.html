@@ -1,0 +1,397 @@
+{% extends 'unfold/layouts/base.html' %}
+{% load i18n admin_urls static admin_modify unfold %}
+
+{% block content %}
+<div class="pd-wrap">
+
+    <!-- Topbar -->
+    <div class="pd-topbar">
+        <div class="flex items-center gap-3">
+            <a href="{% url 'admin:main_distributor_changelist' %}" class="w-9 h-9 flex items-center justify-center rounded-default border border-base-300 bg-white hover:bg-base-100 hover:text-primary-600 text-base-700 dark:bg-base-800 dark:border-base-700 dark:text-base-200 dark:hover:bg-base-700 transition-colors shadow-xs" title="{% trans 'Quay lại danh sách' %}">
+                <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            </a>
+            <h1 class="pd-h1">
+                {% if original %}{{ original.name }}{% else %}{% trans "Thêm đại lý phân phối mới" %}{% endif %}
+            </h1>
+        </div>
+        <div class="pd-topbar-actions">
+            <a href="{% url 'admin:main_distributor_changelist' %}" class="pd-btn pd-btn-ghost">{% trans "Hủy bỏ" %}</a>
+            <a href="{% url 'distributors' %}" target="_blank" class="pd-btn pd-btn-ghost">{% trans "Xem trên web" %}</a>
+            <button type="button" onclick="handleDistributorSave()" class="pd-btn pd-btn-primary">{% trans "Lưu thay đổi" %}</button>
+        </div>
+    </div>
+
+    <form action="{{ form_url }}" method="post" id="distributor_form" novalidate>
+        {% csrf_token %}
+        {% block form_top %}{% endblock %}
+        {{ adminform.form.non_field_errors }}
+        {% if adminform.form.errors %}
+        <div class="text-red-600 text-xs mb-3 p-3 border border-red-200 bg-red-50 rounded">
+            <strong>{% trans "Có lỗi khiến form chưa lưu được, vui lòng kiểm tra lại các trường sau:" %}</strong>
+            <ul class="list-disc pl-5 mt-1">
+                {% for field in adminform.form %}
+                    {% for error in field.errors %}
+                    <li>{{ field.label }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <!-- Hidden fields for is_active and order -->
+        <div style="display:none;">
+            {{ adminform.form.is_active }}
+            {{ adminform.form.order }}
+        </div>
+
+        <div class="space-y-4">
+            
+            <!-- 1. Thông tin đại lý & Địa chỉ -->
+            <div class="pd-card">
+                <h3 class="pd-card-title">
+                    <span class="material-symbols-outlined md-18">store</span>
+                    {% trans "Thông tin đại lý & Địa điểm" %}
+                </h3>
+
+                <!-- Tên đại lý -->
+                <div class="pd-field">
+                    <label class="pd-label">{{ adminform.form.name.label }} *</label>
+                    {{ adminform.form.name }}
+                    {% if adminform.form.name.errors %}
+                        <div class="text-red-500 text-xs mt-1">{{ adminform.form.name.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="pd-field-row">
+                    <!-- Tỉnh / Thành phố -->
+                    <div class="pd-field">
+                        <label class="pd-label">{{ adminform.form.province.label }} *</label>
+                        {{ adminform.form.province }}
+                        {% if adminform.form.province.errors %}
+                            <div class="text-red-500 text-xs mt-1">{{ adminform.form.province.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Loại địa chỉ -->
+                    <div class="pd-field">
+                        <label class="pd-label">{{ adminform.form.address_type.label }}</label>
+                        {{ adminform.form.address_type }}
+                    </div>
+                </div>
+
+                <!-- Địa chỉ / Khu vực phân phối -->
+                <div class="pd-field">
+                    <label class="pd-label">{{ adminform.form.address.label }} *</label>
+                    {{ adminform.form.address }}
+                    {% if adminform.form.address.errors %}
+                        <div class="text-red-500 text-xs mt-1">{{ adminform.form.address.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- 2. Thông tin Hotline & Liên hệ -->
+            <div class="pd-card">
+                <h3 class="pd-card-title">
+                    <span class="material-symbols-outlined md-18">call</span>
+                    {% trans "Thông tin Hotline & Mua hàng" %}
+                </h3>
+
+                <div style="display:none;">
+                    {{ adminform.form.hotline_label }}
+                </div>
+
+                <!-- Số điện thoại / Hotline -->
+                <div class="pd-field">
+                    <label class="pd-label">{{ adminform.form.phone.label }} *</label>
+                    {{ adminform.form.phone }}
+                    {% if adminform.form.phone.errors %}
+                        <div class="text-red-500 text-xs mt-1">{{ adminform.form.phone.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- 3. Bản đồ & Thông tin liên kết mạng xã hội -->
+            <div class="pd-card">
+                <h3 class="pd-card-title">
+                    <span class="material-symbols-outlined md-18">share_location</span>
+                    {% trans "Bản đồ Google Maps & Kênh liên kết" %}
+                </h3>
+
+                <!-- Địa chỉ tìm trên Map (ẩn) -->
+                <div style="display:none;">
+                    {{ adminform.form.map_address }}
+                </div>
+
+                <!-- Link Google Maps -->
+                <div class="pd-field">
+                    <label class="pd-label">{{ adminform.form.google_maps_link.label }}</label>
+                    {{ adminform.form.google_maps_link }}
+                    {% if adminform.form.google_maps_link.errors %}
+                        <div class="text-red-500 text-xs mt-1">{{ adminform.form.google_maps_link.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="pd-field-row">
+                    <!-- Email -->
+                    <div class="pd-field">
+                        <label class="pd-label">{{ adminform.form.email.label }}</label>
+                        {{ adminform.form.email }}
+                        {% if adminform.form.email.errors %}
+                            <div class="text-red-500 text-xs mt-1">{{ adminform.form.email.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Website -->
+                    <div class="pd-field">
+                        <label class="pd-label">{{ adminform.form.website.label }}</label>
+                        {{ adminform.form.website }}
+                        {% if adminform.form.website.errors %}
+                            <div class="text-red-500 text-xs mt-1">{{ adminform.form.website.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="pd-field-row">
+                    <!-- YouTube -->
+                    <div class="pd-field">
+                        <label class="pd-label">{{ adminform.form.youtube_url.label }}</label>
+                        {{ adminform.form.youtube_url }}
+                        {% if adminform.form.youtube_url.errors %}
+                            <div class="text-red-500 text-xs mt-1">{{ adminform.form.youtube_url.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- TikTok -->
+                    <div class="pd-field">
+                        <label class="pd-label">{{ adminform.form.tiktok_url.label }}</label>
+                        {{ adminform.form.tiktok_url }}
+                        {% if adminform.form.tiktok_url.errors %}
+                            <div class="text-red-500 text-xs mt-1">{{ adminform.form.tiktok_url.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Liên kết khác (Facebook, Zalo, Instagram...) -->
+            <div class="pd-card">
+                <h3 class="pd-card-title">
+                    <span class="material-symbols-outlined md-18">add_link</span>
+                    {% trans "Liên kết khác" %}
+                </h3>
+                {% for inline_admin_formset in inline_admin_formsets %}
+                    {% include inline_admin_formset.opts.template %}
+                {% endfor %}
+            </div>
+
+        </div>
+
+        <!-- Thanh thao tác dưới đáy -->
+        <div class="pd-bottombar">
+            <a href="{% url 'admin:main_distributor_changelist' %}" class="pd-btn pd-btn-ghost">{% trans "Hủy bỏ" %}</a>
+            <button type="button" onclick="handleDistributorSave()" class="pd-btn pd-btn-primary">{% trans "Lưu thay đổi" %}</button>
+        </div>
+    </form>
+</div>
+
+<style>
+.pd-wrap, .pd-wrap * { box-sizing: border-box; }
+.pd-wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    font-size: 13.5px !important;
+}
+
+.pd-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.pd-h1 {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #111827 !important;
+    line-height: 24px !important;
+    margin: 0 !important;
+}
+html.dark .pd-h1 { color: #F9FAFB !important; }
+
+.pd-topbar-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+.pd-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 15px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    border: 1px solid #8C5A2B;
+    text-decoration: none;
+    cursor: pointer;
+    line-height: 1.4;
+    transition: all 0.15s ease;
+}
+.pd-btn-ghost { background: #FFFFFF; color: #8C5A2B !important; }
+.pd-btn-ghost:hover { background: #FDF8F3; color: #70441E !important; border-color: #70441E; }
+.pd-btn-primary { background: #8C5A2B; color: #FFFFFF !important; }
+.pd-btn-primary:hover { background: #70441E; border-color: #70441E; }
+
+.pd-top-grid {
+    display: grid;
+    grid-template-columns: 68% 30%;
+    gap: 2%;
+    align-items: start;
+}
+@media (max-width: 768px) {
+    .pd-top-grid { grid-template-columns: 1fr; gap: 16px; }
+}
+
+.pd-card {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+}
+html.dark .pd-card { background: #1F2937; border-color: #374151; }
+
+.pd-card-title {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    color: #111827 !important;
+    margin: 0 0 14px 0 !important;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #F3F4F6;
+}
+html.dark .pd-card-title { color: #F9FAFB !important; border-bottom-color: #374151; }
+
+.pd-field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+@media (max-width: 600px) {
+    .pd-field-row { grid-template-columns: 1fr; }
+}
+
+.pd-field {
+    margin-bottom: 12px;
+}
+.pd-label {
+    display: block;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+    margin-bottom: 5px;
+}
+html.dark .pd-label { color: #D1D5DB !important; }
+
+.pd-mt { margin-top: 14px; }
+
+/* Checkbox */
+.pd-checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+    cursor: pointer;
+}
+html.dark .pd-checkbox-row { color: #D1D5DB !important; }
+.pd-checkbox-row input[type="checkbox"] {
+    width: 16px !important;
+    height: 16px !important;
+    accent-color: #8C5A2B;
+    cursor: pointer;
+}
+
+/* Inputs */
+.pd-wrap input[type="text"],
+.pd-wrap input[type="url"],
+.pd-wrap input[type="email"],
+.pd-wrap input[type="number"],
+.pd-wrap select {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: block !important;
+    height: 38px;
+    border: 1px solid #D1D5DB !important;
+    padding: 6px 12px !important;
+    font-size: 13.5px !important;
+    color: #111827 !important;
+    background: #FFFFFF !important;
+    border-radius: 6px !important;
+    box-sizing: border-box !important;
+}
+
+.pd-wrap textarea {
+    width: 100% !important;
+    border: 1px solid #D1D5DB !important;
+    padding: 8px 12px !important;
+    font-size: 13.5px !important;
+    color: #111827 !important;
+    background: #FFFFFF !important;
+    border-radius: 6px !important;
+    min-height: 80px;
+    resize: vertical;
+    box-sizing: border-box !important;
+}
+
+.pd-wrap input:focus, .pd-wrap textarea:focus, .pd-wrap select:focus {
+    outline: none !important;
+    border-color: #8C5A2B !important;
+    box-shadow: 0 0 0 2px rgba(140, 90, 43, 0.15) !important;
+}
+
+/* Bottombar */
+.pd-bottombar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+/* Ẩn tiêu đề inline (Facebook - CÔNG TY...) và link preview Hiện nay: */
+.formset [class*="group/title"],
+.formset tr:has(> td p.group\/title),
+.formset td p.text-xs,
+[class*="group/title"] {
+    display: none !important;
+}
+
+.object-tools { display: none !important; }
+</style>
+
+<script>
+function handleDistributorSave() {
+    const nameVal = document.getElementById('id_name')?.value?.trim();
+    if (!nameVal) {
+        alert('{% trans "Vui lòng nhập tên đại lý / công ty!" %}');
+        document.getElementById('id_name')?.focus();
+        return;
+    }
+
+    if (!confirm('{% trans "Bạn có chắc chắn muốn lưu thông tin đại lý này không?" %}')) {
+        return;
+    }
+
+    const form = document.getElementById('distributor_form');
+    let saveInput = document.getElementById('hidden_save_input');
+    if (!saveInput) {
+        saveInput = document.createElement('input');
+        saveInput.type = 'hidden';
+        saveInput.id = 'hidden_save_input';
+        saveInput.name = '_save';
+        saveInput.value = 'Lưu thay đổi';
+        form.appendChild(saveInput);
+    }
+    form.submit();
+}
+</script>
+{% endblock %}

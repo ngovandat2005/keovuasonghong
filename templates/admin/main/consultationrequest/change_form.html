@@ -1,0 +1,215 @@
+{% extends 'unfold/layouts/base.html' %}
+{% load i18n admin_urls static unfold %}
+
+{% block content %}
+<div class="pd-wrap">
+
+    <!-- Topbar -->
+    <div class="pd-topbar">
+        <div class="flex items-center gap-3">
+            <a href="{% url 'admin:main_consultationrequest_changelist' %}" class="pd-btn pd-btn-ghost text-xs">
+                ← {% trans "Quay lại" %}
+            </a>
+            <h1 class="pd-h1">
+                {% if original %}{{ original.full_name }}{% else %}{% trans "Chi tiết yêu cầu tư vấn" %}{% endif %}
+            </h1>
+        </div>
+        <div class="pd-topbar-actions">
+            {% if original %}
+            <button type="button" onclick="toggleConsultStatus({{ original.pk }}, this)" class="pd-btn {% if original.is_processed %}pd-btn-success{% else %}pd-btn-warning{% endif %}" id="btn-status-toggle">
+                <span id="status-text">{% if original.is_processed %}{% trans "Trạng thái: Đã xử lý" %}{% else %}{% trans "Trạng thái: Chưa xử lý" %}{% endif %}</span>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if original %}
+    <!-- Single Card containing all details -->
+    <div class="pd-card">
+        <table class="pd-view-table">
+            <tr>
+                <td class="pd-col-label">{% trans "Họ và tên khách hàng" %}</td>
+                <td class="pd-col-val font-bold text-[#8C5A2B] text-[15px]">{{ original.full_name }}</td>
+            </tr>
+            <tr>
+                <td class="pd-col-label">{% trans "Số điện thoại" %}</td>
+                <td class="pd-col-val">
+                    <a href="tel:{{ original.phone }}" class="text-[#8C5A2B] font-semibold hover:underline">{{ original.phone }}</a>
+                </td>
+            </tr>
+            <tr>
+                <td class="pd-col-label">{% trans "Email" %}</td>
+                <td class="pd-col-val">
+                    {% if original.email %}
+                    <a href="mailto:{{ original.email }}" class="text-blue-600 hover:underline">{{ original.email }}</a>
+                    {% else %}
+                    —
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td class="pd-col-label">{% trans "Công ty / Dự án" %}</td>
+                <td class="pd-col-val font-medium">{{ original.company|default:"—" }}</td>
+            </tr>
+            <tr>
+                <td class="pd-col-label">{% trans "Mục quan tâm" %}</td>
+                <td class="pd-col-val">{{ original.interest|default:"—" }}</td>
+            </tr>
+            <tr>
+                <td class="pd-col-label">{% trans "Nội dung yêu cầu chi tiết" %}</td>
+                <td class="pd-col-val">{{ original.message|default:"—"|linebreaksbr }}</td>
+            </tr>
+            <tr>
+                <td class="pd-col-label">{% trans "Thời gian gửi" %}</td>
+                <td class="pd-col-val">{{ original.created_at|date:"d/m/Y H:i:s" }}</td>
+            </tr>
+            <tr>
+                <td class="pd-col-label">{% trans "Trạng thái xử lý" %}</td>
+                <td class="pd-col-val" id="status-badge">
+                    {% if original.is_processed %}
+                    <span class="text-emerald-600 font-bold">{% trans "Đã xử lý" %}</span>
+                    {% else %}
+                    <span class="text-amber-600 font-bold">{% trans "Chưa xử lý" %}</span>
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Bottombar -->
+    <div class="pd-bottombar">
+        <a href="{% url 'admin:main_consultationrequest_changelist' %}" class="pd-btn pd-btn-ghost">
+            ← {% trans "Quay lại danh sách" %}
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function toggleConsultStatus(pk, btn) {
+    btn.disabled = true;
+    const csrfToken = '{{ csrf_token }}';
+    
+    fetch(`/admin/main/consultationrequest/toggle-processed/${pk}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        btn.disabled = false;
+        if (data.ok) {
+            const text = document.getElementById('status-text');
+            const badge = document.getElementById('status-badge');
+            
+            if (data.is_processed) {
+                btn.className = 'pd-btn pd-btn-success';
+                text.textContent = '{% trans "Trạng thái: Đã xử lý" %}';
+                badge.innerHTML = '<span class="text-emerald-600 font-bold">{% trans "Đã xử lý" %}</span>';
+            } else {
+                btn.className = 'pd-btn pd-btn-warning';
+                text.textContent = '{% trans "Trạng thái: Chưa xử lý" %}';
+                badge.innerHTML = '<span class="text-amber-600 font-bold">{% trans "Chưa xử lý" %}</span>';
+            }
+        }
+    })
+    .catch(() => {
+        btn.disabled = false;
+    });
+}
+</script>
+
+<style>
+.pd-wrap, .pd-wrap * { box-sizing: border-box; }
+.pd-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    font-size: 13.5px !important;
+}
+
+.pd-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.pd-h1 {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #111827 !important;
+    line-height: 24px !important;
+    margin: 0 !important;
+}
+html.dark .pd-h1 { color: #F9FAFB !important; }
+
+.pd-topbar-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+.pd-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    border: 1px solid #8C5A2B;
+    text-decoration: none;
+    cursor: pointer;
+    line-height: 1.4;
+    transition: all 0.15s ease;
+}
+.pd-btn-ghost { background: #FFFFFF; color: #8C5A2B !important; }
+.pd-btn-ghost:hover { background: #FDF8F3; color: #70441E !important; border-color: #70441E; }
+.pd-btn-success { background: #059669; color: #FFFFFF !important; border-color: #059669; }
+.pd-btn-success:hover { background: #047857; }
+.pd-btn-warning { background: #D97706; color: #FFFFFF !important; border-color: #D97706; }
+.pd-btn-warning:hover { background: #B45309; }
+
+.pd-card {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 16px 20px;
+}
+html.dark .pd-card { background: #1F2937; border-color: #374151; }
+
+.pd-view-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.pd-view-table tr {
+    border-bottom: 1px solid #F3F4F6;
+}
+html.dark .pd-view-table tr { border-bottom-color: #374151; }
+.pd-view-table tr:last-child {
+    border-bottom: none;
+}
+.pd-col-label {
+    width: 220px;
+    padding: 11px 0;
+    color: #6B7280;
+    font-size: 13px;
+    font-weight: 500;
+    vertical-align: top;
+}
+html.dark .pd-col-label { color: #9CA3AF; }
+.pd-col-val {
+    padding: 11px 0;
+    color: #111827;
+    font-size: 13.5px;
+    line-height: 1.5;
+}
+html.dark .pd-col-val { color: #F3F4F6; }
+
+.pd-bottombar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+</style>
+{% endblock %}

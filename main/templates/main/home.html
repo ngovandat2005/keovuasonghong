@@ -1,0 +1,1201 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}Keo Vữa Sông Hồng – SHK Mortar | Vữa khô, Keo dán gạch, Cát sạch{% endblock %}
+{% block content %}
+
+<!-- ── HERO ── -->
+<section class="hero" id="hero" style="background:#111;">
+  <div class="hero-bgs">
+    {% if theme and theme.is_hero_youtube %}
+      <div class="hero-yt-wrap">
+        <iframe 
+          class="hero-yt-iframe"
+          src="{{ theme.hero_youtube_embed_url }}" 
+          title="Hero Video" 
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen>
+        </iframe>
+      </div>
+    {% else %}
+      <video class="hero-video" autoplay muted loop playsinline poster="{% static 'images/hero-bg.jpg' %}">
+        <source src="{% if theme and theme.hero_video_file %}{{ theme.hero_video_file.url }}{% elif theme and theme.hero_video_url %}{{ theme.hero_video_url }}{% else %}{% static 'video/hero-banner.mp4' %}{% endif %}" type="video/mp4">
+      </video>
+    {% endif %}
+    <div class="hero-grad"></div>
+  </div>
+  <div class="hero-wm">SHK</div>
+  <div class="hero-vline"></div>
+  <div class="hero-inner hero-centered">
+    <h1 class="hero-title">{{ theme.hero_title|default:'Công ty TNHH Keo Vữa Sông Hồng' }}</h1>
+    <p class="hero-desc">{{ theme.hero_desc|default:'Nhà máy sản xuất vữa khô trộn sẵn, keo dán gạch chất lượng cao' }}</p>
+    <div class="hero-btns hero-btns-center">
+      <a href="{{ theme.hero_btn_link|default:'/san-pham/#plStickyNav' }}" class="btn-hero-brown">{{ theme.hero_btn_text|default:'Khám Phá Sản Phẩm' }}</a>
+    </div>
+  </div>
+</section>
+
+{% if not theme or theme.show_intro %}
+<!-- ── GIỚI THIỆU / VỀ CHÚNG TÔI ── -->
+<section class="section" style="background:#FFFFFF;padding:44px 0 36px;">
+  <div class="container">
+    <div class="about-home-grid">
+      <!-- Video column (Left) - Stretches full height to match text column -->
+      <div class="about-home-video reveal">
+        <div class="video-tvc-wrap" style="border-radius:0 !important; border:none !important; box-shadow:none !important;">
+          <iframe 
+            src="{% if theme and theme.intro_embed_url %}{{ theme.intro_embed_url }}{% elif theme and theme.intro_youtube_url %}{{ theme.intro_youtube_url }}{% else %}https://www.youtube.com/embed/N-FLw-piwlc?rel=0{% endif %}" 
+            title="Keo Vữa Sông Hồng - SHK Mortar" 
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+            referrerpolicy="strict-origin-when-cross-origin" 
+            allowfullscreen>
+          </iframe>
+        </div>
+      </div>
+
+      <!-- Text column (Right) -->
+      <div class="about-home-text reveal">
+        <div class="about-title-block">
+          <span class="about-pre-title">{{ theme.intro_badge|default:'Giới thiệu' }}</span>
+          <h2 class="about-main-title">{{ theme.intro_title|default:'Về chúng tôi' }}</h2>
+        </div>
+        
+        {% if theme and theme.intro_description %}
+        <div class="about-desc-content">
+          {% if '<p' in theme.intro_description or '<div' in theme.intro_description or '<br' in theme.intro_description %}
+            {{ theme.intro_description|safe }}
+          {% else %}
+            {{ theme.intro_description|linebreaks }}
+          {% endif %}
+        </div>
+        <style>
+          .about-desc-content p {
+            font-size: 17px;
+            font-weight: 400;
+            line-height: 27px;
+            color: #000000;
+            margin-bottom: 18px;
+            text-align: justify;
+            text-justify: inter-word;
+          }
+          .about-desc-content p:last-child {
+            margin-bottom: 0;
+          }
+        </style>
+        {% else %}
+        <p class="about-para">
+          Công ty TNHH Keo Vữa Sông Hồng là đơn vị hoạt động trong lĩnh vực sản xuất vật liệu xây dựng tại Hưng Yên. Với kinh nghiệm trong ngành cùng hệ thống dây chuyền, máy móc và công nghệ hiện đại, chúng tôi tập trung nghiên cứu và sản xuất những sản phẩm đáp ứng yêu cầu ngày càng cao của thị trường.
+        </p>
+        <p class="about-para">
+          Không chỉ tạo ra vật liệu mới, SHK Mortar hướng tới những giải pháp phù hợp với phương thức xây dựng hiện đại – nơi chất lượng, tính ổn định và hiệu quả thi công được đặt lên hàng đầu. Mỗi sản phẩm được nghiên cứu, kiểm soát và kiểm định chặt chẽ, nhằm tạo ra giá trị thiết thực cho công trình và đối tác.
+        </p>
+        <p class="about-para">
+          Với định hướng đưa các sản phẩm chất lượng đến gần hơn với thị trường, từ dự án đến công trình dân dụng, SHK Mortar từng bước phát triển hệ giải pháp vật liệu giúp tối ưu quy trình thi công và chi phí, hướng tới một phương thức xây dựng hiệu quả hơn và tạo nên một cách tiếp cận mới cho ngành xây dựng.
+        </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if not theme or theme.show_products %}
+<!-- ── SẢN PHẨM ── -->
+<style>
+  .prod-unit-img-box {
+    border-radius: 8px !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    background: transparent !important;
+    overflow: hidden !important;
+  }
+  .prod-unit-img-box img {
+    border-radius: 8px !important;
+    object-fit: cover !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+  }
+</style>
+<section class="section" style="background:#FFFFFF;padding:36px 0 44px;">
+  <div class="container">
+    <!-- Header Row: Title on Left, Button on Right -->
+    <div class="prod-section-header">
+      <div class="about-title-block" style="margin-bottom:0;">
+        <span class="about-pre-title">{{ theme.products_badge|default:'Khám phá' }}</span>
+        <h2 class="about-main-title">{{ theme.products_title|default:'Danh mục sản phẩm' }}</h2>
+      </div>
+      <a href="{{ theme.products_btn_link|default:'/san-pham/#plStickyNav' }}" class="btn-prod-all">
+        {{ theme.products_btn_text|default:'Xem tất cả sản phẩm' }}
+      </a>
+    </div>
+
+    <!-- 4-Column Responsive Grid (Exactly 4 Products) -->
+    <div class="prod-grid-4">
+      <!-- Sản phẩm 1 -->
+      <div class="prod-unit-card">
+        <a href="{{ theme.prod_cat_1_link|default:'/san-pham/#cat-vua-kho-tron-san' }}" class="prod-unit-img-box" title="{{ theme.prod_cat_1_title|default:'Vữa khô trộn sẵn' }}">
+          {% if theme.prod_cat_1_image %}
+          <img src="{{ theme.prod_cat_1_image.url }}" alt="{{ theme.prod_cat_1_title|default:'Vữa khô trộn sẵn' }}" loading="lazy">
+          {% else %}
+          <img src="{% static 'images/Vua_kho_chon_san.png' %}" alt="{{ theme.prod_cat_1_title|default:'Vữa khô trộn sẵn' }}" loading="lazy">
+          {% endif %}
+        </a>
+        <div class="prod-unit-info">
+          <a href="{{ theme.prod_cat_1_link|default:'/san-pham/#cat-vua-kho-tron-san' }}" class="prod-unit-title">{{ theme.prod_cat_1_title|default:'Vữa khô trộn sẵn' }}</a>
+        </div>
+      </div>
+
+      <!-- Sản phẩm 2 -->
+      <div class="prod-unit-card">
+        <a href="{{ theme.prod_cat_2_link|default:'/san-pham/#cat-vua-xay-trat-aac' }}" class="prod-unit-img-box" title="{{ theme.prod_cat_2_title|default:'Vữa xây trát AAC' }}">
+          {% if theme.prod_cat_2_image %}
+          <img src="{{ theme.prod_cat_2_image.url }}" alt="{{ theme.prod_cat_2_title|default:'Vữa xây trát AAC' }}" loading="lazy">
+          {% else %}
+          <img src="{% static 'images/Vua_kho.png' %}" alt="{{ theme.prod_cat_2_title|default:'Vữa xây trát AAC' }}" loading="lazy">
+          {% endif %}
+        </a>
+        <div class="prod-unit-info">
+          <a href="{{ theme.prod_cat_2_link|default:'/san-pham/#cat-vua-xay-trat-aac' }}" class="prod-unit-title">{{ theme.prod_cat_2_title|default:'Vữa xây trát AAC' }}</a>
+        </div>
+      </div>
+
+      <!-- Sản phẩm 3 -->
+      <div class="prod-unit-card">
+        <a href="{{ theme.prod_cat_3_link|default:'/san-pham/#cat-keo-dan-gach-da' }}" class="prod-unit-img-box" title="{{ theme.prod_cat_3_title|default:'Keo dán gạch' }}">
+          {% if theme.prod_cat_3_image %}
+          <img src="{{ theme.prod_cat_3_image.url }}" alt="{{ theme.prod_cat_3_title|default:'Keo dán gạch' }}" loading="lazy">
+          {% else %}
+          <img src="{% static 'images/keo_dan_gach_c1.png' %}" alt="{{ theme.prod_cat_3_title|default:'Keo dán gạch' }}" loading="lazy">
+          {% endif %}
+        </a>
+        <div class="prod-unit-info">
+          <a href="{{ theme.prod_cat_3_link|default:'/san-pham/#cat-keo-dan-gach-da' }}" class="prod-unit-title">{{ theme.prod_cat_3_title|default:'Keo dán gạch' }}</a>
+        </div>
+      </div>
+
+      <!-- Sản phẩm 4 -->
+      <div class="prod-unit-card">
+        <a href="{{ theme.prod_cat_4_link|default:'/san-pham/#cat-cat-sach-say-kho' }}" class="prod-unit-img-box" title="{{ theme.prod_cat_4_title|default:'Cát sấy khô' }}">
+          {% if theme.prod_cat_4_image %}
+          <img src="{{ theme.prod_cat_4_image.url }}" alt="{{ theme.prod_cat_4_title|default:'Cát sấy khô' }}" loading="lazy">
+          {% else %}
+          <img src="{% static 'images/Cat_say.png' %}" alt="{{ theme.prod_cat_4_title|default:'Cát sấy khô' }}" loading="lazy">
+          {% endif %}
+        </a>
+        <div class="prod-unit-info">
+          <a href="{{ theme.prod_cat_4_link|default:'/san-pham/#cat-cat-sach-say-kho' }}" class="prod-unit-title">{{ theme.prod_cat_4_title|default:'Cát sấy khô' }}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if not theme or theme.show_phong_su %}
+<!-- ── PHÓNG SỰ THỰC TẾ ── -->
+<section class="section ps-section-wrap" style="background:#FFFFFF;padding:36px 0 0 0;">
+  <div class="container">
+    <!-- Centered Header with Accent Bar -->
+    <div class="ps-center-header">
+      <h2 class="ps-main-title">{{ theme.phong_su_title|default:'Phóng sự thực tế' }}</h2>
+      <div class="ps-title-bar"></div>
+    </div>
+  </div>
+
+  <!-- Full-Width 2-Column Split Box (Edge-to-Edge, No Border Radius) -->
+  <div class="ps-split-box">
+    <!-- Left Orange Banner with CTA -->
+    <div class="ps-left-banner">
+      <div class="ps-banner-content">
+        <div class="ps-banner-subtitle">{{ theme.phong_su_badge|default:'Xem thêm' }}</div>
+        <h3 class="ps-banner-heading">{{ theme.phong_su_title|default:'Phóng sự thực tế' }}</h3>
+        <p class="ps-banner-desc">{{ theme.phong_su_desc|default:'Theo sát những công trình thực tế, ghi nhận câu chuyện và trải nghiệm từ thợ thi công, đại lý, nhà thầu và chủ đầu tư. Qua đó, thương hiệu giới thiệu chất lượng sản phẩm, giải pháp thi công và dấu ấn đồng hành trên từng công trình.'|linebreaksbr }}</p>
+        <a href="{{ theme.phong_su_btn_link|default:'/tin-tuc/?category=phong-su-thuc-te' }}" class="btn-ps-more">
+          {{ theme.phong_su_btn_text|default:'XEM TẤT CẢ' }}
+        </a>
+      </div>
+    </div>
+
+    <!-- Right Multi-Page Slider Container -->
+    <div class="ps-right-slider-wrapper">
+      <div class="ps-pages-track" id="psPagesTrack">
+        {% for page in phong_su_pages %}
+        <div class="ps-page-slide {% if forloop.first %}active{% endif %}" data-page="{{ forloop.counter0 }}">
+          <div class="ps-right-grid">
+            {% for item in page %}
+            <div class="ps-grid-item" onclick="playPsVideo(this, '{{ item.video_id }}')">
+              <div class="ps-card-preview{% if item.auto_thumb %} ps-card-preview--auto-thumb{% endif %}" style="background-image: url('{{ item.thumb }}');">
+                <div class="ps-card-topbar">
+                  <div class="ps-card-channel">
+                    <div class="ps-channel-avatar" style="background:{{ item.tag_bg|default:'#FF7E2E' }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;border-radius:50%;">{{ item.tag|default:'SHK' }}</div>
+                    <div class="ps-channel-info">
+                      <div class="ps-card-title">{{ item.title }}</div>
+                      <div class="ps-card-sub">{{ item.channel }}</div>
+                    </div>
+                  </div>
+                  <div class="ps-card-icons">
+                    <i class="fa-solid fa-volume-high"></i>
+                    <i class="fa-solid fa-closed-captioning"></i>
+                    <i class="fa-solid fa-gear"></i>
+                  </div>
+                </div>
+                <div class="ps-yt-play-btn"><i class="fa-brands fa-youtube"></i></div>
+                <div class="ps-card-bottombar">
+                  <div class="ps-card-left-icons"><i class="fa-solid fa-link"></i></div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PAGINATION DOTS (THANH CHUYỂN ĐỔI BẰNG HÌNH CHỮ NHẬT / VUÔNG) ── -->
+  <div class="ps-pagination-bar" id="psPaginationBar">
+    {% for page in phong_su_pages %}
+    <button type="button" class="ps-dot-btn {% if forloop.first %}active{% endif %}" onclick="goToPsPage({{ forloop.counter0 }})" aria-label="Trang {{ forloop.counter }}"></button>
+    {% endfor %}
+  </div>
+</section>
+
+<script>
+function playPsVideo(container, videoId) {
+  if (container.querySelector('iframe')) return;
+  container.innerHTML = '<iframe src="https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0" title="YouTube Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen style="width:100%;height:100%;border:none;display:block;"></iframe>';
+}
+
+function goToPsPage(pageIndex) {
+  const slides = document.querySelectorAll('.ps-page-slide');
+  const dots = document.querySelectorAll('.ps-dot-btn');
+  
+  slides.forEach((slide, idx) => {
+    if (idx === pageIndex) {
+      slide.classList.add('active');
+    } else {
+      slide.classList.remove('active');
+    }
+  });
+
+  dots.forEach((dot, idx) => {
+    if (idx === pageIndex) {
+      dot.classList.add('active');
+    } else {
+      dot.classList.remove('active');
+    }
+  });
+}
+</script>
+{% endif %}
+
+<!-- ── DỰ ÁN NỔI BẬT (ĐỒNG BỘ DỰ ÁN THỰC TẾ TỪ HỆ THỐNG) ── -->
+<section class="section" style="background:#FFFFFF;padding:44px 0 48px;border-top:1px solid rgba(0,0,0,0.04);">
+  <div class="container">
+    <!-- Centered Header with Yellow Accent Bar matching Phóng sự thực tế -->
+    <div class="ps-center-header" style="margin-bottom:36px;">
+      <h2 class="ps-main-title">Dự án nổi bật</h2>
+      <div class="ps-title-bar"></div>
+    </div>
+
+    <!-- Multi-page Projects Slider Wrapper with Floating Side Arrows -->
+    <div class="featured-proj-slider-wrapper">
+      <!-- Left Floating Navigation Arrow -->
+      <button type="button" class="proj-nav-arrow-float prev" onclick="prevProjSlide()" aria-label="Previous Projects">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+
+      <!-- Multi-page Projects Container (Các trang 6 dự án / trang từ Database) -->
+      <div class="featured-proj-slider-container">
+        {% for page in project_pages %}
+        <div class="featured-proj-grid featured-proj-page {% if forloop.first %}active{% endif %}" id="projPage-{{ forloop.counter0 }}">
+          {% for p in page %}
+          <a href="{% url 'project_detail' p.category p.slug %}" class="proj-box-card" title="{{ p.title }}">
+            <div class="proj-box-img-wrap">
+              {% if p.image %}
+                <img src="{{ p.image.url }}" alt="{{ p.title }}" loading="lazy">
+              {% else %}
+                <img src="{% static 'images/construction_bg_mortar.jpg' %}" alt="{{ p.title }}" loading="lazy">
+              {% endif %}
+            </div>
+            <h3 class="proj-box-name">{{ p.title }}</h3>
+          </a>
+          {% endfor %}
+        </div>
+        {% empty %}
+        <div style="text-align: center; padding: 40px 0; color: #6b7280; width: 100%;">
+          Đang cập nhật danh sách dự án...
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Right Floating Navigation Arrow -->
+      <button type="button" class="proj-nav-arrow-float next" onclick="nextProjSlide()" aria-label="Next Projects">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+
+    <!-- Indicator Squares Centered Below the Images -->
+    {% if project_pages|length > 1 %}
+    <div class="proj-indicators-row-center">
+      {% for page in project_pages %}
+      <span class="proj-ind-sq {% if forloop.first %}active{% endif %}" onclick="setProjSlide({{ forloop.counter0 }})"></span>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<script>
+let currentProjIdx = 0;
+const totalProjPages = {{ project_pages|length|default:1 }};
+
+function showProjSlide(idx) {
+  if (totalProjPages <= 1) return;
+  currentProjIdx = (idx + totalProjPages) % totalProjPages;
+  const pages = document.querySelectorAll('.featured-proj-page');
+  const sqs = document.querySelectorAll('.proj-ind-sq');
+  pages.forEach((p, i) => {
+    p.classList.toggle('active', i === currentProjIdx);
+  });
+  sqs.forEach((sq, i) => {
+    sq.classList.toggle('active', i === currentProjIdx);
+  });
+}
+function setProjSlide(idx) { showProjSlide(idx); }
+function prevProjSlide() { showProjSlide(currentProjIdx - 1); }
+function nextProjSlide() { showProjSlide(currentProjIdx + 1); }
+</script>
+
+{% if not theme or theme.show_quality %}
+<!-- ── MINH CHỨNG CHẤT LƯỢNG (SPLIT BROWN/WHITE & OVERLAPPING SLIDER) ── -->
+<section class="proof-section-wrap">
+  <div class="container">
+    <div class="proof-split-layout">
+      <!-- Left Column: Image Overlapping Brown & White Background -->
+      <div class="proof-left-stage">
+        <div class="proof-overlap-card">
+          <!-- Slide items (Images/Certificates) -->
+          {% if theme and theme.quality_image %}
+          <div class="proof-slide active" id="proofSlide-0">
+            <img src="{{ theme.quality_image.url }}" alt="Giấy chứng nhận chất lượng SHK Mortar">
+          </div>
+          {% endif %}
+          <div class="proof-slide {% if not theme or not theme.quality_image %}active{% endif %}" id="proofSlide-{% if theme and theme.quality_image %}1{% else %}0{% endif %}">
+            <img src="{% static 'images/certificates/iso-9001_2015.jpg' %}" alt="Giấy chứng nhận ISO 9001:2015 Quản lý chất lượng SHK Mortar">
+          </div>
+          <div class="proof-slide" id="proofSlide-{% if theme and theme.quality_image %}2{% else %}1{% endif %}">
+            <img src="{% static 'images/certificates/tcvn-4314_2022-shk.jpg' %}" alt="Giấy chứng nhận Hợp chuẩn TCVN 4314:2022 Vữa xây dựng SHK">
+          </div>
+          <div class="proof-slide" id="proofSlide-{% if theme and theme.quality_image %}3{% else %}2{% endif %}">
+            <img src="{% static 'images/certificates/tcvn-7899_2008-shk.jpg' %}" alt="Giấy chứng nhận Tiêu chuẩn TCVN 7899-1:2008 Keo dán gạch SHK">
+          </div>
+          <div class="proof-slide" id="proofSlide-{% if theme and theme.quality_image %}4{% else %}3{% endif %}">
+            <img src="{% static 'images/certificates/tcvn-9028_2011-shk.jpg' %}" alt="Giấy chứng nhận Hợp chuẩn TCVN 9028:2011 Vữa xây dựng SHK">
+          </div>
+          <div class="proof-slide" id="proofSlide-{% if theme and theme.quality_image %}5{% else %}4{% endif %}">
+            <img src="{% static 'images/certificates/keo-c1-shk-test.jpg' %}" alt="Kết quả thử nghiệm Keo dán gạch C1 SHK">
+          </div>
+          <div class="proof-slide" id="proofSlide-{% if theme and theme.quality_image %}6{% else %}5{% endif %}">
+            <img src="{% static 'images/certificates/keo-c2-shk-test.jpg' %}" alt="Kết quả thử nghiệm Keo dán gạch C2 SHK">
+          </div>
+          <div class="proof-slide" id="proofSlide-{% if theme and theme.quality_image %}7{% else %}6{% endif %}">
+            <img src="{% static 'images/certificates/vua-mac-5-shk-test.jpg' %}" alt="Kết quả thử nghiệm Vữa Mác 5.0 SHK">
+          </div>
+          <div class="proof-slide" id="proofSlide-{% if theme and theme.quality_image %}8{% else %}7{% endif %}">
+            <img src="{% static 'images/certificates/vua-mac-75-test.jpg' %}" alt="Kết quả thử nghiệm Vữa Mác 7.5 SHK">
+          </div>
+          <div class="proof-slide" id="proofSlide-{% if theme and theme.quality_image %}9{% else %}8{% endif %}">
+            <img src="{% static 'images/certificates/vua-mac-10-test.jpg' %}" alt="Kết quả thử nghiệm Vữa Mác 10 SHK">
+          </div>
+          <div class="proof-slide" id="proofSlide-{% if theme and theme.quality_image %}10{% else %}9{% endif %}">
+            <img src="{% static 'images/certificates/vua-xay-aac-75-shk-test.jpg' %}" alt="Kết quả thử nghiệm Vữa xây AAC Mác 7.5 SHK">
+          </div>
+          <div class="proof-slide" id="proofSlide-{% if theme and theme.quality_image %}11{% else %}10{% endif %}">
+            <img src="{% static 'images/certificates/vua-trat-aac-75-test-shk.jpg' %}" alt="Kết quả thử nghiệm Vữa trát AAC Mác 7.5 SHK">
+          </div>
+        </div>
+
+        <!-- Slider Pagination Indicators -->
+        <div class="proof-indicators-row">
+          {% if theme and theme.quality_image %}
+          <span class="proof-ind-sq active" onclick="setProofSlide(0)"></span>
+          {% endif %}
+          <span class="proof-ind-sq {% if not theme or not theme.quality_image %}active{% endif %}" onclick="setProofSlide({% if theme and theme.quality_image %}1{% else %}0{% endif %})"></span>
+          <span class="proof-ind-sq" onclick="setProofSlide({% if theme and theme.quality_image %}2{% else %}1{% endif %})"></span>
+          <span class="proof-ind-sq" onclick="setProofSlide({% if theme and theme.quality_image %}3{% else %}2{% endif %})"></span>
+          <span class="proof-ind-sq" onclick="setProofSlide({% if theme and theme.quality_image %}4{% else %}3{% endif %})"></span>
+          <span class="proof-ind-sq" onclick="setProofSlide({% if theme and theme.quality_image %}5{% else %}4{% endif %})"></span>
+          <span class="proof-ind-sq" onclick="setProofSlide({% if theme and theme.quality_image %}6{% else %}5{% endif %})"></span>
+          <span class="proof-ind-sq" onclick="setProofSlide({% if theme and theme.quality_image %}7{% else %}6{% endif %})"></span>
+          <span class="proof-ind-sq" onclick="setProofSlide({% if theme and theme.quality_image %}8{% else %}7{% endif %})"></span>
+          <span class="proof-ind-sq" onclick="setProofSlide({% if theme and theme.quality_image %}9{% else %}8{% endif %})"></span>
+          <span class="proof-ind-sq" onclick="setProofSlide({% if theme and theme.quality_image %}10{% else %}9{% endif %})"></span>
+          <span class="proof-ind-sq" onclick="setProofSlide({% if theme and theme.quality_image %}11{% else %}10{% endif %})"></span>
+        </div>
+      </div>
+
+      <!-- Right Column: Header & Detailed Typography on White Background -->
+      <div class="proof-right-content">
+        <!-- Title with Yellow Vertical Accent Bar - Đồng bộ thẳng hàng tuyệt đối với Về chúng tôi -->
+        <div class="about-title-block" style="margin-bottom: 20px;">
+          <h2 class="about-main-title">{{ theme.quality_title|default:'Minh chứng chất lượng' }}</h2>
+        </div>
+
+        {% if theme and theme.quality_description_rendered %}
+          {{ theme.quality_description_rendered|safe }}
+        {% else %}
+        <p class="about-para">
+          SHK Mortar áp dụng hệ thống quản lý và kiểm soát chất lượng nghiêm ngặt, được kiểm định bởi các đơn vị chuyên môn.
+        </p>
+
+        <p class="about-para" style="margin-bottom:4px;">
+          Sản phẩm đáp ứng các tiêu chuẩn:
+        </p>
+
+        <ul class="quality-bullet-list">
+          <li>ISO 9001:2015 (Hệ thống quản lý chất lượng QMS)</li>
+          <li>TCVN 4314:2022 (Tiêu chuẩn Vữa xây dựng)</li>
+          <li>TCVN 7899-1:2008 (Tiêu chuẩn Keo dán gạch)</li>
+          <li>TCVN 9028:2011 (Tiêu chuẩn Vữa cho bê tông nhẹ)</li>
+        </ul>
+
+        <p class="about-para" style="margin-top:8px;">
+          cùng các chứng nhận và hồ sơ kiểm tra chất lượng liên quan, đảm bảo tính ổn định và tin cậy trong từng công trình.
+        </p>
+        {% endif %}
+
+        <a href="{{ theme.quality_drive_link|default:'https://drive.google.com/drive/folders/1-2VEnOxoTh2CG0laK1VURFiEDBvzOOQd?hl=vi' }}" target="_blank" rel="noopener noreferrer" class="btn-quality-download">
+          {{ theme.quality_drive_btn_text|default:'Tải Giấy Kiểm Nghiệm' }}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+let currentProofSlideIdx = 0;
+
+function showProofSlide(idx) {
+  const slides = document.querySelectorAll('.proof-slide');
+  const sqs = document.querySelectorAll('.proof-ind-sq');
+  const totalProofSlides = slides.length;
+  if (!totalProofSlides) return;
+  currentProofSlideIdx = (idx + totalProofSlides) % totalProofSlides;
+  slides.forEach((slide, i) => {
+    slide.classList.toggle('active', i === currentProofSlideIdx);
+  });
+  sqs.forEach((sq, i) => {
+    sq.classList.toggle('active', i === currentProofSlideIdx);
+  });
+}
+function setProofSlide(idx) { showProofSlide(idx); }
+
+// Tự động chuyển slide sau mỗi 8s
+setInterval(() => {
+  showProofSlide(currentProofSlideIdx + 1);
+}, 8000);
+</script>
+{% endif %}
+
+<!-- ── ĐỐI TÁC CỦA CHÚNG TÔI ── -->
+<section class="partners-section-wrap">
+  <div class="partners-split-layout">
+    <!-- Left Column: Title & Subtitle -->
+    <div class="partner-side-text">
+      <h2 class="partner-side-title">
+        <span>Đối tác của</span>
+        <span>chúng tôi</span>
+      </h2>
+      <p class="partner-side-desc">
+        Những đối tác đã tin tưởng và cùng đồng hành với chúng tôi trong suốt những năm qua
+      </p>
+    </div>
+
+    <!-- Right Column: 1-Column Step Slider -->
+    <div class="partners-slider-viewport" id="partnersViewport">
+      <div class="partners-track-flex" id="partnersTrackFlex">
+        <!-- 27 Đối tác mặc định giữ nguyên (Cột 1 đến Cột 9) -->
+        <!-- Cột 1 (1 - 3) -->
+        <div class="p-col-unit">
+          <div class="p-logo-card"><img src="{% static 'images/Logo/1.jpg' %}" alt="Đối tác 1" loading="lazy"></div>
+          <div class="p-logo-card"><img src="{% static 'images/Logo/2.jpg' %}" alt="Đối tác 2" loading="lazy"></div>
+          <div class="p-logo-card"><img src="{% static 'images/Logo/3.jpg' %}" alt="Đối tác 3" loading="lazy"></div>
+        </div>
+
+        <!-- Cột 2 (4 - 6) -->
+        <div class="p-col-unit">
+          <div class="p-logo-card"><img src="{% static 'images/Logo/4.jpg' %}" alt="Đối tác 4" loading="lazy"></div>
+          <div class="p-logo-card"><img src="{% static 'images/Logo/5.jpg' %}" alt="Đối tác 5" loading="lazy"></div>
+          <div class="p-logo-card"><img src="{% static 'images/Logo/6.jpg' %}" alt="Đối tác 6" loading="lazy"></div>
+        </div>
+
+        <!-- Cột 3 (7 - 9) -->
+        <div class="p-col-unit">
+          <div class="p-logo-card"><img src="{% static 'images/Logo/7.jpg' %}" alt="Đối tác 7" loading="lazy"></div>
+          <div class="p-logo-card"><img src="{% static 'images/Logo/8.jpg' %}" alt="Đối tác 8" loading="lazy"></div>
+          <div class="p-logo-card"><img src="{% static 'images/Logo/9.jpg' %}" alt="Đối tác 9" loading="lazy"></div>
+        </div>
+
+        <!-- Cột 4 (10 - 12) -->
+        <div class="p-col-unit">
+          <div class="p-logo-card"><img src="{% static 'images/Logo/10.jpg' %}" alt="Đối tác 10" loading="lazy"></div>
+          <div class="p-logo-card"><img src="{% static 'images/Logo/11.jpg' %}" alt="Đối tác 11" loading="lazy"></div>
+          <div class="p-logo-card"><img src="{% static 'images/Logo/12.jpg' %}" alt="Đối tác 12" loading="lazy"></div>
+        </div>
+
+        <!-- Cột 5 (13 - 15) -->
+        <div class="p-col-unit">
+          <div class="p-logo-card"><img src="{% static 'images/Logo/13.jpg' %}" alt="Đối tác 13" loading="lazy"></div>
+          <div class="p-logo-card"><img src="{% static 'images/Logo/14.jpg' %}" alt="Đối tác 14" loading="lazy"></div>
+          <div class="p-logo-card"><img src="{% static 'images/Logo/15.jpg' %}" alt="Đối tác 15" loading="lazy"></div>
+        </div>
+
+        <!-- Cột 6 (16 - 18) -->
+        <div class="p-col-unit">
+          <div class="p-logo-card"><img src="{% static 'images/Logo/16.jpg' %}" alt="Đối tác 16" loading="lazy"></div>
+          <div class="p-logo-card"><img src="{% static 'images/Logo/17.jpg' %}" alt="Đối tác 17" loading="lazy"></div>
+          <div class="p-logo-card"><img src="{% static 'images/Logo/18.jpg' %}" alt="Đối tác 18" loading="lazy"></div>
+        </div>
+
+        <!-- Cột 7 (19 - 21) -->
+        <div class="p-col-unit">
+          <div class="p-logo-card"><img src="{% static 'images/Logo/19.jpg' %}" alt="Đối tác 19" loading="lazy"></div>
+          <div class="p-logo-card"><img src="{% static 'images/Logo/20.jpg' %}" alt="Đối tác 20" loading="lazy"></div>
+          <div class="p-logo-card"><img src="{% static 'images/Logo/21.jpg' %}" alt="Đối tác 21" loading="lazy"></div>
+        </div>
+
+        <!-- Cột 8 (22 - 24) -->
+        <div class="p-col-unit">
+          <div class="p-logo-card"><img src="{% static 'images/Logo/22.jpg' %}" alt="Đối tác 22" loading="lazy"></div>
+          <div class="p-logo-card"><img src="{% static 'images/Logo/23.jpg' %}" alt="Đối tác 23" loading="lazy"></div>
+          <div class="p-logo-card"><img src="{% static 'images/Logo/24.jpg' %}" alt="Đối tác 24" loading="lazy"></div>
+        </div>
+
+        <!-- Cột 9 (25 - 27) -->
+        <div class="p-col-unit">
+          <div class="p-logo-card"><img src="{% static 'images/Logo/25.jpg' %}" alt="Đối tác 25" loading="lazy"></div>
+          <div class="p-logo-card"><img src="{% static 'images/Logo/26.jpg' %}" alt="Đối tác 26" loading="lazy"></div>
+          <div class="p-logo-card"><img src="{% static 'images/Logo/27.jpg' %}" alt="Đối tác 27" loading="lazy"></div>
+        </div>
+
+        <!-- Các đối tác thêm mới sẽ được nối tiếp đẩy ở cuối -->
+        {% if theme and theme.partners.all %}
+          {% for partner in theme.partners.all %}
+            {% if forloop.counter0|divisibleby:3 %}
+            <div class="p-col-unit">
+            {% endif %}
+              <div class="p-logo-card">
+                {% if partner.link %}<a href="{{ partner.link }}" target="_blank" style="display:block;width:100%;height:100%;">{% endif %}
+                <img src="{{ partner.image.url }}" alt="{{ partner.name|default:'Đối tác' }}" loading="lazy">
+                {% if partner.link %}</a>{% endif %}
+              </div>
+            {% if forloop.counter|divisibleby:3 or forloop.last %}
+            </div>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="partner-ctrl-wrapper">
+        <div class="partner-slider-ctrls">
+          <div class="p-ctrl-dots" id="partnerDotsContainer">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function() {
+  const track = document.getElementById('partnersTrackFlex');
+  const viewport = document.getElementById('partnersViewport');
+  const dotsContainer = document.getElementById('partnerDotsContainer');
+  if (!track || !viewport) return;
+
+  // Lấy danh sách các cột gốc ban đầu (9 cột)
+  const originalCols = Array.from(track.children);
+  const numOriginalCols = originalCols.length;
+  if (numOriginalCols === 0) return;
+
+  // Nhân bản cột trước và sau để tạo vòng lặp vô tận liền mạch (Infinite Loop)
+  originalCols.forEach(col => {
+    const cloneBefore = col.cloneNode(true);
+    const cloneAfter = col.cloneNode(true);
+    cloneBefore.classList.add('p-col-clone');
+    cloneAfter.classList.add('p-col-clone');
+    track.insertBefore(cloneBefore, track.firstChild);
+    track.appendChild(cloneAfter);
+  });
+
+  // Tự động tạo các nút dot chỉ báo theo số lượng cột
+  if (dotsContainer) {
+    dotsContainer.innerHTML = '';
+    const numDots = Math.min(numOriginalCols, 6);
+    for (let i = 0; i < numDots; i++) {
+      const dot = document.createElement('span');
+      dot.className = 'p-dot' + (i === 0 ? ' active' : '');
+      dot.onclick = () => window.setPartnerStep(i);
+      dotsContainer.appendChild(dot);
+    }
+  }
+
+  let currentIndex = numOriginalCols; // Bắt đầu tại vị trí của tập gốc
+  let isAnimating = false;
+  let animTimer = null;
+  let autoPlayTimer = null;
+  const AUTOPLAY_DELAY = 4000;
+
+  function getMetrics() {
+    const isMobile = window.innerWidth <= 768;
+    const visibleCols = isMobile ? 2 : 4;
+    const gap = isMobile ? 12 : 18;
+    const colWidth = (viewport.clientWidth - (visibleCols - 1) * gap) / visibleCols;
+    const stepDistance = colWidth + gap;
+    return { colWidth, gap, stepDistance, visibleCols };
+  }
+
+  function updateActiveDot() {
+    const dots = dotsContainer ? dotsContainer.querySelectorAll('.p-dot') : [];
+    if (dots.length === 0) return;
+    const activeDotIdx = ((currentIndex % numOriginalCols) + numOriginalCols) % numOriginalCols;
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === (activeDotIdx % dots.length));
+    });
+  }
+
+  function setTrackPosition(index, animate = true) {
+    const { stepDistance } = getMetrics();
+    if (animate) {
+      track.style.transition = 'transform 0.45s cubic-bezier(0.25, 1, 0.5, 1)';
+    } else {
+      track.style.transition = 'none';
+    }
+    const offset = index * stepDistance;
+    track.style.transform = `translateX(-${offset}px)`;
+    updateActiveDot();
+  }
+
+  // Khởi tạo vị trí ban đầu
+  setTrackPosition(currentIndex, false);
+
+  function handleLoopBoundary() {
+    isAnimating = false;
+    clearTimeout(animTimer);
+    // Nếu đi quá tập gốc về phía sau
+    if (currentIndex >= numOriginalCols * 2) {
+      currentIndex -= numOriginalCols;
+      setTrackPosition(currentIndex, false);
+    } 
+    // Nếu đi quá tập gốc về phía trước
+    else if (currentIndex < numOriginalCols) {
+      currentIndex += numOriginalCols;
+      setTrackPosition(currentIndex, false);
+    }
+  }
+
+  track.addEventListener('transitionend', (e) => {
+    if (e.target !== track) return;
+    handleLoopBoundary();
+  });
+
+  function goToStep(index) {
+    if (currentIndex === index) {
+      isAnimating = false;
+      return;
+    }
+    if (isAnimating) {
+      // Nếu đang chuyển động mà người dùng bấm tiếp, ngắt hoạt ảnh và chuyển vị trí ngay
+      handleLoopBoundary();
+    }
+    isAnimating = true;
+    clearTimeout(animTimer);
+    // Khóa an toàn 500ms tự giải phóng nếu browser không bắn transitionend
+    animTimer = setTimeout(() => {
+      handleLoopBoundary();
+    }, 500);
+
+    currentIndex = index;
+    setTrackPosition(currentIndex, true);
+  }
+
+  function nextStep() {
+    goToStep(currentIndex + 1);
+  }
+
+  function prevStep() {
+    goToStep(currentIndex - 1);
+  }
+
+  window.setPartnerStep = function(dotIdx) {
+    const targetIdx = numOriginalCols + dotIdx;
+    goToStep(targetIdx);
+    resetAutoPlay();
+  };
+
+  function startAutoPlay() {
+    stopAutoPlay();
+    autoPlayTimer = setInterval(nextStep, AUTOPLAY_DELAY);
+  }
+
+  function stopAutoPlay() {
+    if (autoPlayTimer) {
+      clearInterval(autoPlayTimer);
+      autoPlayTimer = null;
+    }
+  }
+
+  function resetAutoPlay() {
+    stopAutoPlay();
+    startAutoPlay();
+  }
+
+  // ── KÉO THẢ DI CHUYỂN BẰNG CHUỘT & CẢM ỨNG (DRAG / SWIPE TO LOOP) ──
+  let isDragging = false;
+  let startX = 0;
+  let dragTranslate = 0;
+  let prevTranslate = 0;
+
+  function getPosX(e) {
+    return e.type.includes('mouse') ? e.pageX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+  }
+
+  viewport.addEventListener('touchstart', (e) => {
+    isDragging = true;
+    stopAutoPlay();
+    startX = getPosX(e);
+    const { stepDistance } = getMetrics();
+    prevTranslate = -currentIndex * stepDistance;
+    dragTranslate = prevTranslate;
+    track.style.transition = 'none';
+  }, { passive: true });
+
+  viewport.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    const currentX = getPosX(e);
+    const diff = currentX - startX;
+    dragTranslate = prevTranslate + diff;
+    track.style.transform = `translateX(${dragTranslate}px)`;
+  }, { passive: true });
+
+  viewport.addEventListener('touchend', () => {
+    if (!isDragging) return;
+    isDragging = false;
+    const moved = dragTranslate - prevTranslate;
+    if (moved < -35) {
+      nextStep();
+    } else if (moved > 35) {
+      prevStep();
+    } else {
+      setTrackPosition(currentIndex, true);
+    }
+    resetAutoPlay();
+  });
+
+  viewport.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    stopAutoPlay();
+    viewport.classList.add('is-dragging');
+    startX = e.pageX;
+    const { stepDistance } = getMetrics();
+    prevTranslate = -currentIndex * stepDistance;
+    dragTranslate = prevTranslate;
+    track.style.transition = 'none';
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const diff = e.pageX - startX;
+    dragTranslate = prevTranslate + diff;
+    track.style.transform = `translateX(${dragTranslate}px)`;
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (!isDragging) return;
+    isDragging = false;
+    viewport.classList.remove('is-dragging');
+    const moved = dragTranslate - prevTranslate;
+    if (moved < -40) {
+      nextStep();
+    } else if (moved > 40) {
+      prevStep();
+    } else {
+      setTrackPosition(currentIndex, true);
+    }
+    resetAutoPlay();
+  });
+
+  let isSectionInView = false;
+
+  function startAutoPlay() {
+    stopAutoPlay();
+    if (!isSectionInView) return;
+    autoPlayTimer = setInterval(nextStep, AUTOPLAY_DELAY);
+  }
+
+  function stopAutoPlay() {
+    if (autoPlayTimer) {
+      clearInterval(autoPlayTimer);
+      autoPlayTimer = null;
+    }
+  }
+
+  function resetAutoPlay() {
+    stopAutoPlay();
+    if (isSectionInView) {
+      startAutoPlay();
+    }
+  }
+
+  viewport.addEventListener('mouseenter', stopAutoPlay);
+  viewport.addEventListener('mouseleave', () => {
+    if (!isDragging && isSectionInView) startAutoPlay();
+  });
+
+  // Chỉ kích hoạt tự động chạy khi người dùng cuộn đến phần Đối tác
+  if ('IntersectionObserver' in window) {
+    const partnerSection = document.querySelector('.partners-section-wrap') || viewport;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          isSectionInView = true;
+          startAutoPlay();
+        } else {
+          isSectionInView = false;
+          stopAutoPlay();
+        }
+      });
+    }, {
+      threshold: 0.2
+    });
+    observer.observe(partnerSection);
+  } else {
+    // Dự phòng cho trình duyệt cũ không hỗ trợ IntersectionObserver
+    isSectionInView = true;
+    startAutoPlay();
+  }
+
+  window.addEventListener('resize', () => {
+    setTrackPosition(currentIndex, false);
+  });
+})();
+</script>
+
+<!-- ── ƯỚC TÍNH VẬT LIỆU CẦN DÙNG BANNER ── -->
+<section class="calc-banner-section">
+  <div class="container">
+    <div class="calc-banner-wrapper">
+      <!-- Left Column: Information & CTA -->
+      <div class="calc-banner-left">
+        <h2 class="calc-banner-title">
+          ƯỚC TÍNH<br>
+          VẬT LIỆU CẦN DÙNG
+        </h2>
+        <p class="calc-banner-desc">
+          Công cụ tính toán của SHK Mortar giúp ước tính nhanh khối lượng vật liệu cần sử dụng dựa trên định mức tham khảo. Hỗ trợ chủ đầu tư, nhà thầu, cửa hàng vật liệu và chủ nhà dễ dàng dự toán nhu cầu, chủ động hạch toán và chuẩn bị vật tư cho từng công trình.
+        </p>
+        <a href="{% url 'calculator' %}" class="btn-calc-explore">
+          Tìm hiểu công cụ tính
+        </a>
+      </div>
+
+      <!-- Right Column: Chỗ để trống sẵn sàng để chèn ảnh -->
+      <div class="calc-banner-right" id="calcBannerImageHolder">
+        <!-- Khu vực để trống để chèn ảnh -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ĐĂNG KÝ TƯ VẤN BANNER ── -->
+<section class="consultation-home-section" id="consultation-section">
+  <div class="container">
+    <div class="consult-split-layout">
+      <!-- Left Column: Title, Subtitle, and Image placeholder -->
+      <div class="consult-left-info">
+        <h2 class="consult-home-title">ĐĂNG KÝ TƯ VẤN</h2>
+        <p class="consult-home-desc">
+          Để lại thông tin để nhận tư vấn về sản phẩm,<br> giải pháp và chính sách phù hợp với nhu cầu của bạn.
+        </p>
+        <div class="consult-home-img-holder">
+          <img src="{% static 'images/quality_lab_bg.jpg' %}" alt="Đăng ký tư vấn SHK Mortar" loading="lazy">
+        </div>
+      </div>
+
+      <!-- Right Column: Registration Form in White Card -->
+      <div class="consult-home-form-card">
+        <form action="{% url 'consultation' %}" method="POST" class="consult-form-grid" id="consultHomeForm" novalidate>
+          {% csrf_token %}
+          <!-- Tên khách hàng (Bắt buộc) -->
+          <div class="consult-form-field" id="field_name">
+            <label for="c_full_name">Tên khách hàng:<span class="req">*</span></label>
+            <input type="text" id="c_full_name" name="full_name" placeholder="Nhập họ và tên của bạn" required>
+            <span class="field-error-msg" id="err_name">Vui lòng nhập họ và tên của bạn</span>
+          </div>
+
+          <!-- Số điện thoại (Bắt buộc) -->
+          <div class="consult-form-field" id="field_phone">
+            <label for="c_phone">Số điện thoại:<span class="req">*</span></label>
+            <input type="tel" id="c_phone" name="phone" placeholder="Nhập số điện thoại (VD: 0912345678)" required>
+            <span class="field-error-msg" id="err_phone">Số điện thoại không hợp lệ (gồm 10 chữ số)</span>
+          </div>
+
+          <!-- Email (Không bắt buộc nhưng phải đúng định dạng) -->
+          <div class="consult-form-field" id="field_email">
+            <label for="c_email">Email:<span class="opt">(không bắt buộc)</span></label>
+            <input type="email" id="c_email" name="email" placeholder="Nhập email (VD: example@gmail.com)">
+            <span class="field-error-msg" id="err_email">Email không đúng định dạng (VD: example@gmail.com)</span>
+          </div>
+
+          <!-- Khu vực: Tỉnh/Thành phố & Quận/Huyện (Cấp bậc chi tiết) -->
+          <div class="consult-form-row-2">
+            <!-- Tỉnh / Thành phố -->
+            <div class="consult-form-field" id="field_province">
+              <label for="c_province">Tỉnh / Thành phố:<span class="req">*</span></label>
+              <select id="c_province" name="province" required>
+                <option value="">-- Chọn Tỉnh/Thành --</option>
+                <option value="Hưng Yên">Hưng Yên</option>
+                <option value="Hà Nội">Hà Nội</option>
+                <option value="Hải Dương">Hải Dương</option>
+                <option value="Hải Phòng">Hải Phòng</option>
+                <option value="Bắc Ninh">Bắc Ninh</option>
+                <option value="Bắc Giang">Bắc Giang</option>
+                <option value="Vĩnh Phúc">Vĩnh Phúc</option>
+                <option value="Phú Thọ">Phú Thọ</option>
+                <option value="Thái Bình">Thái Bình</option>
+                <option value="Nam Định">Nam Định</option>
+                <option value="Ninh Bình">Ninh Bình</option>
+                <option value="Hà Nam">Hà Nam</option>
+                <option value="Quảng Ninh">Quảng Ninh</option>
+                <option value="Thái Nguyên">Thái Nguyên</option>
+                <option value="Thanh Hóa">Thanh Hóa</option>
+                <option value="Nghệ An">Nghệ An</option>
+                <option value="Hà Tĩnh">Hà Tĩnh</option>
+                <option value="Đà Nẵng">Đà Nẵng</option>
+                <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                <option value="Bình Dương">Bình Dương</option>
+                <option value="Đồng Nai">Đồng Nai</option>
+                <option value="Cần Thơ">Cần Thơ</option>
+                <option value="Tỉnh/Thành khác">Tỉnh/Thành khác</option>
+              </select>
+              <span class="field-error-msg" id="err_province">Vui lòng chọn Tỉnh/Thành</span>
+            </div>
+
+            <!-- Quận / Huyện -->
+            <div class="consult-form-field" id="field_district">
+              <label for="c_district">Quận / Huyện:<span class="req">*</span></label>
+              <select id="c_district" name="district" required disabled>
+                <option value="">-- Chọn Quận/Huyện --</option>
+              </select>
+              <span class="field-error-msg" id="err_district">Vui lòng chọn Quận/Huyện</span>
+            </div>
+          </div>
+
+          <!-- Địa chỉ chi tiết (Xã/Phường, số nhà) -->
+          <div class="consult-form-field" id="field_address_detail">
+            <label for="c_address_detail">Địa chỉ chi tiết:<span class="opt">(không bắt buộc)</span></label>
+            <input type="text" id="c_address_detail" name="address_detail" placeholder="Số nhà, tên đường, xã/phường (nếu có)">
+          </div>
+
+          <!-- Tên công ty/cửa hàng (Không bắt buộc) -->
+          <div class="consult-form-field" id="field_company">
+            <label for="c_company">Tên công ty/cửa hàng:<span class="opt">(không bắt buộc)</span></label>
+            <input type="text" id="c_company" name="company" placeholder="Nhập tên công ty hoặc cửa hàng (nếu có)">
+          </div>
+
+          <!-- Nhu cầu tư vấn (Bắt buộc) -->
+          <div class="consult-form-field" id="field_message">
+            <label for="c_message">Nhu cầu tư vấn:<span class="req">*</span></label>
+            <textarea id="c_message" name="message" rows="2" placeholder="Nhập nhu cầu tư vấn (loại vật liệu, khối lượng, công trình...)" required></textarea>
+            <span class="field-error-msg" id="err_message">Vui lòng nhập nhu cầu tư vấn</span>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn-consult-submit" id="btnConsultSubmit">
+            Đăng ký tư vấn
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function() {
+  const form = document.getElementById('consultHomeForm');
+  if (!form) return;
+
+  const nameInput = document.getElementById('c_full_name');
+  const phoneInput = document.getElementById('c_phone');
+  const emailInput = document.getElementById('c_email');
+  const provinceSelect = document.getElementById('c_province');
+  const districtSelect = document.getElementById('c_district');
+  const msgInput = document.getElementById('c_message');
+  const submitBtn = document.getElementById('btnConsultSubmit');
+
+  // Database of Districts by Province
+  const districtData = {
+    'Hưng Yên': ['TP. Hưng Yên', 'Thị xã Mỹ Hào', 'Huyện Văn Giang', 'Huyện Yên Mỹ', 'Huyện Văn Lâm', 'Huyện Khoái Châu', 'Huyện Kim Động', 'Huyện Ân Thi', 'Huyện Tiên Lữ', 'Huyện Phù Cừ'],
+    'Hà Nội': ['Quận Ba Đình', 'Quận Hoàn Kiếm', 'Quận Tây Hồ', 'Quận Cầu Giấy', 'Quận Đống Đa', 'Quận Hai Bà Trưng', 'Quận Hoàng Mai', 'Quận Thanh Xuân', 'Quận Nam Từ Liêm', 'Quận Bắc Từ Liêm', 'Quận Hà Đông', 'Quận Long Biên', 'Thị xã Sơn Tây', 'Huyện Đông Anh', 'Huyện Gia Lâm', 'Huyện Sóc Sơn', 'Huyện Thanh Trì', 'Huyện Mê Linh', 'Huyện Hoài Đức', 'Huyện Đan Phượng', 'Huyện Quốc Oai', 'Huyện Thạch Thất', 'Huyện Chương Mỹ', 'Huyện Thanh Oai', 'Huyện Thường Tín', 'Huyện Phú Xuyên', 'Huyện Ứng Hòa', 'Huyện Mỹ Đức', 'Huyện Ba Vì', 'Huyện Phúc Thọ'],
+    'Hải Dương': ['TP. Hải Dương', 'TP. Chí Linh', 'Thị xã Kinh Môn', 'Huyện Cẩm Giàng', 'Huyện Bình Giang', 'Huyện Gia Lộc', 'Huyện Kim Thành', 'Huyện Nam Sách', 'Huyện Ninh Giang', 'Huyện Thanh Hà', 'Huyện Thanh Miện', 'Huyện Tứ Kỳ'],
+    'Hải Phòng': ['Quận Hồng Bàng', 'Quận Ngô Quyền', 'Quận Lê Chân', 'Quận Hải An', 'Quận Kiến An', 'Quận Đồ Sơn', 'Quận Dương Kinh', 'Huyện Thủy Nguyên', 'Huyện An Dương', 'Huyện An Lão', 'Huyện Kiến Thụy', 'Huyện Tiên Lãng', 'Huyện Vĩnh Bảo', 'Huyện Cát Hải', 'Huyện Bạch Long Vĩ'],
+    'Bắc Ninh': ['TP. Bắc Ninh', 'TP. Từ Sơn', 'Thị xã Thuận Thành', 'Thị xã Quế Võ', 'Huyện Tiên Du', 'Huyện Yên Phong', 'Huyện Gia Bình', 'Huyện Lương Tài'],
+    'Bắc Giang': ['TP. Bắc Giang', 'Thị xã Việt Yên', 'Huyện Hiệp Hòa', 'Huyện Tân Yên', 'Huyện Lạng Giang', 'Huyện Lục Nam', 'Huyện Lục Ngạn', 'Huyện Sơn Động', 'Huyện Yên Dũng', 'Huyện Yên Thế'],
+    'Vĩnh Phúc': ['TP. Vĩnh Yên', 'TP. Phúc Yên', 'Huyện Bình Xuyên', 'Huyện Lập Thạch', 'Huyện Sông Lô', 'Huyện Tam Dương', 'Huyện Tam Đảo', 'Huyện Vĩnh Tường', 'Huyện Yên Lạc'],
+    'Phú Thọ': ['TP. Việt Trì', 'Thị xã Phú Thọ', 'Huyện Cẩm Khê', 'Huyện Đoan Hùng', 'Huyện Hạ Hòa', 'Huyện Lâm Thao', 'Huyện Phù Ninh', 'Huyện Tam Nông', 'Huyện Tân Sơn', 'Huyện Thanh Ba', 'Huyện Thanh Sơn', 'Huyện Thanh Thủy', 'Huyện Yên Lập'],
+    'Thái Bình': ['TP. Thái Bình', 'Huyện Đông Hưng', 'Huyện Hưng Hà', 'Huyện Kiến Xương', 'Huyện Quỳnh Phụ', 'Huyện Thái Thụy', 'Huyện Tiền Hải', 'Huyện Vũ Thư'],
+    'Nam Định': ['TP. Nam Định', 'Huyện Giao Thủy', 'Huyện Hải Hậu', 'Huyện Mỹ Lộc', 'Huyện Nam Trực', 'Huyện Nghĩa Hưng', 'Huyện Trực Ninh', 'Huyện Vụ Bản', 'Huyện Xuân Trường', 'Huyện Ý Yên'],
+    'Ninh Bình': ['TP. Ninh Bình', 'TP. Tam Điệp', 'Huyện Gia Viễn', 'Huyện Hoa Lư', 'Huyện Kim Sơn', 'Huyện Nho Quan', 'Huyện Yên Khánh', 'Huyện Yên Mô'],
+    'Hà Nam': ['TP. Phủ Lý', 'Thị xã Duy Tiên', 'Huyện Bình Lục', 'Huyện Kim Bảng', 'Huyện Lý Nhân', 'Huyện Thanh Liêm'],
+    'Quảng Ninh': ['TP. Hạ Long', 'TP. Cẩm Phả', 'TP. Móng Cái', 'TP. Uông Bí', 'Thị xã Đông Triều', 'Thị xã Quảng Yên', 'Huyện Ba Chẽ', 'Huyện Bình Liêu', 'Huyện Cô Tô', 'Huyện Đầm Hà', 'Huyện Hải Hà', 'Huyện Tiên Yên', 'Huyện Vân Đồn'],
+    'Thái Nguyên': ['TP. Thái Nguyên', 'TP. Sông Công', 'TP. Phổ Yên', 'Huyện Đại Từ', 'Huyện Định Hóa', 'Huyện Đồng Hỷ', 'Huyện Phú Bình', 'Huyện Phú Lương', 'Huyện Võ Nhai'],
+    'Thanh Hóa': ['TP. Thanh Hóa', 'TP. Sầm Sơn', 'Thị xã Bỉm Sơn', 'Thị xã Nghi Sơn', 'Huyện Đông Sơn', 'Huyện Hà Trung', 'Huyện Hậu Lộc', 'Huyện Hoằng Hóa', 'Huyện Nga Sơn', 'Huyện Nông Cống', 'Huyện Quảng Xương', 'Huyện Thiệu Hóa', 'Huyện Thọ Xuân', 'Huyện Triệu Sơn', 'Huyện Yên Định'],
+    'Nghệ An': ['TP. Vinh', 'Thị xã Cửa Lò', 'Thị xã Thái Hòa', 'Thị xã Hoàng Mai', 'Huyện Diễn Châu', 'Huyện Đô Lương', 'Huyện Hưng Nguyên', 'Huyện Nam Đàn', 'Huyện Nghi Lộc', 'Huyện Quỳnh Lưu', 'Huyện Thanh Chương', 'Huyện Yên Thành'],
+    'Hà Tĩnh': ['TP. Hà Tĩnh', 'Thị xã Hồng Lĩnh', 'Thị xã Kỳ Anh', 'Huyện Can Lộc', 'Huyện Cẩm Xuyên', 'Huyện Đức Thọ', 'Huyện Hương Khê', 'Huyện Hương Sơn', 'Huyện Kỳ Anh', 'Huyện Lộc Hà', 'Huyện Nghi Xuân', 'Huyện Thạch Hà'],
+    'Đà Nẵng': ['Quận Hải Châu', 'Quận Cẩm Lệ', 'Quận Thanh Khê', 'Quận Liên Chiểu', 'Quận Ngũ Hành Sơn', 'Quận Sơn Trà', 'Huyện Hòa Vang', 'Huyện Hoàng Sa'],
+    'TP. Hồ Chí Minh': ['TP. Thủ Đức', 'Quận 1', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 6', 'Quận 7', 'Quận 8', 'Quận 10', 'Quận 11', 'Quận 12', 'Quận Bình Tân', 'Quận Bình Thạnh', 'Quận Gò Vấp', 'Quận Phú Nhuận', 'Quận Tân Bình', 'Quận Tân Phú', 'Huyện Bình Chánh', 'Huyện Cần Giờ', 'Huyện Củ Chi', 'Huyện Hóc Môn', 'Huyện Nhà Bè'],
+    'Bình Dương': ['TP. Thủ Dầu Một', 'TP. Dĩ An', 'TP. Thuận An', 'TP. Tân Uyên', 'TP. Bến Cát', 'Huyện Bàu Bàng', 'Huyện Bắc Tân Uyên', 'Huyện Dầu Tiếng', 'Huyện Phú Giáo'],
+    'Đồng Nai': ['TP. Biên Hòa', 'TP. Long Khánh', 'Huyện Cẩm Mỹ', 'Huyện Định Quán', 'Huyện Long Thành', 'Huyện Nhơn Trạch', 'Huyện Tân Phú', 'Huyện Thống Nhất', 'Huyện Trảng Bom', 'Huyện Vĩnh Cửu', 'Huyện Xuân Lộc'],
+    'Cần Thơ': ['Quận Ninh Kiều', 'Quận Bình Thủy', 'Quận Cái Răng', 'Quận Ô Môn', 'Quận Thốt Nốt', 'Huyện Cờ Đỏ', 'Huyện Phong Điền', 'Huyện Thới Lai', 'Huyện Vĩnh Thạnh'],
+    'Tỉnh/Thành khác': ['Trung tâm Tỉnh / Thành phố', 'Quận / Huyện trung tâm', 'Khu vực khác']
+  };
+
+  const phoneRegex = /^(0[235789])[0-9]{8}$/;
+  // Strict email regex requiring proper alphanumeric domains and valid TLDs (.com, .vn, .com.vn, etc.)
+  const emailStrictRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9]+([.-][a-zA-Z0-9]+)*\.[a-zA-Z]{2,6}$/;
+
+  function setFieldError(fieldId, isError) {
+    const field = document.getElementById(fieldId);
+    if (field) {
+      if (isError) {
+        field.classList.add('has-error');
+      } else {
+        field.classList.remove('has-error');
+      }
+    }
+  }
+
+  // Handle Province change -> Load Districts
+  provinceSelect.addEventListener('change', function() {
+    const selectedProv = this.value;
+    districtSelect.innerHTML = '<option value="">-- Chọn Quận/Huyện --</option>';
+    
+    if (selectedProv && districtData[selectedProv]) {
+      districtData[selectedProv].forEach(function(district) {
+        const opt = document.createElement('option');
+        opt.value = district;
+        opt.textContent = district;
+        districtSelect.appendChild(opt);
+      });
+      districtSelect.disabled = false;
+      setFieldError('field_province', false);
+    } else {
+      districtSelect.disabled = true;
+      setFieldError('field_province', true);
+    }
+    setFieldError('field_district', false);
+  });
+
+  districtSelect.addEventListener('change', function() {
+    setFieldError('field_district', this.value === '');
+  });
+
+  // Real-time validations
+  nameInput.addEventListener('input', () => {
+    setFieldError('field_name', nameInput.value.trim().length === 0);
+  });
+
+  phoneInput.addEventListener('input', () => {
+    const val = phoneInput.value.trim().replace(/[\s.-]/g, '');
+    setFieldError('field_phone', val.length > 0 && !phoneRegex.test(val));
+  });
+
+  emailInput.addEventListener('input', () => {
+    const val = emailInput.value.trim();
+    setFieldError('field_email', val.length > 0 && !emailStrictRegex.test(val));
+  });
+
+  msgInput.addEventListener('input', () => {
+    setFieldError('field_message', msgInput.value.trim().length === 0);
+  });
+
+  form.addEventListener('submit', function(e) {
+    let isValid = true;
+
+    // Validate Name
+    if (nameInput.value.trim().length === 0) {
+      setFieldError('field_name', true);
+      isValid = false;
+    } else {
+      setFieldError('field_name', false);
+    }
+
+    // Validate Phone (10 digits Vietnamese phone)
+    const phoneVal = phoneInput.value.trim().replace(/[\s.-]/g, '');
+    if (!phoneRegex.test(phoneVal)) {
+      setFieldError('field_phone', true);
+      isValid = false;
+    } else {
+      setFieldError('field_phone', false);
+    }
+
+    // Strict Validate Email if provided
+    const emailVal = emailInput.value.trim();
+    if (emailVal.length > 0 && !emailStrictRegex.test(emailVal)) {
+      setFieldError('field_email', true);
+      isValid = false;
+    } else {
+      setFieldError('field_email', false);
+    }
+
+    // Validate Province selection
+    if (!provinceSelect.value) {
+      setFieldError('field_province', true);
+      isValid = false;
+    } else {
+      setFieldError('field_province', false);
+    }
+
+    // Validate District selection
+    if (!districtSelect.value) {
+      setFieldError('field_district', true);
+      isValid = false;
+    } else {
+      setFieldError('field_district', false);
+    }
+
+    // Validate Message
+    if (msgInput.value.trim().length === 0) {
+      setFieldError('field_message', true);
+      isValid = false;
+    } else {
+      setFieldError('field_message', false);
+    }
+
+    if (!isValid) {
+      e.preventDefault();
+      // Scroll smoothly to the first invalid element
+      const firstError = form.querySelector('.has-error input, .has-error select, .has-error textarea');
+      if (firstError) {
+        firstError.focus();
+      }
+      return false;
+    }
+
+    // Prevent duplicate multi-click submissions
+    submitBtn.disabled = true;
+    submitBtn.innerText = 'Đang gửi đăng ký...';
+  });
+})();
+</script>
+
+{% endblock %}
+

@@ -1,0 +1,121 @@
+{% extends 'admin/base.html' %}
+{% load i18n static unfold %}
+
+{% block title %}Thông tin tài khoản | SHK Mortar Admin{% endblock %}
+
+{% block content %}
+<div class="account-profile-page max-w-4xl mx-auto">
+    <!-- Tiêu đề lớn góc trên -->
+    <h1 class="account-page-title">Thông tin tài khoản</h1>
+
+    {% if messages %}
+    <div class="account-messages">
+        {% for message in messages %}
+        <div class="account-msg-alert {% if message.tags == 'error' %}msg-error{% else %}msg-success{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Khối form nhập liệu màu trắng viền xám theo mẫu -->
+    <div class="account-form-card">
+        <form method="post" action="">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="save_profile">
+
+            <div class="account-form-grid">
+                
+                <!-- Hàng 1 - Trái: Họ và tên* -->
+                <div class="account-form-group">
+                    <label class="account-form-label">Họ và tên<span class="required-star">*</span></label>
+                    <input type="text" name="full_name" value="{{ profile.full_name|default:'Công ty TNHH Keo Vữa Sông Hồng' }}" required class="account-input">
+                </div>
+
+                <!-- Hàng 1 - Phải: Số điện thoại (Nền xám #E4E6EF) -->
+                <div class="account-form-group">
+                    <label class="account-form-label">Số điện thoại</label>
+                    <input type="text" name="phone" value="{{ profile.phone|default:'0938016788' }}" class="account-input account-input-disabled">
+                </div>
+
+                <!-- Hàng 2 - Trái: Email -->
+                <div class="account-form-group">
+                    <label class="account-form-label">Email</label>
+                    <input type="email" name="email" value="{{ profile.email|default:'admin@keovuasonghong.vn' }}" class="account-input">
+                </div>
+
+                <!-- Hàng 2 - Phải: Ngày sinh -->
+                <div class="account-form-group">
+                    <label class="account-form-label">Ngày sinh</label>
+                    <div class="account-input-with-icon">
+                        <input type="date" name="birthday" value="{{ profile.birthday|date:'Y-m-d'|default:'' }}" class="account-input">
+                        <div class="account-calendar-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6278" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                                <circle cx="7.5" cy="14" r="0.75" fill="#5E6278"></circle>
+                                <circle cx="12" cy="14" r="0.75" fill="#5E6278"></circle>
+                                <circle cx="16.5" cy="14" r="0.75" fill="#5E6278"></circle>
+                                <circle cx="7.5" cy="17.5" r="0.75" fill="#5E6278"></circle>
+                                <circle cx="12" cy="17.5" r="0.75" fill="#5E6278"></circle>
+                                <circle cx="16.5" cy="17.5" r="0.75" fill="#5E6278"></circle>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hàng 3 - Trái: Giới tính -->
+                <div class="account-form-group">
+                    <label class="account-form-label">Giới tính</label>
+                    <div class="account-select-wrapper">
+                        <select name="gender" class="account-input account-select">
+                            <option value="Nam" {% if profile.gender == 'Nam' %}selected{% endif %}>Nam</option>
+                            <option value="Nữ" {% if profile.gender == 'Nữ' %}selected{% endif %}>Nữ</option>
+                            <option value="Khác" {% if profile.gender == 'Khác' %}selected{% endif %}>Khác</option>
+                        </select>
+                        <span class="account-arrow-icon">▾</span>
+                    </div>
+                </div>
+
+                <!-- Hàng 3 - Phải: Khu vực -->
+                <div class="account-form-group">
+                    <label class="account-form-label">Khu vực</label>
+                    <div class="account-input-with-tools">
+                        <input type="text" name="region" value="{{ profile.region|default:'Hưng Yên - Huyện Khoái Châu' }}" class="account-input">
+                        <div class="account-tools-right">
+                            <button type="button" onclick="this.closest('.account-input-with-tools').querySelector('input').value=''" class="account-tool-clear">✕</button>
+                            <span class="account-arrow-icon-subtle">▾</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hàng 4 - Trái: Phường/Xã -->
+                <div class="account-form-group">
+                    <label class="account-form-label">Phường/Xã</label>
+                    <div class="account-input-with-tools">
+                        <input type="text" name="ward" value="{{ profile.ward|default:'Xã Đông Ninh' }}" class="account-input">
+                        <div class="account-tools-right">
+                            <button type="button" onclick="this.closest('.account-input-with-tools').querySelector('input').value=''" class="account-tool-clear">✕</button>
+                            <span class="account-arrow-icon-subtle">▾</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hàng 4 - Phải: Địa chỉ -->
+                <div class="account-form-group">
+                    <label class="account-form-label">Địa chỉ</label>
+                    <input type="text" name="address" value="{{ profile.address|default:'' }}" class="account-input">
+                </div>
+
+            </div>
+
+            <!-- Nút lưu -->
+            <div class="account-form-actions">
+                <button type="submit" class="account-save-btn">Lưu thay đổi</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

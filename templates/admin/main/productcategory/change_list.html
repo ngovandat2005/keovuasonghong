@@ -1,0 +1,236 @@
+{% extends "admin/change_list.html" %}
+{% load i18n static %}
+
+{% block content %}
+<div class="sp-wrap">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-4">
+        <div>
+            <h1 class="sp-page-title font-bold">{% trans "Danh mục sản phẩm" %}</h1>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'admin:main_productcategory_add' %}" class="sp-btn-add">
+                <span class="material-symbols-outlined md-18">add</span>
+                <span>{% trans "Thêm danh mục mới" %}</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white border border-base-200 rounded-default dark:bg-base-900 dark:border-base-800">
+        <!-- Search Form -->
+        <form method="get" class="flex flex-wrap items-center gap-3 px-4 py-3 border-b border-base-200 dark:border-base-800" id="sp-search-form">
+            <div class="flex items-center bg-white border border-base-200 rounded-default px-3 grow min-w-64 dark:bg-base-900 dark:border-base-700 focus-within:border-[#8C5A2B]">
+                <button type="submit" class="p-1 text-base-400 hover:text-[#8C5A2B] cursor-pointer flex items-center justify-center border-none bg-transparent" title="{% trans 'Tìm kiếm' %}">
+                    <span class="material-symbols-outlined md-18" style="font-size:18px;">search</span>
+                </button>
+                <input type="text" name="q" value="{{ cl.query }}" placeholder="{% trans 'Tìm theo tên danh mục hoặc slug...' %}" class="grow p-2 text-sm bg-transparent focus:outline-hidden">
+                {% if cl.query %}
+                <a href="{% querystring q=None %}" class="p-1 text-base-400 hover:text-red-500 cursor-pointer flex items-center justify-center" title="{% trans 'Xóa tìm kiếm' %}">
+                    <span class="material-symbols-outlined md-18" style="font-size:18px;">close</span>
+                </a>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="px-4 py-2 bg-[#8C5A2B] hover:bg-[#70441E] text-white text-sm font-medium rounded-default transition-colors cursor-pointer flex items-center gap-1 border-none">
+                <span class="material-symbols-outlined md-18" style="font-size:18px;">search</span>
+                {% trans "Tìm kiếm" %}
+            </button>
+        </form>
+
+        <!-- Categories Table -->
+        <form id="sp-changelist-form" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" id="sp-action-input" value="">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-base-200 text-left text-subtle dark:border-base-800">
+                        <th class="px-4 py-3 font-semibold">{% trans "Tên danh mục" %}</th>
+                        <th class="px-4 py-3 font-semibold">{% trans "Đường dẫn (Slug)" %}</th>
+                        <th class="px-4 py-3 font-semibold text-center">{% trans "Số lượng sản phẩm" %}</th>
+                        <th class="px-4 py-3 font-semibold text-right">{% trans "Hành động" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in cl.result_list %}
+                    <tr class="border-b border-base-100 last:border-0 dark:border-base-800/60 hover:bg-base-50/50 dark:hover:bg-base-800/30 transition-colors">
+                        <td class="px-4 py-3.5">
+                            <a href="/admin/main/productcategory/{{ obj.pk }}/change/" class="sp-plain-text font-semibold text-base-900 dark:text-base-100 hover:text-primary-600 dark:hover:text-primary-400 hover:underline">
+                                {{ obj.name }}
+                            </a>
+                        </td>
+                        <td class="px-4 py-3.5">
+                            <code class="px-2 py-1 bg-base-100 dark:bg-base-800 text-base-600 dark:text-base-300 rounded text-xs font-mono">
+                                {{ obj.slug }}
+                            </code>
+                        </td>
+                        <td class="px-4 py-3.5 text-center">
+                            <a href="/admin/main/product/?category__id__exact={{ obj.pk }}" title="{% trans 'Bấm để xem danh sách sản phẩm thuộc danh mục này' %}" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-50 text-[#EA580C] hover:bg-orange-100 dark:bg-orange-950/40 dark:text-orange-300 transition-colors">
+                                <span class="material-symbols-outlined text-xs" style="font-size:14px;">inventory_2</span>
+                                <span>{{ obj.product_set.count }} {% trans "sản phẩm" %}</span>
+                            </a>
+                        </td>
+                        <td class="px-4 py-3.5 text-right">
+                            <div class="flex items-center justify-end gap-1.5">
+                                <a href="/admin/main/product/?category__id__exact={{ obj.pk }}" title="{% trans 'Xem sản phẩm' %}" class="w-8 h-8 flex items-center justify-center rounded-default hover:bg-base-100 dark:hover:bg-base-800 text-base-500 hover:text-primary-600 transition-colors">
+                                    <span class="material-symbols-outlined md-18 sp-plain-text" style="font-size:18px;">visibility</span>
+                                </a>
+                                <a href="/admin/main/productcategory/{{ obj.pk }}/change/" title="{% trans 'Sửa danh mục' %}" class="w-8 h-8 flex items-center justify-center rounded-default hover:bg-base-100 dark:hover:bg-base-800 text-base-500 hover:text-[#8C5A2B] transition-colors">
+                                    <span class="material-symbols-outlined md-18 sp-plain-text" style="font-size:18px;">edit</span>
+                                </a>
+                                <button type="button" onclick="openCustomDeleteModal('/admin/main/productcategory/{{ obj.pk }}/delete/', '{{ obj.name|escapejs }}', this)" title="{% trans 'Xóa danh mục' %}" class="w-8 h-8 flex items-center justify-center rounded-default hover:bg-base-100 dark:hover:bg-base-800 text-base-500 hover:text-red-600 transition-colors border-none bg-transparent cursor-pointer">
+                                    <span class="material-symbols-outlined md-18 sp-plain-text" style="font-size:18px;">delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-4 py-8 text-center text-subtle">
+                            {% trans "Không tìm thấy danh mục sản phẩm nào." %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </form>
+
+        <!-- Pagination Footer -->
+        <div class="flex items-center justify-between px-4 py-3 text-sm text-subtle border-t border-base-200 dark:border-base-800">
+            <span>
+                {% blocktrans with start=range_start end=range_end total=cl.paginator.count %}Hiển thị {{ start }} - {{ end }} trong số {{ total }} danh mục{% endblocktrans %}
+            </span>
+            <div class="flex items-center gap-3">
+                <span>{% trans "Số dòng mỗi trang" %}:</span>
+                <select onchange="window.location.href=this.value" class="border border-base-200 rounded-default px-2 py-1 bg-white dark:bg-base-900 dark:border-base-700 text-sm">
+                    {% querystring list_per_page=10 as ps10 %}
+                    {% querystring list_per_page=20 as ps20 %}
+                    {% querystring list_per_page=50 as ps50 %}
+                    {% querystring list_per_page=100 as ps100 %}
+                    <option value="{{ ps10 }}" {% if cl.list_per_page == 10 %}selected{% endif %}>10</option>
+                    <option value="{{ ps20 }}" {% if cl.list_per_page == 20 %}selected{% endif %}>20</option>
+                    <option value="{{ ps50 }}" {% if cl.list_per_page == 50 %}selected{% endif %}>50</option>
+                    <option value="{{ ps100 }}" {% if cl.list_per_page == 100 %}selected{% endif %}>100</option>
+                </select>
+
+                {% if cl.paginator.num_pages > 1 %}
+                    <div class="flex items-center gap-1 ml-3">
+                        {% if cl.page_num > 1 %}
+                            {% querystring p=cl.page_num|add:"-1" as prev_url %}
+                            <a href="{{ prev_url }}" class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-base-100 dark:hover:bg-base-800">‹</a>
+                        {% endif %}
+                        {% for p in cl.paginator.page_range %}
+                            {% querystring p=p as page_url %}
+                            <a href="{{ page_url }}" class="w-7 h-7 flex items-center justify-center rounded-full {% if p == cl.page_num %}bg-primary-600 text-white font-semibold{% else %}hover:bg-base-100 dark:hover:bg-base-800{% endif %}">{{ p }}</a>
+                        {% endfor %}
+                        {% if cl.page_num < cl.paginator.num_pages %}
+                            {% querystring p=cl.page_num|add:"1" as next_url %}
+                            <a href="{{ next_url }}" class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-base-100 dark:hover:bg-base-800">›</a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Giữ màn hình đứng yên, không bị nhảy layout khi chuyển trang */
+html {
+    overflow-y: scroll !important;
+    scrollbar-gutter: stable !important;
+}
+
+/* Ẩn breadcrumbs "Main > Danh mục sản phẩm" ở thanh header */
+#header-inner h1,
+#header-inner .block.h-5.w-px,
+#header-inner .block.bg-base-200.h-5 {
+    display: none !important;
+}
+
+/* Đưa bảng danh mục về sát lề trái, rộng 100% fullwidth */
+#main,
+#content,
+#content.container,
+#content-main,
+.content,
+.container {
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Nút Thêm mới dạng Button màu nâu #8C5A2B */
+.sp-btn-add,
+a.sp-btn-add {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    background-color: #8C5A2B !important;
+    color: #FFFFFF !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    padding: 8px 16px !important;
+    border-radius: 6px !important;
+    text-decoration: none !important;
+    border: 1px solid #8C5A2B !important;
+    cursor: pointer !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    line-height: 1.4 !important;
+    box-sizing: border-box !important;
+}
+.sp-btn-add:hover,
+a.sp-btn-add:hover {
+    background-color: #70441E !important;
+    border-color: #70441E !important;
+    color: #FFFFFF !important;
+}
+.sp-btn-add span,
+.sp-btn-add .material-symbols-outlined {
+    color: #FFFFFF !important;
+}
+
+/* Xóa bỏ phần dưới footer hiển thị mặc định của Unfold */
+#main > div.sticky,
+.scrollable-top,
+div[class*="backdrop-blur"]:has(.py-4) {
+    display: none !important;
+}
+
+/* Tiêu đề Danh mục sản phẩm: 22px và chữ đen */
+.sp-page-title,
+.sp-wrap h1 {
+    font-size: 22px !important;
+    line-height: 28px !important;
+    color: #111827 !important;
+    font-weight: 700 !important;
+}
+html.dark .sp-page-title,
+html.dark .sp-wrap h1 {
+    color: #F9FAFB !important;
+}
+
+.sp-wrap,
+.sp-wrap table,
+.sp-wrap tr,
+.sp-wrap th,
+.sp-wrap td,
+.sp-wrap input,
+.sp-wrap select,
+.sp-wrap button,
+.sp-wrap label,
+.sp-wrap a {
+    font-size: 14px !important;
+}
+.sp-plain-text,
+.sp-plain-text:hover {
+    color: inherit;
+    font-size: 14px !important;
+}
+</style>
+{% include "admin/includes/custom_delete_modal.html" %}
+{% endblock %}
+
+{% block footer %}{% endblock %}

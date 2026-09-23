@@ -1,0 +1,161 @@
+{% extends 'unfold/layouts/base.html' %}
+{% load i18n admin_urls static admin_modify unfold %}
+
+{% block content %}
+<div class="cat-wrap">
+    <!-- Topbar: Back button & Title -->
+    <div class="mb-5 flex items-center gap-3">
+        <a href="{% url 'admin:main_productcategory_changelist' %}" class="w-9 h-9 flex items-center justify-center rounded-default border border-base-300 bg-white hover:bg-base-100 hover:text-primary-600 text-base-700 dark:bg-base-800 dark:border-base-700 dark:text-base-200 dark:hover:bg-base-700 transition-colors shadow-xs" title="{% trans 'Quay lại' %}">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+        </a>
+        <h1 class="cat-title font-bold text-[#111827] dark:text-[#F9FAFB] leading-tight" style="font-size: 22px !important; color: #111827 !important; margin: 0 !important;">
+            {% if original %}{{ original.name }}{% else %}{% trans "Thêm danh mục mới" %}{% endif %}
+        </h1>
+    </div>
+
+    <!-- Form Container -->
+    <form action="{{ form_url }}" method="post" id="productcategory_form" novalidate class="max-w-3xl">
+        {% csrf_token %}
+        {% if errors %}
+            <div class="p-4 mb-4 text-sm text-red-700 bg-red-50 rounded-default border border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-900/50">
+                {% trans "Vui lòng sửa các lỗi bên dưới." %}
+                {{ adminform.form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="bg-white border border-base-200 rounded-default p-6 dark:bg-base-900 dark:border-base-800 shadow-xs">
+            <h2 class="cat-section-title font-semibold text-base-900 dark:text-base-100 border-b border-base-200 pb-3 mb-6 dark:border-base-800" style="font-size: 18px !important; line-height: 24px !important;">
+                {% trans "Thông tin danh mục" %}
+            </h2>
+
+            <!-- Tên danh mục -->
+            <div class="space-y-2 mb-7">
+                <label for="id_name" class="block font-medium text-base-700 dark:text-base-300" style="font-size: 15px !important;">
+                    {% trans "Tên danh mục" %} <span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="name" id="id_name" value="{{ adminform.form.name.value|default:'' }}" required maxlength="200" placeholder="{% trans 'VD: Keo dán gạch, Vữa xây AAC...' %}" class="w-full px-3.5 py-2.5 bg-white dark:bg-base-800 border border-base-300 dark:border-base-700 rounded-default focus:border-[#8C5A2B] focus:ring-1 focus:ring-[#8C5A2B] outline-hidden text-base-900 dark:text-base-100" style="font-size: 15px !important;">
+                {% if adminform.form.name.errors %}
+                    <p class="text-xs text-red-600 mt-1">{{ adminform.form.name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Slug -->
+            <div class="space-y-2">
+                <label for="id_slug" class="block font-medium text-base-700 dark:text-base-300" style="font-size: 15px !important;">
+                    {% trans "Đường dẫn tĩnh (Slug)" %}
+                </label>
+                <input type="text" name="slug" id="id_slug" value="{{ adminform.form.slug.value|default:'' }}" maxlength="200" placeholder="{% trans 'vd: keo-dan-gach' %}" class="w-full px-3.5 py-2.5 bg-white dark:bg-base-800 border border-base-300 dark:border-base-700 rounded-default focus:border-[#8C5A2B] focus:ring-1 focus:ring-[#8C5A2B] outline-hidden text-base-900 dark:text-base-100 font-mono" style="font-size: 15px !important;">
+                {% if adminform.form.slug.errors %}
+                    <p class="text-xs text-red-600 mt-1">{{ adminform.form.slug.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Bottom Action Bar -->
+        <div class="flex items-center justify-between mt-6">
+            {% if original and has_delete_permission %}
+            <button type="button" onclick="openCustomDeleteModal('{% url 'admin:main_productcategory_delete' original.pk %}', '{{ original.name|escapejs }}', this)" class="px-4 py-2 font-medium text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-default transition-colors flex items-center gap-1.5 border-none bg-transparent cursor-pointer" style="font-size: 15px !important;">
+                <span class="material-symbols-outlined text-[16px]">delete</span>
+                {% trans "Xóa danh mục này" %}
+            </button>
+            {% else %}
+            <div></div>
+            {% endif %}
+
+            <div class="flex items-center gap-3">
+                <button type="submit" name="_save" class="px-6 py-2.5 font-medium text-white bg-[#8C5A2B] hover:bg-[#70441E] rounded-default transition-colors flex items-center gap-1.5 border-none cursor-pointer" style="font-size: 15px !important;">
+                    <span class="material-symbols-outlined text-[16px]">save</span>
+                    {% trans "Lưu thay đổi" %}
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+function convertToSlug(str) {
+    if (!str) return '';
+    str = str.toLowerCase();
+    str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, 'a');
+    str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, 'e');
+    str = str.replace(/ì|í|ị|ỉ|ĩ/g, 'i');
+    str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, 'o');
+    str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, 'u');
+    str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, 'y');
+    str = str.replace(/đ/g, 'd');
+    str = str.replace(/[^a-z0-9\s-]/g, '');
+    str = str.replace(/\s+/g, '-');
+    str = str.replace(/-+/g, '-');
+    str = str.replace(/^-+|-+$/g, '');
+    return str;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const nameInput = document.getElementById('id_name');
+    const slugInput = document.getElementById('id_slug');
+    if (!nameInput || !slugInput) return;
+
+    let isManualSlug = !!slugInput.value.trim();
+
+    nameInput.addEventListener('input', function() {
+        if (!isManualSlug) {
+            slugInput.value = convertToSlug(this.value);
+        }
+    });
+
+    slugInput.addEventListener('input', function() {
+        if (!this.value.trim()) {
+            isManualSlug = false;
+            slugInput.value = convertToSlug(nameInput.value);
+        } else {
+            isManualSlug = true;
+        }
+    });
+
+    const form = document.getElementById('productcategory_form');
+    if (form) {
+        form.addEventListener('submit', function() {
+            if (!slugInput.value.trim() && nameInput.value.trim()) {
+                slugInput.value = convertToSlug(nameInput.value.trim());
+            }
+        });
+    }
+});
+</script>
+
+<style>
+.cat-wrap {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+.cat-title,
+.cat-wrap h1 {
+    font-size: 22px !important;
+    line-height: 28px !important;
+    color: #111827 !important;
+    font-weight: 700 !important;
+}
+html.dark .cat-title,
+html.dark .cat-wrap h1 {
+    color: #F9FAFB !important;
+}
+.cat-section-title,
+.cat-wrap h2 {
+    font-size: 18px !important;
+    line-height: 24px !important;
+    font-weight: 600 !important;
+}
+.cat-wrap label,
+.cat-wrap input,
+.cat-wrap button,
+.cat-wrap a[href*="delete"] {
+    font-size: 15px !important;
+}
+#main > div.sticky,
+.scrollable-top,
+div[class*="backdrop-blur"]:has(.py-4) {
+    display: none !important;
+}
+</style>
+{% include "admin/includes/custom_delete_modal.html" %}
+{% endblock %}

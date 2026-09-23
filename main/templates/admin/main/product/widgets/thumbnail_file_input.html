@@ -1,0 +1,14 @@
+<div class="pd-imgfield">
+    {% if widget.is_initial %}
+    <div class="pd-imgfield-current">
+        <img src="{{ widget.value.url }}" class="pd-imgfield-thumb" alt="">
+        {% if not widget.required %}
+        <label class="pd-icon-btn pd-icon-danger" title="Xóa ảnh">
+            <input type="checkbox" name="{{ widget.checkbox_name }}" id="{{ widget.checkbox_id }}">
+            <span class="material-symbols-outlined md-16">delete</span>
+        </label>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% include "django/forms/widgets/file.html" %}
+</div>

@@ -1,0 +1,186 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Tin tức – Keo Vữa Sông Hồng{% endblock %}
+{% block meta_desc %}Tin tức, sự kiện, kiến thức chuyên ngành và phóng sự thực tế từ Keo Vữa Sông Hồng (SHK Mortar){% endblock %}
+
+{% block content %}
+
+<!-- ── FULL-WIDTH HERO BANNER (ĐỒNG BỘ CÙNG HỆ THỐNG) ── -->
+<div class="cat-hero-banner-wrap">
+  <div class="cat-hero-bg">
+    <div class="cat-hero-overlay">
+      <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 0 32px;">
+        <div class="cat-hero-content">
+          <h1 class="cat-hero-title">Tin tức</h1>
+          <nav class="cat-hero-breadcrumb">
+            <a href="{% url 'home' %}">Trang chủ</a>
+            <span class="sep">&gt;</span>
+            {% if current_category %}
+              <a href="{% url 'news_list' %}">Tin tức</a>
+              <span class="sep">&gt;</span>
+              <span class="curr">{{ current_category.name }}</span>
+            {% else %}
+              <span class="curr">Tin tức</span>
+            {% endif %}
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── KHU VỰC NỘI DUNG TIN TỨC ── -->
+<section class="news-page-section">
+  <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 0 32px;">
+    
+    <!-- WRAPPER 2 CỘT (SIDEBAR TRÁI - CONTENT PHẢI) -->
+    <div class="news-layout-wrapper">
+      
+      <!-- CỘT TRÁI: Thanh chọn chuyên mục tin tức (Filter Nav Tabs) -->
+      <aside class="news-sidebar">
+        <div class="news-filter-nav">
+          <a href="{% url 'news_list' %}" class="news-filter-btn {% if not current_category %}active{% endif %}">
+            Danh mục
+          </a>
+          {% for cat in categories %}
+          <a href="{% url 'news_list_category' cat.slug %}" class="news-filter-btn {% if current_category.slug == cat.slug %}active{% endif %}">
+            {{ cat.name }}
+          </a>
+          {% endfor %}
+        </div>
+      </aside>
+
+      <!-- CỘT PHẢI: Lưới bài viết tin tức và phân trang -->
+      <div class="news-main-content">
+        {% if news_items %}
+        <div class="news-custom-grid">
+          {% for item in news_items %}
+          <article class="news-item-card">
+            <!-- Ảnh tỷ lệ 4:3 -->
+            <a href="{% url 'news_detail' item.category.slug item.slug %}" class="news-item-visual{% if item.is_auto_video_thumbnail %} news-item-visual--video{% endif %}">
+              {% if item.thumbnail_url %}
+              <img src="{{ item.thumbnail_url }}" alt="{{ item.title }}" loading="lazy">
+              {% else %}
+              <img src="{% static 'images/construction_bg_mortar.jpg' %}" alt="{{ item.title }}" loading="lazy">
+              {% endif %}
+            </a>
+    
+            <!-- Thân thẻ bài viết -->
+            <div class="news-item-body">
+              <div class="news-item-meta">
+                {% if item.category %}
+                <span class="news-item-cat">{{ item.category.name }}</span>
+                {% endif %}
+                <span class="news-item-date">
+                  {{ item.published_at|date:"d/m/Y" }}
+                </span>
+              </div>
+    
+              <h3 class="news-item-title">
+                <a href="{% url 'news_detail' item.category.slug item.slug %}" title="{{ item.title }}">
+                  {{ item.title }}
+                </a>
+              </h3>
+    
+              <p class="news-item-summary">
+                {{ item.display_summary }}
+              </p>
+    
+              <a href="{% url 'news_detail' item.category.slug item.slug %}" class="news-item-readmore">
+                Xem chi tiết <i class="fa-solid fa-arrow-right-long"></i>
+              </a>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+    
+        {% if page_obj and page_obj.has_other_pages %}
+        <!-- ── THANH CHUYỂN ĐỔI (SQUARES) ── -->
+        <div class="custom-pagination-wrap" style="display:flex; justify-content:center; gap:4px; margin-top: 16px; margin-bottom: 16px; padding-top: 0;">
+          {% if page_obj.has_previous %}
+            <a href="{% if selected_cat_slug %}{% url 'news_list_category' selected_cat_slug %}{% else %}{% url 'news_list' %}{% endif %}?page={{ page_obj.previous_page_number }}" class="page-next-btn"><i class="fa-solid fa-chevron-left"></i></a>
+          {% endif %}
+
+          {% for i in page_obj.paginator.page_range %}
+            <a href="{% if selected_cat_slug %}{% url 'news_list_category' selected_cat_slug %}{% else %}{% url 'news_list' %}{% endif %}?page={{ i }}" class="{% if page_obj.number == i %}page-active{% endif %}">{{ i }}</a>
+          {% endfor %}
+
+          {% if page_obj.has_next %}
+            <a href="{% if selected_cat_slug %}{% url 'news_list_category' selected_cat_slug %}{% else %}{% url 'news_list' %}{% endif %}?page={{ page_obj.next_page_number }}" class="page-next-btn"><i class="fa-solid fa-chevron-right"></i></a>
+          {% endif %}
+        </div>
+        {% endif %}
+    
+        {% else %}
+        <!-- Trạng thái trống nếu chưa có bài viết -->
+        <div style="text-align: center; padding: 80px 20px; color: #888888;">
+          <i class="fa-solid fa-newspaper" style="font-size: 56px; margin-bottom: 16px; opacity: 0.3; display: block;"></i>
+          <p style="font-size: 16px; margin-bottom: 0;">Hiện chưa có bài viết nào trong chuyên mục này.</p>
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- ── SUPPORT BANNER SECTION (YÊU CẦU HỖ TRỢ ĐỒNG BỘ) ── -->
+<section class="cat-support-banner-section">
+  <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 0 32px;">
+    <div class="cat-support-inner">
+      
+      <!-- Cột Trái: Tiêu đề & phụ đề -->
+      <div class="cat-support-left">
+        <h2 class="cat-support-title">Yêu cầu hỗ trợ</h2>
+        <p class="cat-support-subtitle">Vui lòng liên hệ với đội ngũ của chúng tôi<br>để nhận được sự hỗ trợ nhanh chóng nhất</p>
+      </div>
+
+      <!-- Cột Phải: Thông tin liên hệ (Zalo OA, Email, Phone) -->
+      <div class="cat-support-right">
+        <div class="cat-support-items">
+          
+          <!-- Zalo OA -->
+          <a href="https://zalo.me/3423135266242009757" target="_blank" rel="noopener noreferrer" class="cat-support-item">
+            <div class="cat-support-icon cat-zalo-icon-box">
+              <img src="{% static 'images/zalo-oa-logo.svg' %}" alt="Zalo Official Account" class="cat-zalo-img">
+            </div>
+            <div class="cat-support-info">
+              <span class="cat-support-label">Zalo OA</span>
+              <span class="cat-support-val">Công ty TNHH Keo Vữa Sông Hồng</span>
+            </div>
+          </a>
+
+          <!-- Email -->
+          <a href="https://mail.google.com/mail/?view=cm&fs=1&to=admin@keovuasonghong.vn" target="_blank" rel="noopener noreferrer" class="cat-support-item" title="Soạn email gửi đến admin@keovuasonghong.vn qua Gmail">
+            <div class="cat-support-icon cat-circle-icon">
+              <i class="fa-solid fa-envelope"></i>
+            </div>
+            <div class="cat-support-info">
+              <span class="cat-support-label">Email</span>
+              <span class="cat-support-val">admin@keovuasonghong.vn</span>
+            </div>
+          </a>
+
+          <!-- Phone -->
+          <a href="tel:+84938016788" class="cat-support-item">
+            <div class="cat-support-icon cat-circle-icon">
+              <i class="fa-solid fa-phone"></i>
+            </div>
+            <div class="cat-support-info">
+              <span class="cat-support-label">Phone</span>
+              <span class="cat-support-val">+84 938 016 788 / +84 386 360 797</span>
+            </div>
+          </a>
+
+        </div>
+        <!-- Đường nét đứt trang trí bên dưới -->
+        <div class="cat-support-divider"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% endblock %}

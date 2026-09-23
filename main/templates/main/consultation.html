@@ -1,0 +1,122 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Đăng Ký Tư Vấn – Keo Vữa Sông Hồng{% endblock %}
+{% block meta_desc %}Đăng ký tư vấn miễn phí từ chuyên gia SHK Mortar – Lựa chọn vật liệu xây dựng phù hợp cho công trình của bạn{% endblock %}
+
+{% block content %}
+
+<section class="page-hero">
+  <div class="container">
+    <h1><i class="fas fa-comments"></i> Đăng ký tư vấn</h1>
+    <p>Chuyên gia SHK Mortar sẽ liên hệ trong vòng 24 giờ làm việc</p>
+    <nav class="breadcrumb-nav">
+      <a href="{% url 'home' %}">Trang chủ</a>
+      <i class="fas fa-chevron-right"></i>
+      <span>Đăng ký tư vấn</span>
+    </nav>
+  </div>
+</section>
+
+<section style="background:var(--br1);padding:64px 0 96px;">
+  <div class="container" style="max-width:1280px;margin:0 auto;padding:0 64px;">
+    <div class="contact-grid">
+
+      <!-- Form -->
+      <div>
+        <div style="margin-bottom:36px;">
+          <span style="font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);">Tư vấn miễn phí</span>
+          <h2 style="font-size:28px;font-weight:900;color:var(--text);margin-top:8px;margin-bottom:12px;">Để lại thông tin, chúng tôi sẽ gọi lại cho bạn</h2>
+          <p style="font-size:14px;color:var(--muted);line-height:1.7;">Đội ngũ kỹ thuật SHK Mortar sẽ tư vấn lựa chọn sản phẩm phù hợp với từng hạng mục công trình, giúp thi công đúng quy trình và tiết kiệm chi phí.</p>
+        </div>
+
+        <form method="post">
+          {% csrf_token %}
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label>Họ và tên <span class="required">*</span></label>
+              <input type="text" name="full_name" placeholder="Nguyễn Văn A" required>
+            </div>
+            <div class="form-group">
+              <label>Số điện thoại <span class="required">*</span></label>
+              <input type="tel" name="phone" placeholder="0386.360.797" required>
+            </div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" name="email" placeholder="email@example.com">
+            </div>
+            <div class="form-group">
+              <label>Công ty / Dự án</label>
+              <input type="text" name="company" placeholder="Tên công ty hoặc dự án">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Quan tâm đến sản phẩm</label>
+            <select name="interest">
+              <option value="">-- Chọn sản phẩm --</option>
+              <option value="Vữa khô trộn sẵn">Vữa khô trộn sẵn</option>
+              <option value="Keo dán gạch">Keo dán gạch & đá</option>
+              <option value="Cát sấy khô">Cát sấy khô</option>
+              <option value="Tư vấn toàn bộ">Tư vấn toàn bộ công trình</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Yêu cầu cụ thể</label>
+            <textarea name="message" rows="4" placeholder="Mô tả yêu cầu của bạn, diện tích công trình, tiến độ thi công..."></textarea>
+          </div>
+          <button type="submit" class="form-submit">
+            <i class="fas fa-paper-plane"></i> Gửi đăng ký tư vấn
+          </button>
+        </form>
+      </div>
+
+      <!-- Info -->
+      <div class="contact-info">
+        <div style="background:var(--br3);border-radius:var(--rad);padding:32px;margin-bottom:24px;">
+          <h3 style="font-size:14px;font-weight:800;color:var(--amber);margin-bottom:20px;text-transform:uppercase;letter-spacing:.08em;">Tại sao chọn SHK Mortar?</h3>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div style="display:flex;gap:14px;align-items:flex-start;">
+              <div style="width:36px;height:36px;border-radius:8px;background:rgba(255,145,76,.1);border:1px solid rgba(255,145,76,.2);display:flex;align-items:center;justify-content:center;color:var(--amber);flex-shrink:0;font-size:14px;"><i class="fas fa-medal"></i></div>
+              <div><strong style="font-size:13px;font-weight:700;color:var(--text);display:block;">Chứng nhận ISO 9001</strong><span style="font-size:12px;color:var(--muted);">Quy trình sản xuất đạt tiêu chuẩn quốc tế</span></div>
+            </div>
+            <div style="display:flex;gap:14px;align-items:flex-start;">
+              <div style="width:36px;height:36px;border-radius:8px;background:rgba(255,145,76,.1);border:1px solid rgba(255,145,76,.2);display:flex;align-items:center;justify-content:center;color:var(--amber);flex-shrink:0;font-size:14px;"><i class="fas fa-cogs"></i></div>
+              <div><strong style="font-size:13px;font-weight:700;color:var(--text);display:block;">Kỹ thuật viên hỗ trợ tại công trình</strong><span style="font-size:12px;color:var(--muted);">Hỗ trợ kỹ thuật miễn phí trực tiếp</span></div>
+            </div>
+            <div style="display:flex;gap:14px;align-items:flex-start;">
+              <div style="width:36px;height:36px;border-radius:8px;background:rgba(255,145,76,.1);border:1px solid rgba(255,145,76,.2);display:flex;align-items:center;justify-content:center;color:var(--amber);flex-shrink:0;font-size:14px;"><i class="fas fa-truck"></i></div>
+              <div><strong style="font-size:13px;font-weight:700;color:var(--text);display:block;">Giao hàng toàn quốc</strong><span style="font-size:12px;color:var(--muted);">420+ đại lý phân phối trên toàn quốc</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="contact-info-item">
+          <div class="icon"><i class="fas fa-phone-alt"></i></div>
+          <div>
+            <h4>Hotline tư vấn</h4>
+            <p><a href="tel:0386360797" style="color:var(--amber);font-weight:700;">0386.360.797</a></p>
+            <p><a href="tel:0938016788" style="color:var(--amber);font-weight:700;">0938.016.788</a></p>
+          </div>
+        </div>
+        <div class="contact-info-item">
+          <div class="icon"><i class="fas fa-clock"></i></div>
+          <div>
+            <h4>Giờ làm việc</h4>
+            <p>Thứ 2 – Thứ 7: 8:00 – 17:30</p>
+          </div>
+        </div>
+        <div class="contact-info-item">
+          <div class="icon"><i class="fas fa-comment-dots"></i></div>
+          <div>
+            <h4>Zalo hỗ trợ</h4>
+            <p><a href="https://zalo.me/3423135266242009757" target="_blank" style="color:var(--amber);font-weight:700;">Chat Zalo ngay</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

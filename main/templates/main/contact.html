@@ -1,0 +1,96 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}Liên hệ – Keo Vữa Sông Hồng{% endblock %}
+{% block content %}
+
+<div class="page-hero">
+    <div class="container">
+        <h1><i class="fas fa-envelope"></i> Liên hệ</h1>
+        <p>Chúng tôi luôn sẵn sàng hỗ trợ bạn</p>
+        <div class="breadcrumb">
+            <a href="{% url 'home' %}">Trang chủ</a> <i class="fas fa-chevron-right" style="font-size:10px"></i>
+            <span>Liên hệ</span>
+        </div>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        <div class="contact-grid">
+            <div class="contact-info">
+                <h2>Thông tin <span style="color:var(--red)">liên hệ</span></h2>
+                <div class="contact-info-item">
+                    <div class="icon"><i class="fas fa-building"></i></div>
+                    <div>
+                        <h4>Văn phòng công ty</h4>
+                        <p>San hô 6-30, Vinhomes Ocean Park 2, Văn Giang, Hưng Yên</p>
+                    </div>
+                </div>
+                <div class="contact-info-item">
+                    <div class="icon"><i class="fas fa-industry"></i></div>
+                    <div>
+                        <h4>Nhà máy sản xuất</h4>
+                        <p>Thôn Ninh Tập, Xã Châu Ninh, Hưng Yên</p>
+                    </div>
+                </div>
+                <div class="contact-info-item">
+                    <div class="icon"><i class="fas fa-phone"></i></div>
+                    <div>
+                        <h4>Hotline</h4>
+                        <p><a href="tel:0386360797" style="color:var(--red);font-weight:700;font-size:16px;">0386.360.797</a></p>
+                        <p><a href="tel:0938016788" style="color:var(--red);font-weight:700;font-size:16px;">0938.016.788</a></p>
+                    </div>
+                </div>
+                <div class="contact-info-item">
+                    <div class="icon"><i class="fas fa-envelope"></i></div>
+                    <div>
+                        <h4>Email</h4>
+                        <p><a href="mailto:admin@keovuasonghong.vn" style="color:var(--red);">admin@keovuasonghong.vn</a></p>
+                    </div>
+                </div>
+                <div class="contact-info-item">
+                    <div class="icon"><i class="fas fa-clock"></i></div>
+                    <div>
+                        <h4>Giờ làm việc</h4>
+                        <p>Thứ 2 – Thứ 7: 8:00 – 17:30</p>
+                        <p style="color:#999;font-size:13px;">Chủ nhật: nghỉ</p>
+                    </div>
+                </div>
+                <div style="display:flex;gap:12px;margin-top:8px;">
+                    <a href="https://facebook.com" target="_blank" style="width:40px;height:40px;border-radius:50%;background:#1877f2;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://zalo.me/3423135266242009757" target="_blank" rel="noopener noreferrer" style="width:40px;height:40px;border-radius:50%;background:#ffffff;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.15);" title="Chat Zalo"><img src="{% static 'images/zalo-pulse-icon.svg' %}" alt="Zalo" style="width:100%;height:100%;object-fit:cover;"></a>
+                    <a href="https://tiktok.com" target="_blank" style="width:40px;height:40px;border-radius:50%;background:#010101;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;"><i class="fab fa-tiktok"></i></a>
+                </div>
+            </div>
+
+            <div>
+                <h2 style="font-size:22px;font-weight:800;margin-bottom:24px;">Gửi <span style="color:var(--red)">tin nhắn</span></h2>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label>Họ và tên <span class="required">*</span></label>
+                            <input type="text" name="full_name" placeholder="Nguyễn Văn A" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Số điện thoại <span class="required">*</span></label>
+                            <input type="tel" name="phone" placeholder="0386.360.xxx" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" placeholder="example@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Nội dung <span class="required">*</span></label>
+                        <textarea name="message" rows="5" placeholder="Nhập nội dung cần tư vấn hoặc hỗ trợ..." required></textarea>
+                    </div>
+                    <button type="submit" class="form-submit">
+                        <i class="fas fa-paper-plane"></i> Gửi tin nhắn
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

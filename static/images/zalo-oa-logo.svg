@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <!-- Nền tròn trắng -->
+  <circle cx="250" cy="250" r="240" fill="#FFFFFF"/>
+  
+  <!-- Logo Zalo Official Account màu xanh #0068FF -->
+  <g fill="#0068FF">
+    <!-- Chữ Zalo lớn bên trái -->
+    <text x="52" y="278" font-family="'Bai Jamjuree', 'Segoe UI', -apple-system, sans-serif" font-weight="900" font-size="108" letter-spacing="-3px">Zalo</text>
+    
+    <!-- Chữ Official Account xếp 2 hàng bên phải -->
+    <text x="318" y="235" font-family="'Bai Jamjuree', 'Segoe UI', -apple-system, sans-serif" font-weight="700" font-size="36" letter-spacing="-0.8px">Official</text>
+    <text x="318" y="278" font-family="'Bai Jamjuree', 'Segoe UI', -apple-system, sans-serif" font-weight="700" font-size="36" letter-spacing="-0.8px">Account</text>
+  </g>
+</svg>

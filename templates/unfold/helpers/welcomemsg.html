@@ -1,0 +1,17 @@
+{% load unfold i18n admin_urls %}
+
+<div class="flex flex-row items-center min-w-0 mr-4 grow-0">
+    <!-- Thanh tìm kiếm sát góc trái header (Tìm kiếm (Ctrl + K)) -->
+    {% if request.user.is_staff %}
+    <button type="button" class="header-search-bar" x-on:click="$dispatch('opencommand')" title="{% trans 'Tìm kiếm (Ctrl + K)' %}">
+        <span class="material-symbols-outlined header-search-icon">search</span>
+        <span class="header-search-placeholder">Tìm kiếm (Ctrl + K)</span>
+    </button>
+    {% endif %}
+
+    {% include "unfold/helpers/header_back_button.html" %}
+
+    <h1 class="overflow-hidden leading-5 text-important flex items-center whitespace-nowrap xl:text-base ml-3 hidden">
+        {% header_title %}
+    </h1>
+</div>

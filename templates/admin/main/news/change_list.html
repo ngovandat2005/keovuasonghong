@@ -1,0 +1,531 @@
+{% extends "admin/change_list.html" %}
+{% load i18n static %}
+
+{% block content %}
+<div class="sp-wrap">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-4">
+        <div>
+            <h1 class="sp-page-title font-bold">{% trans "Danh sách tin tức" %}</h1>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'admin:main_news_add' %}" class="sp-btn-add">
+                <span class="material-symbols-outlined md-18">add</span>
+                <span>{% trans "Thêm tin tức mới" %}</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white border border-base-200 rounded-default dark:bg-base-900 dark:border-base-800">
+        <!-- Search Form -->
+        <form method="get" class="flex flex-wrap items-center gap-3 px-4 py-3 border-b border-base-200 dark:border-base-800" id="sp-search-form" onsubmit="this.querySelectorAll('input, select').forEach(function(el){ if(!el.value) el.disabled = true; });">
+            <div class="flex items-center bg-white border border-base-200 rounded-default px-3 grow min-w-64 dark:bg-base-900 dark:border-base-700 focus-within:border-[#8C5A2B]">
+                <button type="submit" class="sp-search-icon-btn p-1 text-base-400 hover:text-[#8C5A2B] cursor-pointer flex items-center justify-center border-none bg-transparent" title="{% trans 'Tìm kiếm' %}">
+                    <span class="material-symbols-outlined md-18" style="font-size:18px;">search</span>
+                </button>
+                <input type="text" name="q" value="{{ cl.query }}" placeholder="{% trans 'Tìm theo tiêu đề bài viết, tác giả...' %}" class="grow p-2 text-sm bg-transparent focus:outline-hidden">
+                {% if cl.query %}
+                <a href="{% querystring q=None %}" class="p-1 text-base-400 hover:text-red-500 cursor-pointer flex items-center justify-center" title="{% trans 'Xóa tìm kiếm' %}">
+                    <span class="material-symbols-outlined md-18" style="font-size:18px;">close</span>
+                </a>
+                {% endif %}
+            </div>
+
+            <select name="is_active__exact" onchange="if(!this.value){ this.disabled = true; } this.form.submit();" class="text-sm border border-base-200 rounded-default px-3 py-2 bg-white dark:bg-base-900 dark:border-base-700">
+                <option value="">{% trans "Tất cả trạng thái" %} ({{ total_count }})</option>
+                <option value="1" {% if current_is_active == "1" %}selected{% endif %}>{% trans "Hiển thị" %}</option>
+                <option value="0" {% if current_is_active == "0" %}selected{% endif %}>{% trans "Đang ẩn" %}</option>
+            </select>
+
+            <button type="submit" class="px-4 py-2 bg-[#8C5A2B] hover:bg-[#70441E] text-white text-sm font-medium rounded-default transition-colors cursor-pointer flex items-center gap-1 border-none">
+                <span class="material-symbols-outlined md-18" style="font-size:18px;">search</span>
+                {% trans "Tìm kiếm" %}
+            </button>
+        </form>
+
+        <!-- News Category Filter Tabs Bar -->
+        <div class="sp-tabs-toolbar flex flex-wrap items-center gap-2 px-4 py-2.5 bg-[#f8fafc] dark:bg-base-900/60 border-b border-base-200 dark:border-base-800">
+            {% querystring category__id__exact=None as url_all %}
+            <a href="{{ url_all }}" class="sp-tab-pill {% if not current_category %}active{% endif %}">
+                {% trans "Tất cả" %} <span class="sp-tab-count">({{ total_count }})</span>
+            </a>
+            {% for c in news_categories %}
+                {% querystring category__id__exact=c.obj.pk as url_cat %}
+                <a href="{{ url_cat }}" class="sp-tab-pill {% if current_category == c.obj.pk|stringformat:"s" %}active{% endif %}">
+                    {{ c.obj.name }} <span class="sp-tab-count">({{ c.count }})</span>
+                </a>
+            {% endfor %}
+        </div>
+
+        <!-- News Table -->
+        <form id="sp-changelist-form" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" id="sp-action-input" value="">
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm" style="min-width: 1000px; width: 100%;">
+                <thead>
+                    <tr class="sp-table-header border-b border-base-200 dark:border-base-800">
+                        <th class="px-4 py-4 w-14 text-center">
+                            <input type="checkbox" id="action-toggle" class="sp-master-checkbox cursor-pointer w-4 h-4 rounded-none accent-[#8C5A2B] border-gray-300 align-middle" title="{% trans "Chọn tất cả" %}">
+                        </th>
+                        <th class="px-4 py-4 w-28 text-center sp-th">{% trans "Ảnh" %}</th>
+                        <th class="px-6 py-4 text-left sp-th">{% trans "Tiêu đề" %}</th>
+                        <th class="px-6 py-4 text-left sp-th w-60">{% trans "Danh mục tin tức" %}</th>
+                        <th class="px-4 py-4 text-center sp-th w-40">{% trans "Hiển thị web" %}</th>
+                        <th class="px-6 py-4 text-right sp-th w-32">{% trans "Hành động" %}</th>
+                    </tr>
+                </thead>
+                <tbody id="sp-news-tbody">
+                    {% for obj in cl.result_list %}
+                    <tr class="border-b border-base-100 last:border-0 dark:border-base-800/60 hover:bg-base-50/50 dark:hover:bg-base-800/30 transition-colors" data-pk="{{ obj.pk }}">
+                        <td class="px-4 py-4 text-center">
+                            <input type="checkbox" name="_selected_action" value="{{ obj.pk }}" class="action-select sp-row-checkbox cursor-pointer w-4 h-4 rounded-none accent-[#8C5A2B] border-gray-300 align-middle">
+                        </td>
+                        <td class="px-4 py-4 text-center">
+                            {% if obj.thumbnail_url %}
+                                <img src="{{ obj.thumbnail_url }}" class="sp-thumb-box mx-auto">
+                            {% else %}
+                                <div class="sp-thumb-placeholder mx-auto">
+                                    <span class="material-symbols-outlined sp-icon-placeholder">newspaper</span>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4" style="max-width: 480px;">
+                            <a href="/admin/main/news/{{ obj.pk }}/change/" class="sp-plain-text font-semibold text-base-900 dark:text-base-100 hover:text-primary-600 dark:hover:text-primary-400 hover:underline block leading-relaxed text-[14.5px]">
+                                {{ obj.title }}
+                            </a>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if obj.category %}
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-base-100 dark:bg-base-800 text-base-700 dark:text-base-300 border border-base-200 dark:border-base-700 whitespace-nowrap">
+                                    {{ obj.category.name }}
+                                </span>
+                            {% else %}
+                                <span class="text-xs text-subtle">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap">
+                            <button type="button" class="sp-toggle-active" data-pk="{{ obj.pk }}" data-active="{{ obj.is_active|yesno:"1,0" }}">
+                                <span class="sp-toggle-track {% if obj.is_active %}sp-toggle-on{% endif %}">
+                                    <span class="sp-toggle-thumb"></span>
+                                </span>
+                                <span class="sp-toggle-label sp-plain-text ml-2 text-xs">
+                                    {% if obj.is_active %}{% trans "Hiển thị" %}{% else %}{% trans "Đang ẩn" %}{% endif %}
+                                </span>
+                            </button>
+                        </td>
+                        <td class="px-4 py-4 text-right">
+                            <div class="flex items-center justify-end gap-1">
+                                <a href="{% url 'news_detail' obj.category.slug obj.slug %}" target="_blank" title="{% trans 'Xem trên web' %}" class="w-8 h-8 flex items-center justify-center rounded-default hover:bg-base-100 dark:hover:bg-base-800 text-base-500 hover:text-primary-600 transition-colors">
+                                    <span class="material-symbols-outlined md-18 sp-plain-text" style="font-size:18px;">visibility</span>
+                                </a>
+                                <a href="/admin/main/news/{{ obj.pk }}/change/" title="{% trans 'Sửa tin tức' %}" class="w-8 h-8 flex items-center justify-center rounded-default hover:bg-base-100 dark:hover:bg-base-800 text-base-500 hover:text-[#8C5A2B] transition-colors">
+                                    <span class="material-symbols-outlined md-18 sp-plain-text" style="font-size:18px;">edit</span>
+                                </a>
+                                <button type="button" onclick="openCustomDeleteModal('{% url 'admin:main_news_delete' obj.pk %}', '{{ obj.title|escapejs }}', this)" title="{% trans 'Xóa tin tức' %}" class="w-8 h-8 flex items-center justify-center rounded-default hover:bg-base-100 dark:hover:bg-base-800 text-base-500 hover:text-red-600 transition-colors border-none bg-transparent cursor-pointer">
+                                    <span class="material-symbols-outlined md-18 sp-plain-text" style="font-size:18px;">delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-4 py-8 text-center text-subtle">
+                            {% trans "Không tìm thấy bài viết tin tức nào." %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </form>
+
+        <!-- Pagination Footer -->
+        <div class="flex items-center justify-between px-4 py-3 text-sm text-subtle border-t border-base-200 dark:border-base-800">
+            <span>
+                {% blocktrans with start=range_start end=range_end total=cl.paginator.count %}Hiển thị {{ start }} - {{ end }} trong số {{ total }} bài viết{% endblocktrans %}
+            </span>
+            <div class="flex items-center gap-3">
+                <span>{% trans "Số dòng mỗi trang" %}:</span>
+                <select onchange="window.location.href=this.value" class="border border-base-200 rounded-default px-2 py-1 bg-white dark:bg-base-900 dark:border-base-700 text-sm">
+                    {% querystring list_per_page=10 as ps10 %}
+                    {% querystring list_per_page=20 as ps20 %}
+                    {% querystring list_per_page=50 as ps50 %}
+                    {% querystring list_per_page=100 as ps100 %}
+                    <option value="{{ ps10 }}" {% if cl.list_per_page == 10 %}selected{% endif %}>10</option>
+                    <option value="{{ ps20 }}" {% if cl.list_per_page == 20 %}selected{% endif %}>20</option>
+                    <option value="{{ ps50 }}" {% if cl.list_per_page == 50 %}selected{% endif %}>50</option>
+                    <option value="{{ ps100 }}" {% if cl.list_per_page == 100 %}selected{% endif %}>100</option>
+                </select>
+
+                {% if cl.paginator.num_pages > 1 %}
+                    <div class="flex items-center gap-1 ml-3">
+                        {% if cl.page_num > 1 %}
+                            {% querystring p=cl.page_num|add:"-1" as prev_url %}
+                            <a href="{{ prev_url }}" class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-base-100 dark:hover:bg-base-800">‹</a>
+                        {% endif %}
+                        {% for p in cl.paginator.page_range %}
+                            {% querystring p=p as page_url %}
+                            <a href="{{ page_url }}" class="w-7 h-7 flex items-center justify-center rounded-full {% if p == cl.page_num %}bg-primary-600 text-white font-semibold{% else %}hover:bg-base-100 dark:hover:bg-base-800{% endif %}">{{ p }}</a>
+                        {% endfor %}
+                        {% if cl.page_num < cl.paginator.num_pages %}
+                            {% querystring p=cl.page_num|add:"1" as next_url %}
+                            <a href="{{ next_url }}" class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-base-100 dark:hover:bg-base-800">›</a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Giữ màn hình đứng yên, không bị nhảy layout khi chuyển trang */
+html {
+    overflow-y: scroll !important;
+    scrollbar-gutter: stable !important;
+}
+
+/* Ẩn breadcrumbs "Main > Tin tức" ở thanh header */
+#header-inner h1,
+#header-inner .block.h-5.w-px,
+#header-inner .block.bg-base-200.h-5 {
+    display: none !important;
+}
+
+/* Đưa bảng về sát lề trái, rộng 100% fullwidth */
+#main,
+#content,
+#content.container,
+#content-main,
+.content,
+.container {
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Nút Thêm mới dạng Button màu nâu #8C5A2B */
+.sp-btn-add,
+a.sp-btn-add {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    background-color: #8C5A2B !important;
+    color: #FFFFFF !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    padding: 8px 16px !important;
+    border-radius: 6px !important;
+    text-decoration: none !important;
+    border: 1px solid #8C5A2B !important;
+    cursor: pointer !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    line-height: 1.4 !important;
+    box-sizing: border-box !important;
+}
+.sp-btn-add:hover,
+a.sp-btn-add:hover {
+    background-color: #70441E !important;
+    border-color: #70441E !important;
+    color: #FFFFFF !important;
+}
+.sp-btn-add span,
+.sp-btn-add .material-symbols-outlined {
+    color: #FFFFFF !important;
+}
+
+/* Xóa bỏ phần dưới footer hiển thị mặc định của Unfold */
+#main > div.sticky,
+.scrollable-top,
+div[class*="backdrop-blur"]:has(.py-4) {
+    display: none !important;
+}
+
+/* Tiêu đề Danh sách tin tức: 22px và chữ đen */
+.sp-page-title,
+.sp-wrap h1 {
+    font-size: 22px !important;
+    line-height: 28px !important;
+    color: #111827 !important;
+    font-weight: 700 !important;
+}
+html.dark .sp-page-title,
+html.dark .sp-wrap h1 {
+    color: #F9FAFB !important;
+}
+
+.sp-wrap,
+.sp-wrap table,
+.sp-wrap tr,
+.sp-wrap th,
+.sp-wrap td,
+.sp-wrap input,
+.sp-wrap select,
+.sp-wrap button,
+.sp-wrap label,
+.sp-wrap a {
+    font-size: 14px !important;
+}
+.sp-plain-text,
+.sp-plain-text:hover {
+    color: inherit;
+    font-size: 14px !important;
+}
+
+/* Table Header Styles (High Contrast & Clear) */
+.sp-table-header {
+    background-color: #f8fafc;
+    border-bottom: 1.5px solid #e2e8f0;
+}
+html.dark .sp-table-header {
+    background-color: #0f172a;
+    border-bottom-color: #1e293b;
+}
+.sp-th {
+    color: #374151 !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.1px;
+}
+html.dark .sp-th {
+    color: #e2e8f0 !important;
+}
+
+/* Image Thumbnail Box (4:3 ratio) */
+.sp-thumb-box {
+    width: 72px;
+    height: 54px;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border: 1px solid #e2e8f0;
+    border-radius: 0px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+html.dark .sp-thumb-box {
+    border-color: #334155;
+}
+.sp-thumb-placeholder {
+    width: 72px;
+    height: 54px;
+    aspect-ratio: 4 / 3;
+    background-color: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    border-radius: 0px !important;
+}
+html.dark .sp-thumb-placeholder {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #64748b;
+}
+.sp-icon-placeholder {
+    font-family: 'Material Symbols Outlined' !important;
+    font-size: 28px !important;
+    color: #94a3b8 !important;
+    display: inline-block !important;
+    line-height: 1 !important;
+    font-style: normal !important;
+    letter-spacing: normal !important;
+    text-transform: none !important;
+    font-feature-settings: 'liga' 1 !important;
+}
+
+/* News Category Filter Tabs Bar */
+.sp-tabs-toolbar {
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+.sp-tab-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 4px;
+    color: #475569;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    text-decoration: none !important;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+.sp-tab-pill:hover {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #0f172a !important;
+}
+.sp-tab-pill.active {
+    background-color: #8C5A2B !important;
+    border-color: #8C5A2B !important;
+    color: #ffffff !important;
+    box-shadow: 0 1px 3px rgba(140, 90, 43, 0.25);
+}
+.sp-tab-pill.active:hover {
+    background-color: #70441E !important;
+    border-color: #70441E !important;
+    color: #ffffff !important;
+}
+.sp-tab-count {
+    opacity: 0.85;
+    font-size: 12px;
+}
+.sp-tab-pill.active .sp-tab-count {
+    opacity: 0.95;
+    color: #ffffff;
+}
+html.dark .sp-tabs-toolbar {
+    background-color: #0f172a;
+    border-bottom-color: #1e293b;
+}
+html.dark .sp-tab-pill {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #94a3b8 !important;
+}
+html.dark .sp-tab-pill:hover {
+    background-color: #334155;
+    color: #f8fafc !important;
+}
+html.dark .sp-tab-pill.active {
+    background-color: #8C5A2B !important;
+    border-color: #8C5A2B !important;
+    color: #ffffff !important;
+}
+
+/* Toggle switch */
+.sp-toggle-track {
+    display: inline-block;
+    width: 36px;
+    height: 20px;
+    border-radius: 999px !important;
+    background-color: #d1d5db;
+    position: relative;
+    transition: background-color .15s ease;
+    vertical-align: middle;
+}
+.sp-toggle-track.sp-toggle-on {
+    background-color: #EA580C !important;
+}
+.sp-toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 999px !important;
+    background-color: #fff;
+    transition: left .15s ease;
+}
+.sp-toggle-on .sp-toggle-thumb {
+    left: 18px;
+}
+.sp-toggle-active {
+    display: inline-flex;
+    align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+/* Toast notification */
+.sp-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #111827;
+    color: #FFFFFF;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 999999;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+.sp-toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+.sp-toast .material-symbols-outlined {
+    color: #10B981;
+    font-size: 18px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    function getCookie(name) {
+        const match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+        return match ? decodeURIComponent(match[2]) : '';
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    // 1. Chuyển đổi trạng thái hiển thị
+    document.querySelectorAll('.sp-toggle-active').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const pk = btn.dataset.pk;
+            fetch('/admin/main/news/toggle-active/' + pk + '/', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (!data.ok) return;
+                const track = btn.querySelector('.sp-toggle-track');
+                const label = btn.querySelector('.sp-toggle-label');
+                if (data.is_active) {
+                    track.classList.add('sp-toggle-on');
+                    label.textContent = '{% trans "Hiển thị" %}';
+                    label.classList.add('text-primary-600');
+                    label.classList.remove('text-subtle');
+                } else {
+                    track.classList.remove('sp-toggle-on');
+                    label.textContent = '{% trans "Đang ẩn" %}';
+                    label.classList.remove('text-primary-600');
+                    label.classList.add('text-subtle');
+                }
+                showToast(data.is_active ? '{% trans "Đã bật hiển thị bài viết thành công!" %}' : '{% trans "Đã chuyển sang trạng thái ẩn!" %}');
+            });
+        });
+    });
+
+    let toastTimeout = null;
+
+    function showToast(msg) {
+        let toast = document.getElementById('spToast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'spToast';
+            toast.className = 'sp-toast';
+            document.body.appendChild(toast);
+        }
+        toast.innerHTML = `<span class="material-symbols-outlined">check_circle</span> <span>${msg}</span>`;
+        toast.classList.add('show');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+            toast.classList.remove('show');
+        }, 2500);
+    }
+
+});
+</script>
+{% include "admin/includes/custom_delete_modal.html" %}
+{% endblock %}
+
+{% block footer %}{% endblock %}

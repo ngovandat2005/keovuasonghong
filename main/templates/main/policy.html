@@ -1,0 +1,752 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Chính Sách Khách Hàng – Keo Vữa Sông Hồng{% endblock %}
+{% block meta_desc %}Văn bản chính sách khách hàng, điều khoản giao dịch và chính sách bảo mật thông tin cá nhân của Công ty TNHH Keo Vữa Sông Hồng (SHK Mortar).{% endblock %}
+
+{% block content %}
+
+<!-- ── FULL-WIDTH HERO BANNER ── -->
+<div class="cat-hero-banner-wrap">
+  <div class="cat-hero-bg">
+    <div class="cat-hero-overlay">
+      <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 0 32px;">
+        <div class="cat-hero-content">
+          <h1 class="cat-hero-title">Chính sách khách hàng</h1>
+          <nav class="cat-hero-breadcrumb">
+            <a href="{% url 'home' %}">Trang chủ</a>
+            <span class="sep">&gt;</span>
+            <span class="curr">Chính sách khách hàng</span>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── KHU VỰC NỘI DUNG CHÍNH (2 CỘT: MỤC LỤC TRÁI - VĂN BẢN PDF PHẢI) ── -->
+<section class="policy-section">
+  <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 0 24px;">
+    
+    <div class="policy-layout-grid">
+      
+      <!-- ── CỘT TRÁI: MỤC LỤC BÀI VIẾT (STICKY) ── -->
+      <aside class="policy-sidebar-col">
+        <div class="policy-toc-card" id="policy-toc-card">
+          <div class="policy-toc-header" onclick="togglePolicyToc()">
+            <div class="policy-toc-title-wrap">
+              <span class="policy-toc-badge"></span>
+              <h3 class="policy-toc-title">Mục lục văn bản</h3>
+            </div>
+            <span class="policy-toc-toggle-icon" id="policy-toc-toggle-btn">▼</span>
+          </div>
+
+          <nav class="policy-toc-nav" id="policy-toc-list">
+            <ul class="policy-toc-root">
+              <li class="policy-toc-item">
+                <a href="#thong-tin-va-cach-goi" class="policy-toc-link">Thông tin và cách gọi trong chính sách</a>
+              </li>
+              <li class="policy-toc-item">
+                <a href="#thong-tin-chung" class="policy-toc-link">I. Thông tin chung</a>
+              </li>
+              <li class="policy-toc-item">
+                <a href="#thong-tin-doanh-nghiep" class="policy-toc-link">II. Thông tin doanh nghiệp</a>
+              </li>
+              <li class="policy-toc-item">
+                <a href="#chinh-sach-bao-mat-thong-tin" class="policy-toc-link">III. Chính sách bảo mật thông tin cá nhân</a>
+                <ul class="policy-toc-sub">
+                  <li><a href="#muc-dich-thu-thap" class="policy-toc-sublink">1. Mục đích thu thập thông tin</a></li>
+                  <li><a href="#muc-dich-su-dung" class="policy-toc-sublink">2. Mục đích sử dụng thông tin</a></li>
+                  <li><a href="#bao-ve-thong-tin" class="policy-toc-sublink">3. Bảo vệ thông tin cá nhân</a></li>
+                  <li><a href="#cac-ben-tiep-can" class="policy-toc-sublink">4. Các bên có thể được tiếp cận thông tin</a></li>
+                </ul>
+              </li>
+              <li class="policy-toc-item">
+                <a href="#chinh-sach-cham-soc-khach-hang" class="policy-toc-link">IV. Chính sách chăm sóc khách hàng</a>
+              </li>
+              <li class="policy-toc-item">
+                <a href="#chinh-sach-doi-tra" class="policy-toc-link">V. Chính sách đổi, trả và xử lý sản phẩm</a>
+              </li>
+              <li class="policy-toc-item">
+                <a href="#chinh-sach-thanh-toan" class="policy-toc-link">VI. Chính sách thanh toán</a>
+                <ul class="policy-toc-sub">
+                  <li><a href="#thanh-toan-tien-mat" class="policy-toc-sublink">1. Thanh toán bằng tiền mặt</a></li>
+                  <li><a href="#thanh-toan-chuyen-khoan" class="policy-toc-sublink">2. Thanh toán bằng chuyển khoản</a></li>
+                  <li><a href="#dieu-kien-thanh-toan" class="policy-toc-sublink">3. Điều kiện thanh toán</a></li>
+                </ul>
+              </li>
+              <li class="policy-toc-item">
+                <a href="#tiep-nhan-phan-hoi" class="policy-toc-link">VII. Tiếp nhận phản hồi và khiếu nại</a>
+              </li>
+              <li class="policy-toc-item">
+                <a href="#cam-ket-cua-shk" class="policy-toc-link">VIII. Cam kết của SHK Mortar</a>
+              </li>
+              <li class="policy-toc-item">
+                <a href="#hieu-luc-va-cap-nhat" class="policy-toc-link">IX. Hiệu lực và cập nhật chính sách</a>
+              </li>
+            </ul>
+
+            <!-- Nút xem/tải bản PDF gốc -->
+            <div class="policy-toc-pdf-download">
+              <a href="/media/chinh-sach-dieu-khoan-website-shk.pdf" target="_blank" rel="noopener noreferrer" class="btn-download-pdf">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="12" y1="18" x2="12" y2="12"></line>
+                  <line x1="9" y1="15" x2="15" y2="15"></line>
+                </svg>
+                Xem / Tải file PDF gốc
+              </a>
+            </div>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- ── CỘT PHẢI: TRANG VĂN BẢN CHUẨN NGUYÊN BẢN THEO PDF ── -->
+      <article class="policy-content-col">
+        <div class="policy-doc-paper">
+          
+          <!-- Phần đầu văn bản chuẩn theo PDF -->
+          <div class="policy-doc-top">
+            <h1 class="policy-doc-title">CHÍNH SÁCH KHÁCH HÀNG</h1>
+            
+            <div class="policy-doc-company-info">
+              <p class="company-name">Công ty TNHH Keo Vữa Sông Hồng</p>
+              <p class="company-line"><span class="label">Mã số thuế:</span> 0901176922</p>
+              <p class="company-line"><span class="label">Văn phòng đại diện:</span> Vinhomes Ocean Park 2, Văn Giang, Hưng Yên, Việt Nam</p>
+              <p class="company-line"><span class="label">Địa chỉ nhà máy:</span> Thôn Ninh Tập, xã Châu Ninh, tỉnh Hưng Yên, Việt Nam</p>
+            </div>
+          </div>
+
+          <div class="policy-doc-body">
+            
+            <!-- THÔNG TIN VÀ CÁCH GỌI TRONG CHÍNH SÁCH -->
+            <section class="policy-sec" id="thong-tin-va-cach-goi">
+              <h2 class="policy-h2">THÔNG TIN VÀ CÁCH GỌI TRONG CHÍNH SÁCH</h2>
+              <p>Trong Chính sách khách hàng này, tùy theo ngữ cảnh, các cách gọi sau đây được sử dụng để chỉ Công ty TNHH Keo Vữa Sông Hồng:</p>
+              <ul class="policy-bullets">
+                <li>“Công ty”</li>
+                <li>“Chúng tôi”</li>
+                <li>“Keo Vữa Sông Hồng”</li>
+                <li>“SHK Mortar”</li>
+                <li>“SHK”</li>
+              </ul>
+              <p>Các cách gọi nêu trên có cùng ý nghĩa và được sử dụng thay thế cho nhau trong toàn bộ Chính sách này.</p>
+              <p>“Khách hàng”, “Quý khách” hoặc “bạn” được sử dụng để chỉ cá nhân, tổ chức, doanh nghiệp hoặc đối tác sử dụng, mua, tìm hiểu sản phẩm, dịch vụ của Công ty TNHH Keo Vữa Sông Hồng / SHK Mortar hoặc cung cấp thông tin cho Công ty thông qua website, biểu mẫu, kênh liên hệ hoặc các hình thức tương tác khác.</p>
+              <p>Trong trường hợp cần xác định chính xác chủ thể có quyền và nghĩa vụ trong giao dịch, Công ty TNHH Keo Vữa Sông Hồng là tên pháp nhân được sử dụng trong hợp đồng, chứng từ và các tài liệu pháp lý liên quan.</p>
+            </section>
+
+            <!-- I. THÔNG TIN CHUNG -->
+            <section class="policy-sec" id="thong-tin-chung">
+              <h2 class="policy-h2">I. THÔNG TIN CHUNG</h2>
+              <p>SHK Mortar trân trọng cảm ơn Quý khách hàng, đối tác và các tổ chức, cá nhân đã quan tâm, tìm hiểu và sử dụng sản phẩm, dịch vụ của Công ty.</p>
+              <p>Chính sách khách hàng này được xây dựng nhằm minh bạch các nguyên tắc của Keo Vữa Sông Hồng trong quá trình cung cấp sản phẩm, dịch vụ, tiếp nhận thông tin khách hàng, chăm sóc khách hàng, tiếp nhận yêu cầu và xử lý các vấn đề phát sinh trong quá trình hợp tác.</p>
+              <p>Chính sách áp dụng đối với khách hàng, đối tác và các cá nhân có liên quan khi:</p>
+              <ul class="policy-bullets">
+                <li>Tìm hiểu sản phẩm của SHK Mortar;</li>
+                <li>Sử dụng sản phẩm, dịch vụ do Công ty cung cấp;</li>
+                <li>Liên hệ với chúng tôi thông qua website, điện thoại, email, mạng xã hội hoặc các kênh liên hệ khác;</li>
+                <li>Đăng ký tư vấn, đăng ký nhận thông tin hoặc để lại thông tin trên website;</li>
+                <li>Điền các biểu mẫu, phiếu đăng ký, biểu mẫu yêu cầu báo giá, tư vấn hoặc các biểu mẫu khác do SHK cung cấp;</li>
+                <li>Thực hiện giao dịch hoặc ký kết hợp đồng mua bán với Công ty.</li>
+              </ul>
+              <p>Keo Vữa Sông Hồng có quyền cập nhật, sửa đổi hoặc bổ sung Chính sách khách hàng khi cần thiết để phù hợp với hoạt động kinh doanh và quy định pháp luật hiện hành.</p>
+              <p>Phiên bản cập nhật sẽ được công bố trên các kênh thông tin chính thức của SHK Mortar và áp dụng theo thời điểm được công bố, trừ trường hợp hợp đồng hoặc thỏa thuận giữa các bên có quy định khác.</p>
+            </section>
+
+            <!-- II. THÔNG TIN DOANH NGHIỆP -->
+            <section class="policy-sec" id="thong-tin-doanh-nghiep">
+              <h2 class="policy-h2">II. THÔNG TIN DOANH NGHIỆP</h2>
+              <p><span class="label">Tên doanh nghiệp:</span> Công ty TNHH Keo Vữa Sông Hồng</p>
+              <p><span class="label">Tên thương hiệu:</span> SHK Mortar</p>
+              <p><span class="label">Mã số thuế:</span> 0901176922</p>
+              <p><span class="label">Văn phòng đại diện:</span> Vinhomes Ocean Park 2, Văn Giang, Hưng Yên, Việt Nam</p>
+              <p><span class="label">Địa chỉ nhà máy:</span> Thôn Ninh Tập, xã Châu Ninh, tỉnh Hưng Yên, Việt Nam</p>
+              <p>Trong phạm vi Chính sách này, Công ty, Chúng tôi, Keo Vữa Sông Hồng, SHK Mortar và SHK được hiểu là các cách gọi thay thế để chỉ Công ty TNHH Keo Vữa Sông Hồng, tùy theo ngữ cảnh sử dụng.</p>
+            </section>
+
+            <!-- III. CHÍNH SÁCH BẢO MẬT THÔNG TIN CÁ NHÂN -->
+            <section class="policy-sec" id="chinh-sach-bao-mat-thong-tin">
+              <h2 class="policy-h2">III. CHÍNH SÁCH BẢO MẬT THÔNG TIN CÁ NHÂN</h2>
+              
+              <div class="policy-sub" id="muc-dich-thu-thap">
+                <h3 class="policy-h3">1. Mục đích thu thập thông tin</h3>
+                <p>Trong quá trình khách hàng sử dụng sản phẩm, dịch vụ hoặc tương tác với SHK Mortar, chúng tôi có thể thu thập một số thông tin cần thiết nhằm phục vụ hoạt động kinh doanh và chăm sóc khách hàng.</p>
+                <p>Thông tin có thể được thu thập khi khách hàng:</p>
+                <ul class="policy-bullets">
+                  <li>Điền biểu mẫu trên website;</li>
+                  <li>Đăng ký tư vấn;</li>
+                  <li>Yêu cầu báo giá;</li>
+                  <li>Đăng ký nhận thông tin về sản phẩm;</li>
+                  <li>Liên hệ với bộ phận chăm sóc khách hàng của SHK;</li>
+                  <li>Gửi yêu cầu hỗ trợ hoặc khiếu nại;</li>
+                  <li>Thực hiện giao dịch với Công ty;</li>
+                  <li>Tham gia các chương trình, hoạt động hoặc sự kiện do SHK Mortar tổ chức.</li>
+                </ul>
+                <p>Các thông tin có thể bao gồm:</p>
+                <ul class="policy-bullets">
+                  <li>Họ và tên;</li>
+                  <li>Số điện thoại;</li>
+                  <li>Địa chỉ;</li>
+                  <li>Email;</li>
+                  <li>Tên công ty/doanh nghiệp;</li>
+                  <li>Chức vụ hoặc thông tin liên quan đến công việc khi khách hàng tự nguyện cung cấp;</li>
+                  <li>Nội dung yêu cầu tư vấn;</li>
+                  <li>Thông tin liên quan đến sản phẩm mà khách hàng quan tâm;</li>
+                  <li>Các thông tin khác được khách hàng cung cấp thông qua biểu mẫu hoặc quá trình làm việc với chúng tôi.</li>
+                </ul>
+                <p>SHK Mortar chỉ thu thập các thông tin phù hợp và cần thiết cho mục đích xử lý tương ứng.</p>
+              </div>
+
+              <div class="policy-sub" id="muc-dich-su-dung">
+                <h3 class="policy-h3">2. Mục đích sử dụng thông tin</h3>
+                <p>Thông tin khách hàng có thể được Công ty sử dụng cho một hoặc một số mục đích sau:</p>
+                <ul class="policy-bullets">
+                  <li>Tiếp nhận và phản hồi yêu cầu của khách hàng;</li>
+                  <li>Tư vấn sản phẩm và giải pháp phù hợp;</li>
+                  <li>Cung cấp báo giá và thông tin sản phẩm;</li>
+                  <li>Hỗ trợ khách hàng trong quá trình sử dụng sản phẩm;</li>
+                  <li>Chăm sóc khách hàng và duy trì quan hệ với khách hàng;</li>
+                  <li>Xử lý yêu cầu, phản ánh và khiếu nại;</li>
+                  <li>Thực hiện và quản lý các giao dịch, hợp đồng giữa khách hàng và SHK;</li>
+                  <li>Cải thiện chất lượng sản phẩm, dịch vụ và trải nghiệm khách hàng;</li>
+                  <li>Gửi thông tin về sản phẩm, dịch vụ, chương trình hoặc hoạt động của Keo Vữa Sông Hồng khi phù hợp và theo quy định pháp luật;</li>
+                  <li>Phục vụ hoạt động quản trị, vận hành và bảo mật hệ thống công nghệ thông tin;</li>
+                  <li>Thực hiện các nghĩa vụ theo quy định của pháp luật.</li>
+                </ul>
+                <p>Việc sử dụng thông tin cá nhân được thực hiện trong phạm vi phù hợp với mục đích thu thập và quy định pháp luật có liên quan.</p>
+              </div>
+
+              <div class="policy-sub" id="bao-ve-thong-tin">
+                <h3 class="policy-h3">3. Bảo vệ thông tin cá nhân</h3>
+                <p>Chúng tôi tôn trọng quyền riêng tư của khách hàng và áp dụng các biện pháp phù hợp nhằm bảo vệ thông tin cá nhân khỏi việc truy cập, sử dụng, tiết lộ, thay đổi hoặc xử lý trái phép.</p>
+                <p>SHK Mortar không mua bán thông tin cá nhân của khách hàng trái quy định pháp luật.</p>
+                <p>Công ty chỉ sử dụng và xử lý thông tin cá nhân trong phạm vi cần thiết cho các mục đích đã được thông báo hoặc các trường hợp được pháp luật cho phép.</p>
+              </div>
+
+              <div class="policy-sub" id="cac-ben-tiep-can">
+                <h3 class="policy-h3">4. Các bên có thể được tiếp cận thông tin</h3>
+                <p>Trong phạm vi cần thiết để phục vụ hoạt động kinh doanh và cung cấp sản phẩm, thông tin khách hàng có thể được tiếp cận bởi:</p>
+                <p><span class="label">a. Đơn vị sản xuất</span></p>
+                <p>Trong trường hợp cần thiết để tư vấn kỹ thuật, xác nhận thông tin sản phẩm, xử lý yêu cầu về chất lượng hoặc hỗ trợ khách hàng, thông tin liên quan có thể được cung cấp cho bộ phận hoặc đơn vị sản xuất có liên quan của SHK.</p>
+                <p><span class="label">b. Bộ phận chăm sóc khách hàng</span></p>
+                <p>Thông tin được sử dụng để tiếp nhận, phản hồi và xử lý các yêu cầu, phản ánh, khiếu nại hoặc nhu cầu hỗ trợ của khách hàng.</p>
+                <p><span class="label">c. Bộ phận Marketing</span></p>
+                <p>Thông tin có thể được sử dụng cho hoạt động truyền thông, giới thiệu sản phẩm, chương trình và chăm sóc khách hàng trong phạm vi được phép và phù hợp với quy định pháp luật.</p>
+                <p><span class="label">d. Bộ phận Công nghệ thông tin</span></p>
+                <p>Các bộ phận hoặc đơn vị cung cấp giải pháp công nghệ thông tin có thể tiếp cận dữ liệu trong phạm vi cần thiết để vận hành, bảo trì, bảo mật và hỗ trợ hệ thống của Công ty.</p>
+                <p><span class="label">e. Cơ quan nhà nước có thẩm quyền</span></p>
+                <p>SHK Mortar có thể cung cấp thông tin cá nhân khi có yêu cầu hợp pháp từ cơ quan nhà nước có thẩm quyền hoặc khi việc cung cấp thông tin là cần thiết để thực hiện nghĩa vụ theo quy định pháp luật.</p>
+              </div>
+            </section>
+
+            <!-- IV. CHÍNH SÁCH CHĂM SÓC KHÁCH HÀNG -->
+            <section class="policy-sec" id="chinh-sach-cham-soc-khach-hang">
+              <h2 class="policy-h2">IV. CHÍNH SÁCH CHĂM SÓC KHÁCH HÀNG</h2>
+              <p>Keo Vữa Sông Hồng / SHK Mortar hướng đến việc cung cấp các sản phẩm vật liệu xây dựng phù hợp với nhu cầu sử dụng của khách hàng và hỗ trợ khách hàng trong quá trình lựa chọn, sử dụng sản phẩm.</p>
+              <p>Các hoạt động chăm sóc khách hàng của SHK bao gồm:</p>
+              <ul class="policy-bullets">
+                <li>Tư vấn thông tin sản phẩm;</li>
+                <li>Tư vấn giải pháp sử dụng sản phẩm;</li>
+                <li>Cung cấp tài liệu kỹ thuật và thông tin sản phẩm trong phạm vi Công ty cung cấp;</li>
+                <li>Hỗ trợ giải đáp các vấn đề liên quan đến sản phẩm;</li>
+                <li>Tiếp nhận phản hồi về chất lượng sản phẩm;</li>
+                <li>Tiếp nhận và xử lý khiếu nại;</li>
+                <li>Hỗ trợ khách hàng trong phạm vi trách nhiệm của SHK Mortar theo hợp đồng và thỏa thuận giữa các bên.</li>
+              </ul>
+              <p>Đối với các sản phẩm vật liệu xây dựng, khách hàng cần sử dụng sản phẩm theo hướng dẫn kỹ thuật, tiêu chuẩn, quy chuẩn, tài liệu sản phẩm và điều kiện sử dụng phù hợp.</p>
+            </section>
+
+            <!-- V. CHÍNH SÁCH ĐỔI, TRẢ VÀ XỬ LÝ SẢN PHẨM -->
+            <section class="policy-sec" id="chinh-sach-doi-tra">
+              <h2 class="policy-h2">V. CHÍNH SÁCH ĐỔI, TRẢ VÀ XỬ LÝ SẢN PHẨM</h2>
+              <p>Do đặc thù sản phẩm của SHK Mortar thuộc nhóm vật liệu xây dựng, việc đổi, trả hoặc xử lý sản phẩm được thực hiện theo từng giao dịch cụ thể và căn cứ vào:</p>
+              <ul class="policy-bullets">
+                <li>Hợp đồng mua bán giữa Công ty và khách hàng;</li>
+                <li>Đơn đặt hàng hoặc thỏa thuận mua bán;</li>
+                <li>Chính sách áp dụng cho từng loại sản phẩm tại thời điểm giao dịch;</li>
+                <li>Tình trạng thực tế của sản phẩm;</li>
+                <li>Nguyên nhân phát sinh yêu cầu đổi, trả hoặc xử lý;</li>
+                <li>Các tài liệu, chứng từ liên quan;</li>
+                <li>Quy định pháp luật hiện hành.</li>
+              </ul>
+              <p>SHK không áp dụng một quy trình đổi/trả chung cho mọi sản phẩm và mọi giao dịch.</p>
+              <p>Đối với từng trường hợp cụ thể, chúng tôi sẽ xem xét và thống nhất phương án xử lý với khách hàng dựa trên hợp đồng, thỏa thuận mua bán, đặc tính sản phẩm và tình trạng thực tế.</p>
+              <p>Các trường hợp có thể được xem xét bao gồm:</p>
+              <ul class="policy-bullets">
+                <li>Sản phẩm không phù hợp với thỏa thuận trong hợp đồng;</li>
+                <li>Sản phẩm có vấn đề về chất lượng thuộc trách nhiệm của Công ty;</li>
+                <li>Sản phẩm có lỗi phát sinh từ quá trình sản xuất;</li>
+                <li>Sản phẩm không đúng chủng loại hoặc thông số đã thỏa thuận;</li>
+                <li>Các trường hợp khác được quy định trong hợp đồng hoặc thỏa thuận giữa các bên.</li>
+              </ul>
+              <p>Đối với sản phẩm đã được sử dụng, thi công hoặc đưa vào công trình, việc đổi, trả hoặc xử lý sẽ được xem xét căn cứ vào nguyên nhân phát sinh, điều kiện hợp đồng và đặc tính kỹ thuật của sản phẩm.</p>
+              <p>Công ty có thể yêu cầu khách hàng cung cấp thông tin, hình ảnh, mẫu sản phẩm, chứng từ hoặc tài liệu liên quan để có cơ sở kiểm tra và xử lý yêu cầu.</p>
+              <p>Mọi phương án đổi, trả, thay thế, khắc phục hoặc hoàn tiền (nếu có) sẽ được thực hiện theo thỏa thuận giữa các bên và quy định pháp luật áp dụng.</p>
+            </section>
+
+            <!-- VI. CHÍNH SÁCH THANH TOÁN -->
+            <section class="policy-sec" id="chinh-sach-thanh-toan">
+              <h2 class="policy-h2">VI. CHÍNH SÁCH THANH TOÁN</h2>
+              <p>Khách hàng thực hiện thanh toán cho SHK Mortar theo phương thức được quy định trong hợp đồng, đơn đặt hàng hoặc thỏa thuận mua bán giữa Công ty và khách hàng.</p>
+              <p>Các phương thức thanh toán có thể bao gồm:</p>
+              
+              <div class="policy-sub" id="thanh-toan-tien-mat">
+                <h3 class="policy-h3">1. Thanh toán bằng tiền mặt</h3>
+                <p>Khách hàng có thể thanh toán bằng tiền mặt theo thỏa thuận và quy định của Công ty.</p>
+              </div>
+
+              <div class="policy-sub" id="thanh-toan-chuyen-khoan">
+                <h3 class="policy-h3">2. Thanh toán bằng chuyển khoản</h3>
+                <p>Khách hàng có thể thanh toán thông qua hình thức chuyển khoản vào tài khoản ngân hàng hợp pháp của Công ty được thông báo trong hợp đồng, báo giá, đơn đặt hàng hoặc chứng từ giao dịch.</p>
+                <p>Khách hàng cần kiểm tra chính xác thông tin tài khoản trước khi thực hiện chuyển khoản.</p>
+                <p>SHK Mortar không chịu trách nhiệm đối với trường hợp khách hàng tự ý chuyển tiền vào tài khoản không thuộc thông tin thanh toán chính thức của Công ty.</p>
+              </div>
+
+              <div class="policy-sub" id="dieu-kien-thanh-toan">
+                <h3 class="policy-h3">3. Điều kiện thanh toán</h3>
+                <p>Thời hạn, giá trị, phương thức và các điều kiện thanh toán cụ thể được thực hiện theo hợp đồng mua bán, báo giá, đơn đặt hàng hoặc thỏa thuận bằng văn bản giữa Công ty và khách hàng.</p>
+              </div>
+            </section>
+
+            <!-- VII. TIẾP NHẬN PHẢN HỒI VÀ KHIẾU NẠI -->
+            <section class="policy-sec" id="tiep-nhan-phan-hoi">
+              <h2 class="policy-h2">VII. TIẾP NHẬN PHẢN HỒI VÀ KHIẾU NẠI</h2>
+              <p>SHK Mortar luôn tiếp nhận các ý kiến phản hồi, yêu cầu hỗ trợ và khiếu nại liên quan đến sản phẩm, dịch vụ hoặc việc xử lý thông tin khách hàng.</p>
+              <p>Khi tiếp nhận phản hồi hoặc khiếu nại, chúng tôi sẽ xem xét thông tin được cung cấp và phối hợp với các bộ phận liên quan để kiểm tra, xác minh và đưa ra phương án xử lý phù hợp.</p>
+              <p>Đối với các tranh chấp liên quan đến hợp đồng mua bán, quyền và nghĩa vụ của các bên được thực hiện theo nội dung hợp đồng và các thỏa thuận hợp pháp giữa các bên.</p>
+              <p>Trường hợp hợp đồng không quy định hoặc các bên không có thỏa thuận khác, việc giải quyết được thực hiện theo quy định pháp luật hiện hành.</p>
+            </section>
+
+            <!-- VIII. CAM KẾT CỦA SHK MORTAR -->
+            <section class="policy-sec" id="cam-ket-cua-shk">
+              <h2 class="policy-h2">VIII. CAM KẾT CỦA SHK MORTAR</h2>
+              <p>Công ty TNHH Keo Vữa Sông Hồng / SHK Mortar cam kết:</p>
+              <ul class="policy-bullets">
+                <li>Cung cấp thông tin sản phẩm trong phạm vi trách nhiệm và khả năng của Công ty;</li>
+                <li>Tôn trọng quyền và lợi ích hợp pháp của khách hàng;</li>
+                <li>Bảo vệ thông tin cá nhân của khách hàng theo quy định pháp luật;</li>
+                <li>Không mua bán thông tin cá nhân của khách hàng trái quy định;</li>
+                <li>Tiếp nhận và xử lý phản hồi của khách hàng phù hợp;</li>
+                <li>Thực hiện các nghĩa vụ đã cam kết trong hợp đồng và thỏa thuận với khách hàng;</li>
+                <li>Tuân thủ các quy định pháp luật có liên quan trong quá trình cung cấp sản phẩm và dịch vụ.</li>
+              </ul>
+            </section>
+
+            <!-- IX. HIỆU LỰC VÀ CẬP NHẬT CHÍNH SÁCH -->
+            <section class="policy-sec" id="hieu-luc-va-cap-nhat">
+              <h2 class="policy-h2">IX. HIỆU LỰC VÀ CẬP NHẬT CHÍNH SÁCH</h2>
+              <p>Chính sách khách hàng này có hiệu lực kể từ ngày được Công ty TNHH Keo Vữa Sông Hồng / SHK Mortar công bố trên các kênh thông tin chính thức.</p>
+              <p>Công ty có thể sửa đổi, bổ sung Chính sách khách hàng để phù hợp với hoạt động kinh doanh, sản phẩm, dịch vụ và quy định pháp luật từng thời kỳ.</p>
+              <p>Đối với các giao dịch đã được ký kết bằng hợp đồng, các điều khoản trong hợp đồng giữa SHK và khách hàng sẽ được ưu tiên áp dụng đối với các nội dung đã được hai bên thỏa thuận cụ thể.</p>
+            </section>
+
+            <!-- Phần kết thúc văn bản -->
+            <div class="policy-doc-footer">
+              <p class="company-head">CÔNG TY TNHH KEO VỮA SÔNG HỒNG</p>
+              <p>Thương hiệu: SHK Mortar</p>
+              <p>Mã số thuế: 0901176922</p>
+              <p>Văn phòng đại diện: Vinhomes Ocean Park 2, Văn Giang, Hưng Yên</p>
+              <p>Nhà máy: Thôn Ninh Tập, xã Châu Ninh, tỉnh Hưng Yên</p>
+            </div>
+
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<script>
+  function togglePolicyToc() {
+    const list = document.getElementById('policy-toc-list');
+    const btn = document.getElementById('policy-toc-toggle-btn');
+    if (!list || !btn) return;
+    if (list.classList.contains('is-collapsed')) {
+      list.classList.remove('is-collapsed');
+      btn.textContent = '▼';
+    } else {
+      list.classList.add('is-collapsed');
+      btn.textContent = '▲';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const navLinks = document.querySelectorAll('.policy-toc-link, .policy-toc-sublink');
+    const sections = [];
+
+    navLinks.forEach(link => {
+      const targetId = link.getAttribute('href');
+      if (targetId && targetId.startsWith('#')) {
+        const el = document.querySelector(targetId);
+        if (el) sections.push({ el, link });
+      }
+
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        const target = document.querySelector(targetId);
+        if (target) {
+          const headerOffset = 90;
+          const elementPosition = target.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+
+          // Mobile collapse after click
+          if (window.innerWidth <= 992) {
+            const list = document.getElementById('policy-toc-list');
+            const btn = document.getElementById('policy-toc-toggle-btn');
+            if (list) list.classList.add('is-collapsed');
+            if (btn) btn.textContent = '▲';
+          }
+        }
+      });
+    });
+
+    // Scrollspy to highlight active TOC link
+    function onScrollSpy() {
+      const scrollPos = window.pageYOffset + 120;
+      let currentSection = null;
+
+      for (let i = 0; i < sections.length; i++) {
+        const item = sections[i];
+        if (item.el.offsetTop <= scrollPos) {
+          currentSection = item;
+        } else {
+          break;
+        }
+      }
+
+      navLinks.forEach(l => l.classList.remove('active'));
+      if (currentSection) {
+        currentSection.link.classList.add('active');
+        const parentLi = currentSection.link.closest('.policy-toc-item');
+        if (parentLi) {
+          const parentLink = parentLi.querySelector('.policy-toc-link');
+          if (parentLink) parentLink.classList.add('active-parent');
+        }
+      }
+    }
+
+    window.addEventListener('scroll', onScrollSpy, { passive: true });
+    onScrollSpy();
+  });
+</script>
+
+<style>
+  .policy-section {
+    background-color: #F8F9FA;
+    padding: 40px 0 80px;
+    font-family: 'Bai Jamjuree', sans-serif;
+  }
+
+  .policy-layout-grid {
+    display: grid;
+    grid-template-columns: 310px minmax(0, 1fr);
+    gap: 36px;
+    align-items: start;
+  }
+
+  @media (max-width: 992px) {
+    .policy-layout-grid {
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+  }
+
+  /* ── CỘT TRÁI: MỤC LỤC STICKY ── */
+  .policy-sidebar-col {
+    position: sticky;
+    top: 96px;
+    z-index: 10;
+  }
+
+  .policy-toc-card {
+    background: #FFFFFF;
+    border: 1px solid #EAEAEA;
+    border-radius: 0px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  }
+
+  .policy-toc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: #FFFFFF;
+    border-bottom: 2px solid #8C5A2B;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .policy-toc-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .policy-toc-badge {
+    display: inline-block;
+    width: 4px;
+    height: 18px;
+    background-color: #FF7E2E;
+  }
+
+  .policy-toc-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A1A1A;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+  }
+
+  .policy-toc-toggle-icon {
+    font-size: 11px;
+    color: #8C5A2B;
+  }
+
+  .policy-toc-nav {
+    padding: 14px 16px 18px;
+    max-height: calc(100vh - 180px);
+    overflow-y: auto;
+  }
+
+  .policy-toc-nav.is-collapsed {
+    display: none;
+  }
+
+  .policy-toc-root {
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .policy-toc-item {
+    list-style: none !important;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed #F2EDE6;
+  }
+
+  .policy-toc-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .policy-toc-link {
+    display: block;
+    color: #2D3748;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 13.5px;
+    line-height: 1.45;
+    padding: 4px 6px;
+    border-left: 3px solid transparent;
+    transition: all 0.15s ease;
+  }
+
+  .policy-toc-link:hover {
+    color: #FF7E2E;
+    background-color: #FFF9F5;
+  }
+
+  .policy-toc-link.active {
+    color: #FF7E2E;
+    border-left-color: #FF7E2E;
+    background-color: #FFF5EE;
+    font-weight: 700;
+  }
+
+  .policy-toc-sub {
+    list-style: none !important;
+    margin: 4px 0 2px 0 !important;
+    padding-left: 12px !important;
+  }
+
+  .policy-toc-sub li {
+    list-style: none !important;
+    margin-bottom: 4px;
+  }
+
+  .policy-toc-sublink {
+    display: block;
+    color: #4B5563;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 12.5px;
+    line-height: 1.4;
+    padding: 3px 6px;
+    border-left: 2px solid transparent;
+    transition: all 0.15s ease;
+  }
+
+  .policy-toc-sublink:hover {
+    color: #FF7E2E;
+    background-color: #FFF9F5;
+  }
+
+  .policy-toc-sublink.active {
+    color: #FF7E2E;
+    border-left-color: #FF7E2E;
+    background-color: #FFF5EE;
+    font-weight: 600;
+  }
+
+  .policy-toc-pdf-download {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #EBE4DA;
+  }
+
+  .btn-download-pdf {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 14px;
+    background: #8C5A2B;
+    color: #FFFFFF;
+    font-size: 13.5px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.15s ease;
+  }
+
+  .btn-download-pdf:hover {
+    background: #FF7E2E;
+    color: #FFFFFF;
+  }
+
+  /* ── CỘT PHẢI: TRANG VĂN BẢN CHUẨN PDF ── */
+  .policy-doc-paper {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 0px;
+    padding: 48px 56px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.04);
+  }
+
+  @media (max-width: 768px) {
+    .policy-doc-paper {
+      padding: 28px 20px;
+    }
+  }
+
+  /* Header văn bản PDF */
+  .policy-doc-top {
+    margin-bottom: 32px;
+  }
+
+  .policy-doc-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: #000000;
+    line-height: 1.3;
+    margin: 0 0 16px 0;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+  }
+
+  .policy-doc-company-info {
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #E5E7EB;
+  }
+
+  .policy-doc-company-info .company-name {
+    font-size: 17.5px;
+    font-weight: 700;
+    color: #000000;
+    margin: 0 0 6px 0;
+  }
+
+  .policy-doc-company-info .company-line {
+    font-size: 16px;
+    color: #000000;
+    margin: 0 0 4px 0;
+    line-height: 1.6;
+  }
+
+  .policy-doc-body {
+    font-size: 17px;
+    line-height: 27px;
+    color: #000000;
+  }
+
+  .policy-sec {
+    margin-bottom: 32px;
+    scroll-margin-top: 100px;
+  }
+
+  .policy-sub {
+    margin-bottom: 20px;
+    scroll-margin-top: 100px;
+  }
+
+  .policy-h2 {
+    font-size: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #000000;
+    margin: 28px 0 12px 0;
+    line-height: 1.4;
+  }
+
+  .policy-h3 {
+    font-size: 17.5px;
+    font-weight: 700;
+    color: #000000;
+    margin: 18px 0 8px 0;
+  }
+
+  .policy-doc-body p {
+    margin: 0 0 12px 0;
+  }
+
+  .label {
+    font-weight: 700;
+    color: #000000;
+  }
+
+  .policy-bullets {
+    list-style-type: disc !important;
+    padding-left: 28px !important;
+    margin: 8px 0 14px 0 !important;
+  }
+
+  .policy-bullets li {
+    display: list-item !important;
+    list-style: inherit !important;
+    margin-bottom: 6px !important;
+    line-height: 1.65 !important;
+    color: #000000 !important;
+  }
+
+  .policy-doc-footer {
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid #E5E7EB;
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: #000000;
+  }
+
+  .policy-doc-footer .company-head {
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .policy-doc-footer p {
+    margin: 0 0 4px;
+  }
+</style>
+
+{% endblock %}

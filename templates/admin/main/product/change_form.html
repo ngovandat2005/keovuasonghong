@@ -1,0 +1,2531 @@
+{% extends 'unfold/layouts/base.html' %}
+{% load i18n admin_urls static admin_modify unfold %}
+
+{% block content %}
+<div class="pd-wrap" x-data="{ tab: 'general' }">
+
+    <div class="pd-topbar">
+        <div class="flex items-center gap-3">
+            <a href="{% url 'admin:main_product_changelist' %}" class="w-9 h-9 flex items-center justify-center rounded-default border border-base-300 bg-white hover:bg-base-100 hover:text-primary-600 text-base-700 dark:bg-base-800 dark:border-base-700 dark:text-base-200 dark:hover:bg-base-700 transition-colors shadow-xs" title="{% trans 'Quay lại' %}">
+                <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="pd-h1">
+                    {% if original %}{{ original.name }}{% else %}{% trans "Thêm sản phẩm mới" %}{% endif %}
+                </h1>
+                <div id="pdDraftStatus" class="pd-draft-status" style="display: none;">
+                    <span class="pd-draft-dot"></span>
+                    <span id="pdDraftStatusText">{% trans "Đã lưu nháp" %}</span>
+                </div>
+            </div>
+        </div>
+        <div class="pd-topbar-actions">
+            <a href="{% url 'admin:main_product_changelist' %}" class="pd-btn pd-btn-ghost" onclick="clearProductDraft()">{% trans "Hủy bỏ" %}</a>
+            {% if original and original.category %}
+            <a href="{% url 'product_detail' original.category.slug original.slug %}" target="_blank" class="pd-btn pd-btn-ghost">{% trans "Xem trang web" %}</a>
+            {% endif %}
+            <button type="submit" form="product_form" name="_save" class="pd-btn pd-btn-primary">{% trans "Lưu thay đổi" %}</button>
+        </div>
+    </div>
+
+    <!-- Draft Recovery Banner -->
+    <div id="pdDraftBanner" class="pd-draft-banner" style="display: none;">
+        <div class="pd-draft-banner-left">
+            <div class="pd-draft-icon-wrap">
+                <span class="material-symbols-outlined">history</span>
+            </div>
+            <div class="pd-draft-banner-info">
+                <div class="pd-draft-banner-title">{% trans "Phát hiện bản lưu nháp chưa hoàn tất" %}</div>
+                <div class="pd-draft-banner-desc">
+                    {% trans "Hệ thống đã tự động lưu dữ liệu lúc" %} <strong id="pdDraftTime"></strong>. {% trans "Bạn có muốn khôi phục lại không?" %}
+                </div>
+            </div>
+        </div>
+        <div class="pd-draft-banner-actions">
+            <button type="button" class="pd-btn-draft-restore" onclick="restoreProductDraft()">
+                <span class="material-symbols-outlined text-[16px]">restore</span>
+                {% trans "Khôi phục bản nháp" %}
+            </button>
+            <button type="button" class="pd-btn-draft-dismiss" onclick="dismissProductDraft()">
+                {% trans "Bỏ qua" %}
+            </button>
+            <button type="button" class="pd-btn-draft-clear" onclick="clearProductDraft(true)" title="{% trans 'Xóa vĩnh viễn bản nháp này' %}">
+                <span class="material-symbols-outlined text-[16px]">delete</span>
+                {% trans "Xóa nháp" %}
+            </button>
+        </div>
+    </div>
+
+    <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}action="{{ form_url }}" method="post" id="product_form" novalidate>
+        {% csrf_token %}
+        {% block form_top %}{% endblock %}
+        {% if errors %}
+        <div style="background: #FEF2F2; border: 1px solid #FCA5A5; color: #991B1B; padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 14px;">
+            <strong>{% trans "Vui lòng kiểm tra lại các trường thông tin bên dưới:" %}</strong>
+            {{ adminform.form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        <!-- 1. Chi tiết sản phẩm (Media) - Thiết kế tinh gọn, hiện đại như Ảnh 2 -->
+        <div class="pd-media-section">
+            <div class="pd-media-header">
+                <h3 class="pd-media-title">{% trans "Ảnh sản phẩm" %}</h3>
+                <button type="button" class="pd-btn-add-url" id="pdOpenUrlModalBtn" onclick="openUrlModal()">
+                    {% trans "Thêm ảnh từ URL" %}
+                </button>
+            </div>
+
+            <!-- Grid chứa các ô ảnh -->
+            <div class="pd-gallery-grid" id="pdGalleryGrid">
+                <!-- Ô 1: Nút (+) Upload viền nét đứt màu xanh -->
+                <div class="pd-upload-card" id="pdUploadTrigger" onclick="triggerMultiUpload()" title="{% trans 'Nhấn để tải ảnh lên hoặc kéo thả ảnh từ máy tính vào đây' %}">
+                    <span class="pd-upload-plus">+</span>
+                    <input type="file" id="pdMultiFileInput" multiple accept="image/*" style="display: none;" onchange="handleMultiFilesSelected(this.files)">
+                </div>
+
+                <!-- Container chứa các thẻ ảnh kéo thả bằng SortableJS -->
+                <div class="pd-cards-sortable-wrap" id="pdCardsSortableWrap">
+                    <!-- Ô: Ảnh đại diện (nếu có ảnh đại diện) -->
+                    <div class="pd-media-card pd-card-avatar" id="pdAvatarCard" data-card-id="avatar" data-item-type="avatar" {% if not original.image %}style="display: none;"{% endif %}>
+                        <img src="{% if original.image %}{{ original.image.url }}{% endif %}" id="pdAvatarImgPreview" alt="Ảnh đại diện">
+                        <div class="pd-badge-avatar">{% trans "Ảnh đại diện" %}</div>
+                        
+                        <div class="pd-card-overlay">
+                            <button type="button" class="pd-card-action-btn" title="Xem ảnh lớn" onclick="previewLargeImage(document.getElementById('pdAvatarImgPreview').src)">
+                                <span class="material-symbols-outlined">visibility</span>
+                            </button>
+                            <button type="button" class="pd-card-action-btn" title="Đổi ảnh khác" onclick="triggerChangeAvatar()">
+                                <span class="material-symbols-outlined">edit</span>
+                            </button>
+                            <button type="button" class="pd-card-action-btn btn-del" title="Xóa ảnh đại diện" onclick="clearAvatarImage()">
+                                <span class="material-symbols-outlined">delete</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Các ảnh trong gallery từ DB -->
+                    {% for inline_admin_formset in inline_admin_formsets %}
+                        {% if inline_admin_formset.opts.opts.model_name == 'productimage' %}
+                            {% for inline_admin_form in inline_admin_formset %}
+                                {% if inline_admin_form.original %}
+                                <div class="pd-media-card" id="gallery-card-{{ forloop.counter0 }}" data-card-id="gallery_{{ inline_admin_form.original.pk }}" data-gallery-id="{{ inline_admin_form.original.pk }}" data-item-type="gallery" data-form-row-id="gallery-form-row-{{ forloop.counter0 }}">
+                                    {% if inline_admin_form.original.display_url %}
+                                        <img src="{{ inline_admin_form.original.display_url }}" alt="">
+                                    {% elif inline_admin_form.original.media_type == 'video' %}
+                                        <div class="pd-card-video-inner">
+                                            <span class="material-symbols-outlined">play_circle</span>
+                                            <span>VIDEO</span>
+                                        </div>
+                                    {% endif %}
+
+                                    <div class="pd-card-overlay">
+                                        {% if inline_admin_form.original.display_url %}
+                                        <button type="button" class="pd-card-action-btn" title="Xem ảnh lớn" onclick="previewLargeImage('{{ inline_admin_form.original.display_url }}')">
+                                            <span class="material-symbols-outlined">visibility</span>
+                                        </button>
+                                        {% endif %}
+                                        <button type="button" class="pd-card-action-btn btn-del" title="Xóa ảnh" onclick="toggleDeleteGalleryItem({{ forloop.counter0 }})">
+                                            <span class="material-symbols-outlined">delete</span>
+                                        </button>
+                                    </div>
+                                    <div class="pd-del-notice" onclick="toggleDeleteGalleryItem({{ forloop.counter0 }})">
+                                        {% trans "Đã chọn xóa<br>(Nhấn để hoàn tác)" %}
+                                    </div>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Wrapper chứa các form Django ẩn của DB -->
+            {% for inline_admin_formset in inline_admin_formsets %}
+                {% if inline_admin_formset.opts.opts.model_name == 'productimage' %}
+                    {{ inline_admin_formset.formset.management_form }}
+                    <div id="pdExistingFormsWrapper" style="display: none;">
+                        {% for inline_admin_form in inline_admin_formset %}
+                            <div id="gallery-form-row-{{ forloop.counter0 }}">
+                                {{ inline_admin_form.form.id }}
+                                {{ inline_admin_form.form.media_type }}
+                                {{ inline_admin_form.form.image }}
+                                {{ inline_admin_form.form.image_url }}
+                                {{ inline_admin_form.form.video_url }}
+                                {{ inline_admin_form.form.order }}
+                                {{ inline_admin_form.form.DELETE }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            <!-- Wrapper chứa hidden forms cho các ảnh mới thêm động -->
+            <div id="pdDynamicFormsContainer" style="display: none;"></div>
+
+            <!-- Hidden wrapper cho field ảnh đại diện chính của Django -->
+            <div id="pdMainImageFieldWrapper" style="display: none;">
+                {{ adminform.form.image }}
+                <input type="hidden" name="selected_avatar_id" id="id_selected_avatar_id" value="avatar">
+            </div>
+
+
+            <!-- Video YouTube giới thiệu sản phẩm -->
+            <div class="pd-video-box" style="margin-top: 18px; margin-bottom: 18px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 14px 16px;">
+                <label class="pd-label" style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: #1E293B; margin-bottom: 8px;">
+                    <span class="material-symbols-outlined" style="color: #DC2626; font-size: 20px;">smart_display</span>
+                    {% trans "Video YouTube giới thiệu sản phẩm" %}
+                </label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <div style="flex: 1;">
+                        {{ adminform.form.video_url }}
+                    </div>
+                    {% if original and original.video_url %}
+                    <a href="{{ original.video_url }}" target="_blank" class="pd-btn pd-btn-ghost" style="padding: 7px 12px; font-size: 12.5px; text-decoration: none; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
+                        <span class="material-symbols-outlined" style="font-size: 16px;">open_in_new</span> {% trans "Xem video" %}
+                    </a>
+                    <button type="button" class="pd-btn" style="padding: 7px 12px; font-size: 12.5px; border: 1px solid #EF4444; color: #EF4444; background: #FFFFFF; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;" onclick="const el = document.getElementById('id_video_url'); if (el) el.value = ''; this.style.display='none';">
+                        <span class="material-symbols-outlined" style="font-size: 16px;">delete</span> {% trans "Xóa video" %}
+                    </button>
+                    {% endif %}
+                </div>
+                <small style="color: #64748B; font-size: 12px; margin-top: 6px; display: block;">
+                    {% trans "Dán đường dẫn YouTube (VD: https://www.youtube.com/watch?v=... hoặc https://youtu.be/...). Để trống ô này nếu không dùng video." %}
+                </small>
+            </div>
+
+            <!-- Phần Tài liệu: E-catalog & Chứng chỉ -->
+            <div class="pd-doc-row">
+                <div class="pd-field pd-doc-field">
+                    <label class="pd-label">{{ adminform.form.ecatalog_file.label }}</label>
+                    <div class="pd-doc-card">
+                        <span class="pd-doc-badge">
+                            <span class="material-symbols-outlined md-18">menu_book</span> E-catalog
+                        </span>
+                        <div class="pd-doc-info">
+                            {% if original.ecatalog_file %}<a href="{{ original.ecatalog_file.url }}" target="_blank">{{ original.ecatalog_file.name|slice:"-40:" }}</a>{% else %}<span class="pd-muted">{% trans "Chưa có file" %}</span>{% endif %}
+                            {{ adminform.form.ecatalog_file }}
+                        </div>
+                    </div>
+                </div>
+                <div class="pd-field pd-doc-field">
+                    <label class="pd-label">{{ adminform.form.certificate_file.label }}</label>
+                    <div class="pd-doc-card">
+                        <span class="pd-doc-badge">
+                            <span class="material-symbols-outlined md-18">verified</span> {% trans "Chứng chỉ" %}
+                        </span>
+                        <div class="pd-doc-info">
+                            {% if original.certificate_file %}<a href="{{ original.certificate_file.url }}" target="_blank">{{ original.certificate_file.name|slice:"-40:" }}</a>{% else %}<span class="pd-muted">{% trans "Chưa có file" %}</span>{% endif %}
+                            {{ adminform.form.certificate_file }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- 2. Sản phẩm -->
+        <div class="pd-card pd-mt-lg">
+            <h3 class="pd-card-title">
+                <span class="material-symbols-outlined md-18">inventory_2</span>
+                {% trans "Sản phẩm" %}
+            </h3>
+
+            <div class="pd-field-row">
+                <div class="pd-field">
+                    <label class="pd-label">{{ adminform.form.name.label }} *</label>
+                    {{ adminform.form.name }}
+                    {% if adminform.form.name.errors %}
+                    <div style="color: #EF4444; font-size: 12.5px; margin-top: 4px; font-weight: 500;">{{ adminform.form.name.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="pd-field">
+                    <label class="pd-label">{{ adminform.form.sku.label }}</label>
+                    {{ adminform.form.sku }}
+                    {% if adminform.form.sku.errors %}
+                    <div style="color: #EF4444; font-size: 12.5px; margin-top: 4px; font-weight: 500;">{{ adminform.form.sku.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="pd-field-row">
+                <div class="pd-field">
+                    <label class="pd-label">{{ adminform.form.category.label }}</label>
+                    {{ adminform.form.category }}
+                    {% if adminform.form.category.errors %}
+                    <div style="color: #EF4444; font-size: 12.5px; margin-top: 4px; font-weight: 500;">{{ adminform.form.category.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="pd-field">
+                    <label class="pd-label pd-label-muted">{{ adminform.form.slug.label }}</label>
+                    {{ adminform.form.slug }}
+                    {% if adminform.form.slug.errors %}
+                    <div style="color: #EF4444; font-size: 12.5px; margin-top: 4px; font-weight: 500;">{{ adminform.form.slug.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div style="display:none;">{{ adminform.form.order }}</div>
+
+            <!-- Tabs -->
+            <div class="pd-tabs-nav" id="pdTabsNav">
+                <button type="button" class="pd-tab-btn" x-bind:class="tab === 'general' ? 'pd-tab-active' : ''" x-on:click="tab = 'general'" id="pdTabBtnGeneral">{% trans "Thông tin chung" %}</button>
+                <button type="button" class="pd-tab-btn" x-bind:class="tab === 'guide' ? 'pd-tab-active' : ''" x-on:click="tab = 'guide'" id="pdTabBtnGuide">
+                    <span id="pdTabGuideTitle">{% if original.category.id == 6 or 'cát' in original.name|lower or 'cat' in original.slug %}{% trans "Ứng dụng" %}{% else %}{% trans "Hướng dẫn thi công" %}{% endif %}</span>
+                </button>
+                <button type="button" class="pd-tab-btn" x-bind:class="tab === 'norms' ? 'pd-tab-active' : ''" x-on:click="tab = 'norms'" id="pdTabBtnNorms" {% if original.category.id == 6 or 'cát' in original.name|lower or 'cat' in original.slug %}style="display: none;"{% endif %}>{% trans "Định mức sử dụng" %}</button>
+            </div>
+
+            <div class="pd-tab-panel" x-show="tab === 'general'">
+                <label class="pd-label">{% trans "Thông tin chung" %}</label>
+                {{ adminform.form.short_description }}
+            </div>
+
+            <div class="pd-tab-panel" x-show="tab === 'guide'" x-cloak>
+                <label class="pd-label" id="pdTabGuideLabel">{% if original.category.id == 6 or 'cát' in original.name|lower or 'cat' in original.slug %}{% trans "Ứng dụng" %}{% else %}{% trans "Hướng dẫn thi công" %}{% endif %}</label>
+                {{ adminform.form.description }}
+            </div>
+
+            <div class="pd-tab-panel" x-show="tab === 'norms'" x-cloak id="pdTabPanelNorms">
+                <label class="pd-label">{{ adminform.form.usage_norms.label }}</label>
+                {{ adminform.form.usage_norms }}
+            </div>
+        </div>
+
+        <!-- 3. Thông tin sản phẩm -->
+        <div class="pd-card pd-mt-lg">
+            <h3 class="pd-card-title">
+                <span class="material-symbols-outlined md-18">description</span>
+                {% trans "Thông tin sản phẩm" %}
+            </h3>
+            <div class="pd-field">
+                <label class="pd-label">{% trans "Nội dung thông tin sản phẩm (Nhập dạng văn bản tự do)" %}</label>
+                {{ adminform.form.specifications }}
+            </div>
+        </div>
+
+        <div class="pd-bottombar">
+            <a href="{% url 'admin:main_product_changelist' %}" class="pd-btn pd-btn-ghost">{% trans "Hủy bỏ" %}</a>
+            <button type="submit" name="_save" class="pd-btn pd-btn-primary">{% trans "Lưu thay đổi" %}</button>
+        </div>
+    </form>
+
+    <!-- Modal: Thêm ảnh từ URL -->
+    <div id="pdUrlModal" class="pd-url-modal-backdrop" style="display: none;">
+        <div class="pd-url-modal-card">
+            <div class="pd-url-modal-header">
+                <h4>{% trans "Thêm ảnh từ URL" %}</h4>
+                <button type="button" class="pd-url-modal-close" onclick="closeUrlModal()">&times;</button>
+            </div>
+            <div class="pd-url-modal-body">
+                <div class="pd-url-type-tabs">
+                    <label class="pd-url-type-tab">
+                        <input type="radio" name="url_media_type" value="image" checked onchange="handleUrlTypeChange('image')">
+                        {% trans "Ảnh (URL ngoài)" %}
+                    </label>
+                    <label class="pd-url-type-tab">
+                        <input type="radio" name="url_media_type" value="video" onchange="handleUrlTypeChange('video')">
+                        {% trans "Video (YouTube)" %}
+                    </label>
+                </div>
+                <div>
+                    <input type="url" id="pdInputUrl" class="pd-url-input-field" placeholder="https://example.com/hinh-anh.jpg" oninput="previewUrlInput(this.value)">
+                </div>
+                <div id="pdUrlPreviewContainer" style="display: none; margin-top: 12px; text-align: center;">
+                    <img id="pdUrlLivePreview" src="" style="max-height: 120px; border-radius: 8px; border: 1px solid #E2E8F0; display: inline-block;">
+                </div>
+            </div>
+            <div class="pd-url-modal-footer">
+                <button type="button" class="pd-url-btn-cancel" onclick="closeUrlModal()">{% trans "Hủy" %}</button>
+                <button type="button" class="pd-url-btn-submit" onclick="submitUrlMedia()">{% trans "Thêm vào sản phẩm" %}</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Lightbox xem ảnh lớn -->
+    <div id="pdLightboxModal" class="pd-lightbox-backdrop" style="display: none;" onclick="closeLightbox()">
+        <div class="pd-lightbox-content" onclick="event.stopPropagation()">
+            <img id="pdLightboxImg" src="" alt="Ảnh sản phẩm">
+            <button type="button" class="pd-lightbox-close" onclick="closeLightbox()">&times;</button>
+        </div>
+    </div>
+
+    <!-- ── Custom Color Picker Panel ── -->
+    <div id="customColorPanel" style="display:none;position:fixed;z-index:999999;background:#fff;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,0.22);padding:14px 14px 12px;width:264px;border:1px solid #E5E7EB;">
+        <div class="ccp-tabs-row">
+            <button class="ccp-tab ccp-tab-active" data-mode="forecolor" onclick="ccpSwitchTab('forecolor')">Màu chữ</button>
+            <button class="ccp-tab" data-mode="backcolor" onclick="ccpSwitchTab('backcolor')">Màu nền</button>
+            <button class="ccp-close" onclick="closeCCP()">&#x2715;</button>
+        </div>
+        <div style="position:relative;margin:10px 0 8px;cursor:crosshair;user-select:none;">
+            <canvas id="ccpCanvas" width="236" height="148" style="border-radius:8px;display:block;width:100%;"></canvas>
+        </div>
+        <div style="position:relative;margin-bottom:10px;cursor:crosshair;user-select:none;">
+            <canvas id="ccpHue" width="236" height="14" style="border-radius:7px;display:block;width:100%;"></canvas>
+            <div id="ccpHueCursor" style="position:absolute;top:50%;width:18px;height:18px;border-radius:50%;border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.45);transform:translate(-50%,-50%);pointer-events:none;left:0;background:#f00;"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <div id="ccpPreview" style="width:32px;height:32px;border-radius:7px;border:1px solid #E5E7EB;background:#000;flex-shrink:0;transition:background .1s;"></div>
+            <input id="ccpHexInput" type="text" maxlength="7" placeholder="#000000" style="flex:1;border:1px solid #D1D5DB;border-radius:7px;padding:6px 10px;font-size:13px;outline:none;font-family:monospace;letter-spacing:.5px;">
+        </div>
+        <div style="display:flex;gap:8px;">
+            <button onclick="closeCCP()" style="flex:1;padding:7px;border:1px solid #D1D5DB;border-radius:7px;background:#fff;cursor:pointer;font-size:13px;color:#6B7280;font-weight:600;">Hủy</button>
+            <button onclick="applyCCP()" style="flex:1;padding:7px;border:none;border-radius:7px;background:#8C5A2B;color:#fff;cursor:pointer;font-size:13px;font-weight:600;">Áp dụng</button>
+        </div>
+    </div>
+
+    <!-- ── Sapo-style Custom Image Picker Modal ── -->
+    <div id="imagePickerModal" class="sip-backdrop" style="display: none;" onclick="closeImagePickerModal()">
+        <div class="sip-modal" onclick="event.stopPropagation()">
+            <!-- Header -->
+            <div class="sip-header">
+                <h3 class="sip-title">Chèn ảnh</h3>
+                <button type="button" class="sip-close-btn" onclick="closeImagePickerModal()">&times;</button>
+            </div>
+
+            <!-- Tabs: Ảnh sản phẩm | Ảnh đã tải lên (bỏ tab URL) -->
+            <div class="sip-tabs">
+                <button type="button" class="sip-tab-btn active" id="sipTabProduct" onclick="sipSwitchTab('products')">Ảnh sản phẩm</button>
+                <button type="button" class="sip-tab-btn" id="sipTabUploaded" onclick="sipSwitchTab('uploaded')">Ảnh đã tải lên</button>
+            </div>
+
+            <!-- Body: Image Grid -->
+            <div class="sip-body">
+                <div id="sipLoading" class="sip-loading" style="display: none;">
+                    <div class="sip-spinner"></div>
+                    <span>Đang tải danh sách ảnh...</span>
+                </div>
+                <div id="sipEmpty" class="sip-empty" style="display: none;">
+                    <span class="material-symbols-outlined" style="font-size: 44px; color: #9CA3AF;">photo_library</span>
+                    <p style="margin: 0; font-size: 14px;">Chưa có ảnh nào trong mục này</p>
+                </div>
+                <div id="sipGrid" class="sip-grid">
+                    <!-- Dynamic image cards will be rendered here -->
+                </div>
+            </div>
+
+            <!-- Footer: Pagination (left) and Action buttons (right) -->
+            <div class="sip-footer">
+                <div class="sip-pagination">
+                    <button type="button" class="sip-page-btn" id="sipPrevBtn" onclick="sipChangePage(-1)" title="Trang trước">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </button>
+                    <button type="button" class="sip-page-btn" id="sipNextBtn" onclick="sipChangePage(1)" title="Trang sau">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
+                    <span id="sipPageInfo" style="font-size: 12.5px; color: #8C8C8C; margin-left: 6px;"></span>
+                </div>
+                <div class="sip-actions">
+                    <button type="button" class="sip-btn sip-btn-cancel" onclick="closeImagePickerModal()">Hủy</button>
+                    <button type="button" class="sip-btn sip-btn-upload" onclick="sipTriggerUpload()">Tải ảnh lên</button>
+                    <input type="file" id="sipHiddenFileInput" accept="image/*" style="display: none;" onchange="sipHandleUpload(this)">
+                    <button type="button" class="sip-btn sip-btn-insert" id="sipInsertBtn" disabled onclick="sipInsertSelectedImage()">Chèn ảnh</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.pd-wrap, .pd-wrap * { box-sizing: border-box; }
+.pd-wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    font-size: 13.5px !important;
+}
+
+.pd-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.pd-breadcrumb {
+    font-size: 12px !important;
+    color: #6B7280 !important;
+    margin-bottom: 2px;
+}
+.pd-breadcrumb a { color: #6B7280 !important; text-decoration: none; }
+.pd-breadcrumb a:hover { color: #8C5A2B !important; }
+.pd-sep { margin: 0 4px; }
+.pd-h1 {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #111827 !important;
+    line-height: 24px !important;
+    margin: 0 !important;
+}
+.pd-topbar-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+.pd-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 15px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    border: 1px solid #8C5A2B;
+    text-decoration: none;
+    cursor: pointer;
+    line-height: 1.4;
+}
+.pd-btn-ghost { background: #FFFFFF; color: #8C5A2B !important; }
+.pd-btn-ghost:hover { background: #FDF8F3; color: #70441E !important; border-color: #70441E; }
+.pd-btn-primary { background: #8C5A2B; color: #FFFFFF !important; }
+.pd-btn-primary:hover { background: #70441E; border-color: #70441E; }
+
+/* ── DRAFT RECOVERY & AUTO-SAVE ── */
+.pd-draft-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: #059669;
+    margin-top: 2px;
+    font-weight: 500;
+}
+html.dark .pd-draft-status {
+    color: #34D399;
+}
+.pd-draft-dot {
+    width: 6px;
+    height: 6px;
+    background-color: #10B981;
+    border-radius: 50%;
+    display: inline-block;
+    animation: pdPulse 2s infinite;
+}
+@keyframes pdPulse {
+    0% { transform: scale(0.95); opacity: 0.8; }
+    50% { transform: scale(1.3); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.pd-draft-banner {
+    background: #FFFBEB;
+    border: 1px solid #FDE68A;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+html.dark .pd-draft-banner {
+    background: #1e2417;
+    border-color: #854d0e;
+}
+.pd-draft-banner-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.pd-draft-icon-wrap {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #FEF3C7;
+    color: #D97706;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+html.dark .pd-draft-icon-wrap {
+    background: #451a03;
+    color: #FBBF24;
+}
+.pd-draft-banner-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #92400E;
+    line-height: 1.3;
+}
+html.dark .pd-draft-banner-title {
+    color: #FDE68A;
+}
+.pd-draft-banner-desc {
+    font-size: 12px;
+    color: #B45309;
+    margin-top: 1px;
+}
+html.dark .pd-draft-banner-desc {
+    color: #FCD34D;
+}
+.pd-draft-banner-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+.pd-btn-draft-restore {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 13px;
+    background: #8C5A2B;
+    color: #FFFFFF !important;
+    border: 1px solid #8C5A2B;
+    border-radius: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.pd-btn-draft-restore:hover {
+    background: #70441E;
+    border-color: #70441E;
+}
+.pd-btn-draft-dismiss {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: #FFFFFF;
+    color: #4B5563;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+html.dark .pd-btn-draft-dismiss {
+    background: #1e293b;
+    color: #94a3b8;
+    border-color: #334155;
+}
+.pd-btn-draft-dismiss:hover {
+    background: #F3F4F6;
+    color: #111827;
+}
+html.dark .pd-btn-draft-dismiss:hover {
+    background: #334155;
+    color: #f8fafc;
+}
+.pd-btn-draft-clear {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    background: transparent;
+    color: #DC2626;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.pd-btn-draft-clear:hover {
+    background: #FEE2E2;
+    border-color: #FECACA;
+}
+html.dark .pd-btn-draft-clear:hover {
+    background: #450a0a;
+}
+
+/* ── MODERN MEDIA GALLERY ── */
+.pd-media-section {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-bottom: 18px;
+}
+
+.pd-media-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.pd-media-title {
+    font-size: 14.5px !important;
+    font-weight: 700 !important;
+    color: #111827 !important;
+    margin: 0 !important;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pd-btn-add-url {
+    background: none;
+    border: none;
+    color: #1677FF;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 3px 6px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.pd-btn-add-url:hover {
+    color: #0958D9;
+    background: #F0F7FF;
+    text-decoration: underline;
+}
+
+.pd-gallery-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    padding: 10px;
+    background: #F8FAFC;
+    border: 1.5px dashed #CBD5E1;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.pd-gallery-grid.is-dragover-file {
+    background: #EFF6FF !important;
+    border-color: #2563EB !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+}
+
+.pd-cards-sortable-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+}
+
+/* 1. Ô Thêm ảnh (+) viền nét đứt màu xanh */
+.pd-upload-card {
+    width: 96px;
+    height: 96px;
+    border: 2px dashed #1677FF;
+    border-radius: 8px;
+    background: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    user-select: none;
+}
+
+.pd-upload-card:hover {
+    border-color: #0958D9;
+    background: #F4F8FF;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(22, 119, 255, 0.12);
+}
+
+.pd-upload-plus {
+    font-size: 32px;
+    color: #94A3B8;
+    font-weight: 300;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.pd-upload-card:hover .pd-upload-plus {
+    color: #1677FF;
+}
+
+/* 2. Thẻ hiển thị ảnh */
+.pd-media-card {
+    width: 96px;
+    height: 96px;
+    border-radius: 8px;
+    border: 1px solid #E2E8F0;
+    overflow: hidden;
+    position: relative;
+    background: #FFFFFF;
+    flex-shrink: 0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s;
+    user-select: none;
+    cursor: grab;
+    touch-action: none;
+}
+
+.pd-media-card:active {
+    cursor: grabbing;
+}
+
+.pd-media-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+    -webkit-user-drag: none;
+    user-select: none;
+}
+
+.pd-media-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* SortableJS Visual States */
+.pd-sort-ghost {
+    opacity: 0.25 !important;
+    background: #DBEAFE !important;
+    border: 2px dashed #2563EB !important;
+    transform: scale(0.94);
+}
+
+.pd-sort-chosen {
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2) !important;
+    transform: scale(1.05) translateY(-4px);
+    z-index: 99;
+}
+
+.pd-sort-drag {
+    opacity: 0.95 !important;
+    cursor: grabbing !important;
+}
+
+/* Badge Ảnh đại diện (thanh đen mờ bo tròn góc dưới) */
+.pd-badge-avatar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(30, 41, 59, 0.82);
+    backdrop-filter: blur(3px);
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    padding: 5px 0;
+    border-bottom-left-radius: 11px;
+    border-bottom-right-radius: 11px;
+    pointer-events: none;
+    letter-spacing: -0.01em;
+    user-select: none;
+}
+
+/* Hover actions overlay */
+.pd-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    border-radius: 11px;
+    pointer-events: none;
+}
+
+.pd-media-card:hover .pd-card-overlay {
+    opacity: 1;
+}
+
+.pd-card-action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #334155;
+    transition: all 0.15s ease;
+    padding: 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    pointer-events: auto;
+}
+
+.pd-card-action-btn:hover {
+    background: #FFFFFF;
+    color: #1677FF;
+    transform: scale(1.12);
+}
+
+.pd-card-action-btn.btn-del:hover {
+    background: #EF4444;
+    color: #FFFFFF;
+}
+
+.pd-card-action-btn .material-symbols-outlined {
+    font-size: 18px !important;
+}
+
+/* Trạng thái đã chọn xóa */
+.pd-media-card.is-deleted {
+    border-color: #EF4444;
+    filter: grayscale(0.85);
+}
+
+.pd-media-card.is-deleted .pd-del-notice {
+    display: flex;
+}
+
+.pd-del-notice {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(239, 68, 68, 0.88);
+    color: #FFFFFF;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    padding: 8px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 11px;
+    line-height: 1.3;
+    pointer-events: auto;
+}
+
+/* Video badge inside card */
+.pd-card-video-inner {
+    width: 100%;
+    height: 100%;
+    background: #1E293B;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #FFFFFF;
+    gap: 4px;
+}
+
+.pd-card-video-inner .material-symbols-outlined {
+    font-size: 28px;
+    color: #FF7E2E;
+}
+
+.pd-card-video-inner span {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* Doc cards (E-catalog / Chứng chỉ) */
+.pd-doc-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #E5E7EB; }
+@media (max-width: 640px) { .pd-doc-row { grid-template-columns: 1fr; } }
+.pd-doc-card { border: 1px solid #E5E7EB; padding: 12px 14px; border-radius: 6px; background: #FAFAFA; }
+.pd-doc-badge { display: inline-flex; align-items: center; gap: 5px; background: #8C5A2B; color: #FFFFFF !important; font-size: 12px; font-weight: 600; padding: 4px 8px; margin-bottom: 6px; border-radius: 4px; }
+.pd-doc-badge .material-symbols-outlined { color: #FFFFFF !important; font-size: 16px !important; }
+.pd-doc-info a { color: #8C5A2B !important; font-size: 12px; font-weight: 500; word-break: break-all; }
+.pd-doc-info a:hover { color: #70441E !important; }
+.pd-doc-info input[type="file"] { font-size: 12px; margin-top: 6px; }
+
+/* Các thành phần cơ bản khác của Form */
+.pd-card { background: #FFFFFF; border: 1px solid #E5E7EB; padding: 18px 20px; border-radius: 8px; }
+.pd-card-title { display: flex; align-items: center; gap: 6px; font-size: 14.5px !important; font-weight: 700 !important; color: #111827 !important; margin: 0 0 14px; }
+
+.pd-field { margin-bottom: 14px; }
+.pd-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.pd-label { display: block; font-size: 12.5px !important; font-weight: 600 !important; color: #374151 !important; margin-bottom: 5px; text-transform: none !important; letter-spacing: normal !important; }
+.pd-label-muted { color: #6B7280 !important; }
+.pd-mt { margin-top: 14px; }
+.pd-mt-lg { margin-top: 18px; }
+.pd-muted { color: #6B7280 !important; font-size: 12px; }
+
+.pd-wrap input[type="text"],
+.pd-wrap input[type="url"],
+.pd-wrap input[type="number"],
+.pd-wrap select {
+    width: 100%;
+    height: 38px;
+    border: 1px solid #D1D5DB !important;
+    padding: 6px 12px !important;
+    font-size: 13.5px !important;
+    color: #000000 !important;
+    background: #FFFFFF !important;
+    border-radius: 6px !important;
+    box-sizing: border-box !important;
+}
+.pd-wrap textarea {
+    width: 100%;
+    border: 1px solid #D1D5DB !important;
+    padding: 8px 12px !important;
+    font-size: 13.5px !important;
+    color: #000000 !important;
+    background: #FFFFFF !important;
+    border-radius: 6px !important;
+    min-height: 110px;
+    resize: vertical;
+    box-sizing: border-box !important;
+}
+.pd-wrap select option { color: #000000 !important; }
+.pd-wrap input[type="text"]:focus, .pd-wrap input[type="url"]:focus, .pd-wrap input[type="number"]:focus, .pd-wrap textarea:focus, .pd-wrap select:focus {
+    outline: none !important;
+    border-color: #8C5A2B !important;
+    box-shadow: 0 0 0 2px rgba(140, 90, 43, 0.15) !important;
+    color: #000000 !important;
+}
+
+/* Tabs */
+.pd-tabs-nav { display: flex; gap: 20px; border-bottom: 1px solid #E5E7EB; margin-bottom: 14px; }
+.pd-tab-btn { padding: 8px 0; font-size: 13.5px !important; font-weight: 600; color: #6B7280 !important; background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.15s ease; }
+.pd-tab-btn:hover { color: #8C5A2B !important; }
+.pd-tab-active { color: #8C5A2B !important; border-bottom-color: #8C5A2B !important; }
+
+/* ── TinyMCE customization ── */
+.tox-tinymce {
+    border: 1px solid #E5E7EB !important;
+    border-radius: 10px !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+    overflow: hidden;
+}
+.tox .tox-editor-header { box-shadow: none !important; }
+.tox .tox-toolbar, .tox .tox-toolbar__primary, .tox .tox-toolbar-overlord {
+    background: #FAFAF9 !important;
+    border-bottom: 1px solid #EDE7DE !important;
+    padding: 4px 6px !important;
+}
+.tox .tox-toolbar__group { padding: 0 6px !important; border-right: 1px solid #E7E1D8 !important; }
+.tox .tox-toolbar__group:last-child { border-right: none !important; }
+.tox .tox-tbtn { border-radius: 6px !important; margin: 2px !important; transition: background-color .15s ease, color .15s ease; }
+.tox .tox-tbtn svg { fill: #4B5563 !important; }
+.tox .tox-tbtn:hover { background: #F3EAE0 !important; }
+.tox .tox-tbtn:hover svg { fill: #8C5A2B !important; }
+.tox .tox-tbtn--enabled, .tox .tox-tbtn--enabled:hover { background: #8C5A2B !important; }
+.tox .tox-tbtn--enabled svg, .tox .tox-tbtn--enabled:hover svg { fill: #FFFFFF !important; }
+.tox .tox-tbtn--select { border-radius: 6px !important; }
+.tox .tox-tbtn__select-label { font-size: 13px !important; color: #374151 !important; }
+.tox .tox-split-button:hover { box-shadow: none !important; background: #F3EAE0 !important; border-radius: 6px !important; }
+
+/* Custom Color Picker */
+.ccp-tabs-row { display: flex; align-items: center; gap: 2px; border-bottom: 1px solid #F0EBE4; margin-bottom: 4px; padding-bottom: 8px; }
+.ccp-tab { flex: 1; background: none; border: none; border-bottom: 2px solid transparent; padding: 5px 8px; font-size: 13px; font-weight: 600; color: #6B7280; cursor: pointer; border-radius: 0; }
+.ccp-tab:hover { color: #8C5A2B; }
+.ccp-tab.ccp-tab-active { color: #8C5A2B; border-bottom-color: #8C5A2B; }
+.ccp-close { background: none; border: none; color: #9CA3AF; font-size: 16px; cursor: pointer; padding: 3px 6px; line-height: 1; border-radius: 5px; }
+.ccp-close:hover { color: #374151; background: #F3F4F6; }
+
+/* Image Picker Modal (Sapo Style) */
+.sip-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.sip-modal {
+    background: #FFFFFF;
+    width: 100%;
+    max-width: 820px;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: sipFadeIn .18s ease-out;
+}
+@keyframes sipFadeIn {
+    from { opacity: 0; transform: scale(0.97); }
+    to { opacity: 1; transform: scale(1); }
+}
+.sip-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid #F0F0F0; }
+.sip-title { font-size: 18px; font-weight: 700; color: #111827; margin: 0; }
+.sip-close-btn { background: none; border: none; font-size: 24px; line-height: 1; color: #8C8C8C; cursor: pointer; padding: 0 4px; border-radius: 4px; }
+.sip-close-btn:hover { color: #111827; }
+.sip-tabs { display: flex; gap: 32px; padding: 0 24px; border-bottom: 1px solid #E8E8E8; }
+.sip-tab-btn { background: none; border: none; padding: 14px 0 12px; font-size: 14px; font-weight: 600; color: #595959; cursor: pointer; position: relative; border-radius: 0; }
+.sip-tab-btn:hover { color: #1890FF; }
+.sip-tab-btn.active { color: #1890FF; font-weight: 700; }
+.sip-tab-btn.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: #1890FF; }
+.sip-body { padding: 20px 24px; min-height: 340px; max-height: 420px; overflow-y: auto; position: relative; }
+.sip-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+.sip-card { border: 1px solid #D9D9D9; border-radius: 6px; background: #FFFFFF; cursor: pointer; padding: 6px; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; position: relative; transition: all .15s ease; overflow: hidden; }
+.sip-card:hover { border-color: #40A9FF; box-shadow: 0 2px 8px rgba(24, 144, 255, 0.18); }
+.sip-card img { width: 100%; height: 100%; object-fit: contain; display: block; border-radius: 4px; }
+.sip-card.selected { border: 2px solid #1890FF; background: #F0F7FF; box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2); }
+.sip-card.selected::after { content: '✓'; position: absolute; top: 6px; right: 6px; width: 20px; height: 20px; background: #1890FF; color: #FFFFFF; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; line-height: 1; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.sip-loading, .sip-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 260px; color: #8C8C8C; gap: 12px; font-size: 13.5px; }
+.sip-spinner { width: 32px; height: 32px; border: 3px solid #E8E8E8; border-top-color: #1890FF; border-radius: 50%; animation: sipSpin .7s linear infinite; }
+@keyframes sipSpin { to { transform: rotate(360deg); } }
+.sip-footer { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-top: 1px solid #F0F0F0; background: #FFFFFF; }
+.sip-pagination { display: flex; align-items: center; gap: 8px; }
+.sip-page-btn { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border: 1px solid #D9D9D9; background: #FFFFFF; color: #595959; border-radius: 6px; cursor: pointer; }
+.sip-page-btn:hover:not(:disabled) { border-color: #1890FF; color: #1890FF; }
+.sip-page-btn:disabled { color: #D9D9D9; background: #F5F5F5; border-color: #E8E8E8; cursor: not-allowed; }
+.sip-actions { display: flex; align-items: center; gap: 10px; }
+.sip-btn { padding: 7px 18px; font-size: 13.5px; font-weight: 500; border-radius: 6px; cursor: pointer; transition: all .15s; line-height: 1.4; }
+.sip-btn-cancel { background: #FFFFFF; border: 1px solid #1890FF; color: #1890FF; }
+.sip-btn-cancel:hover { background: #E6F7FF; }
+.sip-btn-upload { background: #FFFFFF; border: 1px solid #1890FF; color: #1890FF; }
+.sip-btn-upload:hover { background: #E6F7FF; }
+.sip-btn-insert { background: #F5F5F5; border: 1px solid #D9D9D9; color: #BFBFBF; cursor: not-allowed; }
+.sip-btn-insert:not(:disabled) { background: #1890FF; border-color: #1890FF; color: #FFFFFF; cursor: pointer; }
+.sip-btn-insert:not(:disabled):hover { background: #40A9FF; border-color: #40A9FF; }
+
+.pd-bottombar { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.object-tools { display: none !important; }
+
+/* URL Modal */
+.pd-url-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.pd-url-modal-card {
+    background: #FFFFFF;
+    width: 100%;
+    max-width: 440px;
+    border-radius: 14px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    animation: modalIn 0.2s ease-out;
+}
+
+@keyframes modalIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.pd-url-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.pd-url-modal-header h4 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.pd-url-modal-close {
+    background: none;
+    border: none;
+    font-size: 22px;
+    line-height: 1;
+    color: #94A3B8;
+    cursor: pointer;
+}
+
+.pd-url-modal-close:hover {
+    color: #111827;
+}
+
+.pd-url-modal-body {
+    padding: 20px;
+}
+
+.pd-url-type-tabs {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.pd-url-type-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+}
+
+.pd-url-input-field {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.pd-url-input-field:focus {
+    border-color: #1677FF;
+    box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.15);
+}
+
+.pd-url-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 14px 20px;
+    border-top: 1px solid #E5E7EB;
+    background: #F9FAFB;
+}
+
+.pd-url-btn-cancel {
+    padding: 8px 16px;
+    background: #FFFFFF;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+}
+
+.pd-url-btn-submit {
+    padding: 8px 18px;
+    background: #1677FF;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #FFFFFF;
+    cursor: pointer;
+}
+
+.pd-url-btn-submit:hover {
+    background: #0958D9;
+}
+
+/* Lightbox preview */
+.pd-lightbox-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.pd-lightbox-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 85vh;
+}
+
+.pd-lightbox-content img {
+    max-width: 100%;
+    max-height: 85vh;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    display: block;
+}
+
+.pd-lightbox-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: none;
+    border: none;
+    color: #FFFFFF;
+    font-size: 32px;
+    cursor: pointer;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Lắng nghe khi người dùng đổi ảnh đại diện bằng file picker
+    const mainImgInput = document.querySelector('#pdMainImageFieldWrapper input[type="file"]');
+    if (mainImgInput) {
+        mainImgInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                const previewUrl = URL.createObjectURL(file);
+                document.getElementById('pdAvatarImgPreview').src = previewUrl;
+                document.getElementById('pdAvatarCard').style.display = 'block';
+                const clearCheckbox = document.querySelector('#pdMainImageFieldWrapper input[type="checkbox"][name$="-clear"]');
+                if (clearCheckbox) clearCheckbox.checked = false;
+            }
+        });
+    }
+});
+
+// Kích hoạt chọn nhiều ảnh khi bấm ô (+)
+function triggerMultiUpload() {
+    const input = document.getElementById('pdMultiFileInput');
+    if (input) input.click();
+}
+
+// Xử lý khi người dùng chọn ảnh từ ô (+)
+function handleMultiFilesSelected(files) {
+    if (!files || !files.length) return;
+
+    let startIndex = 0;
+    const avatarCard = document.getElementById('pdAvatarCard');
+    const isAvatarEmpty = !avatarCard || avatarCard.style.display === 'none' || !document.getElementById('pdAvatarImgPreview').getAttribute('src');
+
+    // Nếu sản phẩm chưa có ảnh đại diện thì file đầu tiên được gán làm Ảnh đại diện
+    if (isAvatarEmpty && files.length > 0) {
+        const firstFile = files[0];
+        const mainImgInput = document.querySelector('#pdMainImageFieldWrapper input[type="file"]');
+        if (mainImgInput) {
+            try {
+                const dt = new DataTransfer();
+                dt.items.add(firstFile);
+                mainImgInput.files = dt.files;
+            } catch(e) {}
+            const clearCheckbox = document.querySelector('#pdMainImageFieldWrapper input[type="checkbox"][name$="-clear"]');
+            if (clearCheckbox) clearCheckbox.checked = false;
+        }
+        document.getElementById('pdAvatarImgPreview').src = URL.createObjectURL(firstFile);
+        document.getElementById('pdAvatarCard').style.display = 'block';
+        startIndex = 1;
+    }
+
+    // Các file còn lại được thêm vào gallery
+    const remainingFiles = Array.from(files).slice(startIndex);
+    if (remainingFiles.length > 0) {
+        addFilesToGallery(remainingFiles);
+    }
+    
+    // Reset file input để có thể chọn lại file cùng tên nếu muốn
+    document.getElementById('pdMultiFileInput').value = '';
+}
+
+// Thêm các file ảnh vào gallery động
+function addFilesToGallery(files) {
+    const totalFormsInput = document.getElementById('id_gallery_images-TOTAL_FORMS');
+    if (!totalFormsInput) return;
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const newIdx = parseInt(totalFormsInput.value, 10);
+
+        // 1. Tạo các input ẩn trong form Django
+        const formRow = document.createElement('div');
+        formRow.id = `gallery-row-${newIdx}`;
+
+        const idInput = document.createElement('input');
+        idInput.type = 'hidden';
+        idInput.name = `gallery_images-${newIdx}-id`;
+        idInput.value = '';
+
+        const typeInput = document.createElement('input');
+        typeInput.type = 'hidden';
+        typeInput.name = `gallery_images-${newIdx}-media_type`;
+        typeInput.value = 'image';
+
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.name = `gallery_images-${newIdx}-image`;
+        fileInput.id = `id_gallery_images-${newIdx}-image`;
+        fileInput.style.display = 'none';
+
+        try {
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            fileInput.files = dt.files;
+        } catch(e) {}
+
+        const urlInput = document.createElement('input');
+        urlInput.type = 'hidden';
+        urlInput.name = `gallery_images-${newIdx}-image_url`;
+        urlInput.value = '';
+
+        const vidInput = document.createElement('input');
+        vidInput.type = 'hidden';
+        vidInput.name = `gallery_images-${newIdx}-video_url`;
+        vidInput.value = '';
+
+        const orderInput = document.createElement('input');
+        orderInput.type = 'hidden';
+        orderInput.name = `gallery_images-${newIdx}-order`;
+        orderInput.value = newIdx;
+
+        formRow.appendChild(idInput);
+        formRow.appendChild(typeInput);
+        formRow.appendChild(fileInput);
+        formRow.appendChild(urlInput);
+        formRow.appendChild(vidInput);
+        formRow.appendChild(orderInput);
+
+        document.getElementById('pdDynamicFormsContainer').appendChild(formRow);
+
+        // 2. Tạo thẻ ảnh trực quan hiển thị trên giao diện
+        const card = document.createElement('div');
+        card.className = 'pd-media-card';
+        card.id = `gallery-card-${newIdx}`;
+        card.dataset.itemType = 'dynamic';
+        card.dataset.dynamicIdx = newIdx;
+        card.dataset.formRowId = `gallery-row-${newIdx}`;
+        const previewUrl = URL.createObjectURL(file);
+
+        card.innerHTML = `
+            <img src="${previewUrl}" alt="">
+            <div class="pd-card-overlay">
+                <button type="button" class="pd-card-action-btn" title="Xem ảnh lớn" onclick="previewLargeImage('${previewUrl}')">
+                    <span class="material-symbols-outlined">visibility</span>
+                </button>
+                <button type="button" class="pd-card-action-btn btn-del" title="Xóa ảnh" onclick="removeDynamicCard(${newIdx})">
+                    <span class="material-symbols-outlined">delete</span>
+                </button>
+            </div>
+        `;
+
+        document.getElementById('pdCardsSortableWrap').appendChild(card);
+
+        // 3. Tăng bộ đếm TOTAL_FORMS của Django formset
+        totalFormsInput.value = newIdx + 1;
+    }
+    updateGalleryOrderAndBadges();
+}
+
+// Xóa thẻ ảnh vừa thêm mới bằng JS
+function removeDynamicCard(idx) {
+    const card = document.getElementById(`gallery-card-${idx}`);
+    const row = document.getElementById(`gallery-row-${idx}`);
+    if (card) card.remove();
+    if (row) row.remove();
+    reindexDynamicRows();
+    updateGalleryOrderAndBadges();
+}
+
+// Đánh chỉ mục lại các dynamic rows để Django Formset không bị khuyết index
+function reindexDynamicRows() {
+    const container = document.getElementById('pdDynamicFormsContainer');
+    const wrap = document.getElementById('pdCardsSortableWrap');
+    const initialFormsInput = document.getElementById('id_gallery_images-INITIAL_FORMS');
+    const initialForms = initialFormsInput ? parseInt(initialFormsInput.value, 10) : 0;
+    
+    const rows = container.children;
+    const dynamicCards = Array.from(wrap ? wrap.querySelectorAll('.pd-media-card[data-item-type="dynamic"]') : []);
+    
+    for (let i = 0; i < rows.length; i++) {
+        const newIdx = initialForms + i;
+        const row = rows[i];
+        const card = dynamicCards[i];
+        
+        row.id = `gallery-row-${newIdx}`;
+        row.querySelectorAll('input').forEach(input => {
+            input.name = input.name.replace(/gallery_images-\d+-/, `gallery_images-${newIdx}-`);
+            if (input.id) input.id = input.id.replace(/gallery_images-\d+-/, `gallery_images-${newIdx}-`);
+        });
+        
+        if (card) {
+            card.id = `gallery-card-${newIdx}`;
+            card.dataset.dynamicIdx = newIdx;
+            card.dataset.formRowId = `gallery-row-${newIdx}`;
+            const delBtn = card.querySelector('.btn-del');
+            if (delBtn) delBtn.setAttribute('onclick', `removeDynamicCard(${newIdx})`);
+        }
+    }
+    const totalFormsInput = document.getElementById('id_gallery_images-TOTAL_FORMS');
+    if (totalFormsInput) {
+        totalFormsInput.value = initialForms + rows.length;
+    }
+}
+
+// Đổi ảnh đại diện
+function triggerChangeAvatar() {
+    const mainImgInput = document.querySelector('#pdMainImageFieldWrapper input[type="file"]');
+    if (mainImgInput) {
+        mainImgInput.click();
+    }
+}
+
+// Xóa ảnh đại diện
+function clearAvatarImage() {
+    const mainImgInput = document.querySelector('#pdMainImageFieldWrapper input[type="file"]');
+    if (mainImgInput) {
+        mainImgInput.value = '';
+    }
+    const clearCheckbox = document.querySelector('#pdMainImageFieldWrapper input[type="checkbox"][name$="-clear"]');
+    if (clearCheckbox) {
+        clearCheckbox.checked = true;
+    }
+    const avatarCard = document.getElementById('pdAvatarCard');
+    if (avatarCard) {
+        avatarCard.style.display = 'none';
+        document.getElementById('pdAvatarImgPreview').src = '';
+    }
+}
+
+// Đánh dấu xóa / hoàn tác ảnh gallery có sẵn từ DB
+function toggleDeleteGalleryItem(idx) {
+    const card = document.getElementById(`gallery-card-${idx}`);
+    const row = document.getElementById(`gallery-form-row-${idx}`);
+    if (!row || !card) return;
+    const delCheckbox = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+    if (!delCheckbox) return;
+
+    delCheckbox.checked = !delCheckbox.checked;
+    if (delCheckbox.checked) {
+        card.classList.add('is-deleted');
+    } else {
+        card.classList.remove('is-deleted');
+    }
+}
+
+// Modal thêm ảnh từ URL
+function openUrlModal() {
+    document.getElementById('pdUrlModal').style.display = 'flex';
+    document.getElementById('pdInputUrl').value = '';
+    document.getElementById('pdUrlPreviewContainer').style.display = 'none';
+    document.getElementById('pdInputUrl').focus();
+}
+
+function closeUrlModal() {
+    document.getElementById('pdUrlModal').style.display = 'none';
+}
+
+function handleUrlTypeChange(type) {
+    const input = document.getElementById('pdInputUrl');
+    if (type === 'video') {
+        input.placeholder = 'https://www.youtube.com/watch?v=...';
+    } else {
+        input.placeholder = 'https://example.com/hinh-anh.jpg';
+    }
+}
+
+function previewUrlInput(url) {
+    const previewContainer = document.getElementById('pdUrlPreviewContainer');
+    const previewImg = document.getElementById('pdUrlLivePreview');
+    const type = document.querySelector('input[name="url_media_type"]:checked').value;
+    if (type === 'image' && (url.startsWith('http://') || url.startsWith('https://'))) {
+        previewImg.src = url;
+        previewContainer.style.display = 'block';
+    } else {
+        previewContainer.style.display = 'none';
+    }
+}
+
+function submitUrlMedia() {
+    const url = document.getElementById('pdInputUrl').value.trim();
+    if (!url) return;
+    const type = document.querySelector('input[name="url_media_type"]:checked').value;
+    const totalFormsInput = document.getElementById('id_gallery_images-TOTAL_FORMS');
+    if (!totalFormsInput) return;
+
+    const newIdx = parseInt(totalFormsInput.value, 10);
+
+    // 1. Tạo các field ẩn cho Django formset
+    const formRow = document.createElement('div');
+    formRow.id = `gallery-row-${newIdx}`;
+
+    const idInput = document.createElement('input');
+    idInput.type = 'hidden';
+    idInput.name = `gallery_images-${newIdx}-id`;
+    idInput.value = '';
+
+    const typeInput = document.createElement('input');
+    typeInput.type = 'hidden';
+    typeInput.name = `gallery_images-${newIdx}-media_type`;
+    typeInput.value = type;
+
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.name = `gallery_images-${newIdx}-image`;
+    fileInput.id = `id_gallery_images-${newIdx}-image`;
+    fileInput.style.display = 'none';
+
+    const urlInput = document.createElement('input');
+    urlInput.type = 'hidden';
+    urlInput.name = `gallery_images-${newIdx}-image_url`;
+    urlInput.value = type === 'image' ? url : '';
+
+    const vidInput = document.createElement('input');
+    vidInput.type = 'hidden';
+    vidInput.name = `gallery_images-${newIdx}-video_url`;
+    vidInput.value = type === 'video' ? url : '';
+
+    const orderInput = document.createElement('input');
+    orderInput.type = 'hidden';
+    orderInput.name = `gallery_images-${newIdx}-order`;
+    orderInput.value = newIdx;
+
+    formRow.appendChild(idInput);
+    formRow.appendChild(typeInput);
+    formRow.appendChild(fileInput);
+    formRow.appendChild(urlInput);
+    formRow.appendChild(vidInput);
+    formRow.appendChild(orderInput);
+
+    document.getElementById('pdDynamicFormsContainer').appendChild(formRow);
+
+    // 2. Tạo thẻ trực quan
+    const card = document.createElement('div');
+    card.className = 'pd-media-card';
+    card.id = `gallery-card-${newIdx}`;
+
+    if (type === 'image') {
+        card.innerHTML = `
+            <img src="${url}" alt="" onerror="this.src='/static/images/Vua_kho_chon_san.png'">
+            <div class="pd-card-overlay">
+                <button type="button" class="pd-card-action-btn" title="Xem ảnh lớn" onclick="previewLargeImage('${url}')">
+                    <span class="material-symbols-outlined">visibility</span>
+                </button>
+                <button type="button" class="pd-card-action-btn btn-del" title="Xóa" onclick="removeDynamicCard(${newIdx})">
+                    <span class="material-symbols-outlined">delete</span>
+                </button>
+            </div>
+        `;
+    } else {
+        card.innerHTML = `
+            <div class="pd-card-video-inner">
+                <span class="material-symbols-outlined">play_circle</span>
+                <span>VIDEO</span>
+            </div>
+            <div class="pd-card-overlay">
+                <button type="button" class="pd-card-action-btn btn-del" title="Xóa" onclick="removeDynamicCard(${newIdx})">
+                    <span class="material-symbols-outlined">delete</span>
+                </button>
+            </div>
+        `;
+    }
+
+    card.dataset.itemType = 'dynamic';
+    card.dataset.dynamicIdx = newIdx;
+    card.dataset.formRowId = `gallery-row-${newIdx}`;
+    document.getElementById('pdCardsSortableWrap').appendChild(card);
+    totalFormsInput.value = newIdx + 1;
+    closeUrlModal();
+    updateGalleryOrderAndBadges();
+}
+
+// Lightbox xem ảnh lớn
+function previewLargeImage(src) {
+    if (!src) return;
+    document.getElementById('pdLightboxImg').src = src;
+    document.getElementById('pdLightboxModal').style.display = 'flex';
+}
+
+function closeLightbox() {
+    document.getElementById('pdLightboxModal').style.display = 'none';
+}
+
+// ── TOAST THÔNG BÁO ──
+let galleryToastTimeout = null;
+function showGalleryToast(msg) {
+    let toast = document.getElementById('galleryToast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'galleryToast';
+        toast.className = 'sp-toast';
+        document.body.appendChild(toast);
+    }
+    toast.innerHTML = `<span class="material-symbols-outlined">check_circle</span> <span>${msg}</span>`;
+    toast.classList.add('show');
+    clearTimeout(galleryToastTimeout);
+    galleryToastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+    }, 2500);
+}
+
+// ── SẮP XẾP VÀ CẬP NHẬT ẢNH ĐẠI DIỆN + GALLERY ──
+function updateGalleryOrderAndBadges() {
+    const wrap = document.getElementById('pdCardsSortableWrap');
+    if (!wrap) return;
+
+    // Lấy danh sách thẻ ảnh đang hiển thị và chưa bị đánh dấu xóa
+    const cards = Array.from(wrap.querySelectorAll('.pd-media-card')).filter(c => c.style.display !== 'none' && !c.classList.contains('is-deleted'));
+    if (!cards.length) return;
+
+    const avatarInput = document.getElementById('id_selected_avatar_id');
+    const firstCard = cards[0];
+    const firstType = firstCard.dataset.itemType;
+    const firstGalleryId = firstCard.dataset.galleryId;
+
+    let targetAvatarId = 'avatar';
+    if (firstType === 'gallery' && firstGalleryId) {
+        targetAvatarId = 'gallery_image_' + firstGalleryId;
+    } else if (firstType === 'dynamic') {
+        targetAvatarId = 'dynamic_' + firstCard.dataset.dynamicIdx;
+    }
+
+    if (avatarInput) {
+        avatarInput.value = targetAvatarId;
+    }
+
+    // Thẻ đứng đầu tiên luôn được gắn huy hiệu "Ảnh đại diện"
+    cards.forEach((card, index) => {
+        let badge = card.querySelector('.pd-badge-avatar');
+        if (index === 0) {
+            if (!badge) {
+                badge = document.createElement('div');
+                badge.className = 'pd-badge-avatar';
+                badge.textContent = '{% trans "Ảnh đại diện" %}';
+                card.appendChild(badge);
+            }
+            badge.style.display = 'block';
+        } else {
+            if (badge) {
+                badge.remove();
+            }
+        }
+
+        // Cập nhật thứ tự order trong form django tương ứng
+        const formRowId = card.dataset.formRowId;
+        if (formRowId) {
+            const row = document.getElementById(formRowId);
+            if (row) {
+                const orderInput = row.querySelector('input[name$="-order"]');
+                if (orderInput) orderInput.value = index;
+            }
+        }
+    });
+
+    const galleryOrder = [];
+    cards.slice(1).forEach(card => {
+        if (card.dataset.itemType === 'gallery' && card.dataset.galleryId) {
+            galleryOrder.push(parseInt(card.dataset.galleryId, 10));
+        }
+    });
+
+    {% if original and original.pk %}
+    // Lưu thứ tự ngay lập tức qua API AJAX nếu sản phẩm đã có trong DB
+    const csrftoken = (document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)') || [])[2];
+    fetch('/admin/main/product/reorder-gallery/{{ original.pk }}/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            avatar_id: targetAvatarId,
+            gallery_order: galleryOrder
+        })
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.ok) {
+            showGalleryToast('{% trans "Đã đổi vị trí và cập nhật thứ tự ảnh thành công!" %}');
+            if (firstType === 'gallery') {
+                const oldAvatarCard = cards.find(c => c !== firstCard && c.dataset.itemType === 'avatar');
+                firstCard.dataset.itemType = 'avatar';
+                delete firstCard.dataset.galleryId;
+                if (oldAvatarCard) {
+                    oldAvatarCard.dataset.itemType = 'gallery';
+                    oldAvatarCard.dataset.galleryId = firstGalleryId;
+                }
+            }
+        }
+    })
+    .catch(err => console.error(err));
+    {% else %}
+    showGalleryToast('{% trans "Đã sắp xếp thứ tự ảnh!" %}');
+    {% endif %}
+}
+
+// ── KHỞI TẠO SORTABLEJS CHO GALLERY VÀ KÉO THẢ FILE ──
+let gallerySortableInstance = null;
+
+function initGallerySortable() {
+    const wrap = document.getElementById('pdCardsSortableWrap');
+    if (!wrap || typeof Sortable === 'undefined') return;
+
+    if (gallerySortableInstance) {
+        try { gallerySortableInstance.destroy(); } catch(e) {}
+    }
+
+    gallerySortableInstance = new Sortable(wrap, {
+        animation: 220,
+        ghostClass: 'pd-sort-ghost',
+        chosenClass: 'pd-sort-chosen',
+        dragClass: 'pd-sort-drag',
+        filter: '.pd-card-action-btn, .pd-del-notice',
+        preventOnFilter: false,
+        onEnd: function () {
+            updateGalleryOrderAndBadges();
+        }
+    });
+}
+
+function setupFileDropZone() {
+    const dropZone = document.getElementById('pdGalleryGrid');
+    if (!dropZone) return;
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, function (e) {
+            if (e.dataTransfer && e.dataTransfer.types && Array.from(e.dataTransfer.types).includes('Files')) {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.add('is-dragover-file');
+            }
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, function (e) {
+            if (e.dataTransfer && e.dataTransfer.types && Array.from(e.dataTransfer.types).includes('Files')) {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.remove('is-dragover-file');
+            }
+        });
+    });
+
+    dropZone.addEventListener('drop', function (e) {
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('is-dragover-file');
+            handleMultiFilesSelected(e.dataTransfer.files);
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    initGallerySortable();
+    setupFileDropZone();
+});
+</script>
+<script src="{% static 'js/sortable.min.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="{% static 'js/tinymce_vi.js' %}"></script>
+<script>
+function initProductTinyMCE() {
+    if (typeof tinymce === 'undefined') return;
+
+    tinymce.init({
+        selector: '#id_description, #id_short_description, #id_usage_norms, #id_specifications',
+        height: 380,
+        menubar: false,
+        statusbar: false,
+        language: 'vi',
+        plugins: 'advlist autolink lists link image media table code wordcount',
+        toolbar: 'blocks | fontsize | bold italic underline strikethrough | colorpicker | alignmenu | bullist numlist outdent indent | link insertimage insertvideo table',
+        toolbar_mode: 'scrolling',
+        toolbar_sticky: true,
+        fontsize_formats: '11px 12px 13px 14px 15px 16px 18px 20px 24px 28px 32px',
+        content_style: 'body { font-family: "Bai Jamjuree", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; font-size: 14px; color: #000000 !important; line-height: 1.6; padding: 12px; } p { margin: 0 0 8px 0; color: #000000 !important; }',
+        branding: false,
+        promotion: false,
+        setup: function (editor) {
+            // Nút ảnh: mở modal Chèn ảnh giao diện Sapo
+            editor.ui.registry.addButton('insertimage', {
+                icon: 'image',
+                tooltip: 'Chèn ảnh',
+                onAction: function () {
+                    openImagePickerModal(editor);
+                }
+            });
+            // Nút video: mở dialog dán mã nhúng video
+            editor.ui.registry.addButton('insertvideo', {
+                icon: 'embed',
+                tooltip: 'Chèn mã nhúng Video',
+                onAction: function () {
+                    editor.windowManager.open({
+                        title: 'Chèn mã nhúng Video',
+                        size: 'medium',
+                        body: {
+                            type: 'panel',
+                            items: [
+                                {
+                                    type: 'textarea',
+                                    name: 'vembed',
+                                    label: 'Dán mã nhúng (iframe/embed code) vào đây'
+                                }
+                            ]
+                        },
+                        buttons: [
+                            { type: 'cancel', text: 'Hủy' },
+                            {
+                                type: 'submit',
+                                text: 'Chèn',
+                                buttonType: 'primary'
+                            }
+                        ],
+                        onSubmit: function (api) {
+                            const data = api.getData();
+                            const src = (data.vembed || '').trim();
+                            if (src) {
+                                editor.insertContent(src);
+                            }
+                            api.close();
+                        }
+                    });
+                }
+            });
+            // Nút căn lề: gom 4 kiểu trong 1 dropdown
+            editor.ui.registry.addMenuButton('alignmenu', {
+                icon: 'align-left',
+                tooltip: 'Căn lề',
+                fetch: function (callback) {
+                    callback([
+                        { type: 'menuitem', text: 'Căn trái',  icon: 'align-left',    onAction: function () { editor.execCommand('JustifyLeft');   } },
+                        { type: 'menuitem', text: 'Căn giữa', icon: 'align-center',  onAction: function () { editor.execCommand('JustifyCenter'); } },
+                        { type: 'menuitem', text: 'Căn phải', icon: 'align-right',   onAction: function () { editor.execCommand('JustifyRight');  } },
+                        { type: 'menuitem', text: 'Căn đều',  icon: 'align-justify', onAction: function () { editor.execCommand('JustifyFull');  } },
+                    ]);
+                }
+            });
+            // Nút màu tuỳ chỉnh: mở picker gradient
+            editor.ui.registry.addButton('colorpicker', {
+                icon: 'text-color',
+                tooltip: 'Màu chữ / Màu nền',
+                onAction: function () {
+                    const btn = document.querySelector('.tox-tbtn[data-mce-name="colorpicker"], [aria-label="Màu chữ / Màu nền"]');
+                    openCCP(editor, _ccpMode || 'forecolor', btn);
+                }
+            });
+            editor.on('change keyup NodeChange paste input', function () {
+                editor.save();
+                triggerDebouncedDraftSave();
+            });
+        }
+    });
+
+    document.querySelectorAll('.pd-tab-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            setTimeout(function () {
+                if (window.tinymce) {
+                    tinymce.editors.forEach(function (ed) {
+                        if (ed.getContainer() && ed.getContainer().offsetParent !== null) {
+                            ed.execCommand('mceRepaint');
+                        }
+                    });
+                }
+            }, 80);
+        });
+    });
+
+    const prodForm = document.getElementById('product_form');
+    if (prodForm) {
+        prodForm.addEventListener('submit', function () {
+            if (window.tinymce) {
+                tinymce.triggerSave();
+            }
+        });
+    }
+}
+
+// ── Auto-save Draft System ──────────────────────────────────────
+const DRAFT_STORAGE_KEY = '{% if original %}product_draft_{{ original.pk }}{% else %}product_draft_new{% endif %}';
+let _draftSaveTimeout = null;
+let _hasInitialDraftChecked = false;
+
+function getProductDraftData() {
+    if (window.tinymce) {
+        try { tinymce.triggerSave(); } catch (e) {}
+    }
+    const name = (document.getElementById('id_name') || {}).value || '';
+    const sku = (document.getElementById('id_sku') || {}).value || '';
+    const category = (document.getElementById('id_category') || {}).value || '';
+    const slug = (document.getElementById('id_slug') || {}).value || '';
+    
+    let short_desc = '';
+    let desc = '';
+    let norms = '';
+    let specs = '';
+
+    if (window.tinymce) {
+        short_desc = tinymce.get('id_short_description') ? tinymce.get('id_short_description').getContent() : ((document.getElementById('id_short_description') || {}).value || '');
+        desc = tinymce.get('id_description') ? tinymce.get('id_description').getContent() : ((document.getElementById('id_description') || {}).value || '');
+        norms = tinymce.get('id_usage_norms') ? tinymce.get('id_usage_norms').getContent() : ((document.getElementById('id_usage_norms') || {}).value || '');
+        specs = tinymce.get('id_specifications') ? tinymce.get('id_specifications').getContent() : ((document.getElementById('id_specifications') || {}).value || '');
+    } else {
+        short_desc = (document.getElementById('id_short_description') || {}).value || '';
+        desc = (document.getElementById('id_description') || {}).value || '';
+        norms = (document.getElementById('id_usage_norms') || {}).value || '';
+        specs = (document.getElementById('id_specifications') || {}).value || '';
+    }
+
+    const now = new Date();
+    const timeStr = ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2) + ':' + ('0' + now.getSeconds()).slice(-2);
+    const dateStr = ('0' + now.getDate()).slice(-2) + '/' + ('0' + (now.getMonth() + 1)).slice(-2) + '/' + now.getFullYear();
+
+    return {
+        name,
+        sku,
+        category,
+        slug,
+        short_description: short_desc,
+        description: desc,
+        usage_norms: norms,
+        specifications: specs,
+        time_str: timeStr,
+        date_str: dateStr,
+        saved_at_display: timeStr + ' (' + dateStr + ')',
+        timestamp: now.getTime()
+    };
+}
+
+function saveProductDraft() {
+    const data = getProductDraftData();
+    const hasContent = data.name.trim() || data.sku.trim() || data.short_description.trim() || data.description.trim() || data.usage_norms.trim() || data.specifications.trim();
+    if (!hasContent) return;
+
+    try {
+        localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(data));
+        updateDraftStatusUI(data.time_str);
+    } catch (e) {
+        console.warn('LocalStorage save error:', e);
+    }
+}
+
+function triggerDebouncedDraftSave() {
+    clearTimeout(_draftSaveTimeout);
+    _draftSaveTimeout = setTimeout(saveProductDraft, 1200);
+}
+
+function updateDraftStatusUI(timeStr) {
+    const statusEl = document.getElementById('pdDraftStatus');
+    const textEl = document.getElementById('pdDraftStatusText');
+    if (statusEl && textEl) {
+        textEl.textContent = '{% trans "Đã lưu nháp lúc" %} ' + timeStr;
+        statusEl.style.display = 'inline-flex';
+    }
+}
+
+function checkAndShowDraftBanner() {
+    if (_hasInitialDraftChecked) return;
+    _hasInitialDraftChecked = true;
+
+    try {
+        const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+        if (!raw) return;
+        const draft = JSON.parse(raw);
+        if (!draft) return;
+
+        const current = getProductDraftData();
+        const isDifferent = (draft.name || '').trim() !== (current.name || '').trim() ||
+                            (draft.sku || '').trim() !== (current.sku || '').trim() ||
+                            (draft.short_description || '').trim() !== (current.short_description || '').trim() ||
+                            (draft.description || '').trim() !== (current.description || '').trim() ||
+                            (draft.specifications || '').trim() !== (current.specifications || '').trim();
+
+        if (isDifferent) {
+            const banner = document.getElementById('pdDraftBanner');
+            const timeEl = document.getElementById('pdDraftTime');
+            if (banner && timeEl) {
+                timeEl.textContent = draft.saved_at_display || draft.time_str || '';
+                banner.style.display = 'flex';
+            }
+        }
+    } catch (e) {
+        console.warn('Draft check error:', e);
+    }
+}
+
+function restoreProductDraft() {
+    try {
+        const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+        if (!raw) return;
+        const draft = JSON.parse(raw);
+
+        if (draft.name !== undefined) {
+            const el = document.getElementById('id_name');
+            if (el) el.value = draft.name;
+        }
+        if (draft.sku !== undefined) {
+            const el = document.getElementById('id_sku');
+            if (el) el.value = draft.sku;
+        }
+        if (draft.category !== undefined) {
+            const el = document.getElementById('id_category');
+            if (el) el.value = draft.category;
+        }
+        if (draft.slug !== undefined) {
+            const el = document.getElementById('id_slug');
+            if (el) el.value = draft.slug;
+        }
+
+        const restoreEditorField = (id, content) => {
+            const textarea = document.getElementById(id);
+            if (textarea) textarea.value = content || '';
+            if (window.tinymce) {
+                const ed = tinymce.get(id);
+                if (ed) {
+                    ed.setContent(content || '');
+                }
+            }
+        };
+
+        restoreEditorField('id_short_description', draft.short_description);
+        restoreEditorField('id_description', draft.description);
+        restoreEditorField('id_usage_norms', draft.usage_norms);
+        restoreEditorField('id_specifications', draft.specifications);
+
+        const banner = document.getElementById('pdDraftBanner');
+        if (banner) banner.style.display = 'none';
+
+        updateDraftStatusUI(draft.time_str || '');
+        alert('{% trans "Đã khôi phục toàn bộ bản nháp thành công!" %}');
+    } catch (e) {
+        alert('{% trans "Lỗi khi khôi phục bản nháp: " %}' + e);
+    }
+}
+
+function dismissProductDraft() {
+    const banner = document.getElementById('pdDraftBanner');
+    if (banner) banner.style.display = 'none';
+}
+
+function clearProductDraft(userConfirmed) {
+    if (userConfirmed) {
+        if (!confirm('{% trans "Bạn có chắc chắn muốn xóa bản nháp này?" %}')) return;
+    }
+    try {
+        localStorage.removeItem(DRAFT_STORAGE_KEY);
+        const banner = document.getElementById('pdDraftBanner');
+        if (banner) banner.style.display = 'none';
+        const statusEl = document.getElementById('pdDraftStatus');
+        if (statusEl) statusEl.style.display = 'none';
+    } catch (e) {}
+}
+
+// ── Custom HSV Color Picker Logic ────────────────────────────────
+let _ccpEditor = null, _ccpMode = 'forecolor';
+let _ccpH = 0, _ccpS = 0.8, _ccpV = 0.9;
+let _ccpEventsReady = false;
+
+function _hsvToRgb(h, s, v) {
+    const i = Math.floor(h / 60) % 6, f = h / 60 - Math.floor(h / 60);
+    const p = v*(1-s), q = v*(1-f*s), t = v*(1-(1-f)*s);
+    return [[v,t,p],[q,v,p],[p,v,t],[p,q,v],[t,p,v],[v,p,q]][i].map(x => Math.round(x*255));
+}
+function _rgbToHex(r,g,b){return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');}
+function _hexToRgb(hex){
+    hex=hex.replace('#','');
+    if(hex.length===3)hex=hex.split('').map(c=>c+c).join('');
+    const n=parseInt(hex,16);return[(n>>16)&255,(n>>8)&255,n&255];
+}
+function _rgbToHsv(r,g,b){
+    r/=255;g/=255;b/=255;
+    const mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;
+    let h=0,s=mx===0?0:d/mx,v=mx;
+    if(d){if(mx===r)h=((g-b)/d+(g<b?6:0))*60;else if(mx===g)h=((b-r)/d+2)*60;else h=((r-g)/d+4)*60;}
+    return[h,s,v];
+}
+function ccpDrawCanvas(){
+    const cv=document.getElementById('ccpCanvas');if(!cv)return;
+    const ctx=cv.getContext('2d'),w=cv.width,h=cv.height;
+    const [hr,hg,hb]=_hsvToRgb(_ccpH,1,1);
+    ctx.fillStyle=`rgb(${hr},${hg},${hb})`;ctx.fillRect(0,0,w,h);
+    let g=ctx.createLinearGradient(0,0,w,0);
+    g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+    g=ctx.createLinearGradient(0,0,0,h);
+    g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,1)');
+    ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+    const cx=_ccpS*w, cy=(1-_ccpV)*h;
+    ctx.beginPath();ctx.arc(cx,cy,8,0,2*Math.PI);ctx.strokeStyle='#fff';ctx.lineWidth=2.5;ctx.stroke();
+    ctx.beginPath();ctx.arc(cx,cy,8,0,2*Math.PI);ctx.strokeStyle='rgba(0,0,0,0.25)';ctx.lineWidth=1;ctx.stroke();
+}
+function ccpDrawHue(){
+    const cv=document.getElementById('ccpHue');if(!cv)return;
+    const ctx=cv.getContext('2d'),w=cv.width,h=cv.height;
+    const g=ctx.createLinearGradient(0,0,w,0);
+    for(let i=0;i<=360;i+=30){const[r,rg,rb]=_hsvToRgb(i,1,1);g.addColorStop(i/360,`rgb(${r},${rg},${rb})`);}
+    ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+}
+function ccpSync(){
+    const[r,g,b]=_hsvToRgb(_ccpH,_ccpS,_ccpV);
+    const hex=_rgbToHex(r,g,b);
+    const prev=document.getElementById('ccpPreview');
+    const inp=document.getElementById('ccpHexInput');
+    if(prev)prev.style.background=hex;
+    if(inp&&document.activeElement!==inp)inp.value=hex;
+    ccpDrawCanvas();
+    const cur=document.getElementById('ccpHueCursor');
+    const hcv=document.getElementById('ccpHue');
+    if(cur&&hcv){
+        const[cr,cg,cb]=_hsvToRgb(_ccpH,1,1);
+        cur.style.left=(_ccpH/360*hcv.width)+'px';
+        cur.style.background=`rgb(${cr},${cg},${cb})`;
+    }
+}
+function openCCP(editor, mode, anchorEl){
+    _ccpEditor=editor; _ccpMode=mode||'forecolor';
+    const panel=document.getElementById('customColorPanel');if(!panel)return;
+    panel.querySelectorAll('.ccp-tab').forEach(t=>t.classList.toggle('ccp-tab-active',t.dataset.mode===_ccpMode));
+    if(anchorEl){
+        const r=anchorEl.getBoundingClientRect();
+        let top=r.bottom+6, left=r.left;
+        if(left+270>window.innerWidth)left=window.innerWidth-278;
+        if(top+360>window.innerHeight)top=r.top-360;
+        panel.style.top=top+'px'; panel.style.left=left+'px';
+        panel.style.transform='none';
+    } else {
+        panel.style.top='50%'; panel.style.left='50%'; panel.style.transform='translate(-50%,-50%)';
+    }
+    panel.style.display='block';
+    setTimeout(()=>{ccpDrawCanvas();ccpDrawHue();ccpSync();},10);
+    if(!_ccpEventsReady)ccpBindEvents();
+}
+function closeCCP(){const p=document.getElementById('customColorPanel');if(p)p.style.display='none';}
+function applyCCP(){
+    if(!_ccpEditor)return;
+    let hex=(document.getElementById('ccpHexInput')||{}).value||'#000000';
+    if(!hex.startsWith('#'))hex='#'+hex;
+    _ccpEditor.execCommand(_ccpMode==='forecolor'?'ForeColor':'HiliteColor',false,hex);
+    closeCCP();
+}
+function ccpSwitchTab(mode){
+    _ccpMode=mode;
+    document.querySelectorAll('.ccp-tab').forEach(t=>t.classList.toggle('ccp-tab-active',t.dataset.mode===mode));
+}
+function ccpBindEvents(){
+    _ccpEventsReady=true;
+    const cv=document.getElementById('ccpCanvas');
+    const hv=document.getElementById('ccpHue');
+    let dragging=false, hueDrag=false;
+    function pct(e,el){const r=el.getBoundingClientRect();return{x:Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)),y:Math.max(0,Math.min(1,(e.clientY-r.top)/r.height))};}
+    function touch1(e){return e.touches[0]||e.changedTouches[0];}
+    cv.addEventListener('mousedown',e=>{dragging=true;const p=pct(e,cv);_ccpS=p.x;_ccpV=1-p.y;ccpSync();});
+    cv.addEventListener('touchstart',e=>{dragging=true;const t=touch1(e);const p=pct(t,cv);_ccpS=p.x;_ccpV=1-p.y;ccpSync();e.preventDefault();},{passive:false});
+    hv.addEventListener('mousedown',e=>{hueDrag=true;_ccpH=pct(e,hv).x*360;ccpSync();});
+    hv.addEventListener('touchstart',e=>{hueDrag=true;_ccpH=pct(touch1(e),hv).x*360;ccpSync();e.preventDefault();},{passive:false});
+    document.addEventListener('mousemove',e=>{
+        if(dragging){const p=pct(e,cv);_ccpS=p.x;_ccpV=1-p.y;ccpSync();}
+        if(hueDrag){_ccpH=pct(e,hv).x*360;ccpSync();}
+    });
+    document.addEventListener('mouseup',()=>{dragging=false;hueDrag=false;});
+    document.addEventListener('touchmove',e=>{
+        const t=touch1(e);
+        if(dragging){const p=pct(t,cv);_ccpS=p.x;_ccpV=1-p.y;ccpSync();}
+        if(hueDrag){_ccpH=pct(t,hv).x*360;ccpSync();}
+    },{passive:false});
+    document.addEventListener('touchend',()=>{dragging=false;hueDrag=false;});
+    document.getElementById('ccpHexInput').addEventListener('input',function(){
+        const hex=this.value.replace('#','');
+        if(hex.length===6){try{const[r,g,b]=_hexToRgb(this.value);[_ccpH,_ccpS,_ccpV]=_rgbToHsv(r,g,b);ccpDrawCanvas();const cur=document.getElementById('ccpHueCursor'),hcv=document.getElementById('ccpHue');if(cur&&hcv){const[cr,cg,cb]=_hsvToRgb(_ccpH,1,1);cur.style.left=(_ccpH/360*hcv.width)+'px';cur.style.background=`rgb(${cr},${cg},${cb})`;}document.getElementById('ccpPreview').style.background=this.value;}catch(e){}}
+    });
+    document.addEventListener('mousedown',function(e){
+        const panel=document.getElementById('customColorPanel');
+        if(panel&&panel.style.display!=='none'&&!panel.contains(e.target))closeCCP();
+    });
+}
+
+// ── Image Picker Modal Logic ─────────────────────────────────────
+let _sipEditor = null;
+let _sipActiveTab = 'products'; // 'products' or 'uploaded'
+let _sipCurrentPage = 1;
+let _sipTotalPages = 1;
+let _sipSelectedUrl = null;
+let _sipSelectedName = '';
+
+function openImagePickerModal(editor) {
+    _sipEditor = editor || (window.tinymce ? tinymce.activeEditor : null);
+    _sipSelectedUrl = null;
+    _sipSelectedName = '';
+    _sipActiveTab = 'products';
+    _sipCurrentPage = 1;
+
+    const modal = document.getElementById('imagePickerModal');
+    if (modal) modal.style.display = 'flex';
+
+    sipUpdateTabUI();
+    sipLoadImages();
+}
+
+function closeImagePickerModal() {
+    const modal = document.getElementById('imagePickerModal');
+    if (modal) modal.style.display = 'none';
+    _sipSelectedUrl = null;
+    _sipSelectedName = '';
+    sipUpdateInsertButton();
+}
+
+function sipSwitchTab(tab) {
+    if (_sipActiveTab === tab) return;
+    _sipActiveTab = tab;
+    _sipCurrentPage = 1;
+    _sipSelectedUrl = null;
+    _sipSelectedName = '';
+    sipUpdateTabUI();
+    sipUpdateInsertButton();
+    sipLoadImages();
+}
+
+function sipUpdateTabUI() {
+    const tabProd = document.getElementById('sipTabProduct');
+    const tabUp = document.getElementById('sipTabUploaded');
+    if (tabProd) tabProd.classList.toggle('active', _sipActiveTab === 'products');
+    if (tabUp) tabUp.classList.toggle('active', _sipActiveTab === 'uploaded');
+}
+
+function sipLoadImages(targetSelectUrl) {
+    const loadingEl = document.getElementById('sipLoading');
+    const emptyEl = document.getElementById('sipEmpty');
+    const gridEl = document.getElementById('sipGrid');
+    const prevBtn = document.getElementById('sipPrevBtn');
+    const nextBtn = document.getElementById('sipNextBtn');
+    const pageInfo = document.getElementById('sipPageInfo');
+
+    if (loadingEl) loadingEl.style.display = 'flex';
+    if (emptyEl) emptyEl.style.display = 'none';
+    if (gridEl) { gridEl.style.display = 'none'; gridEl.innerHTML = ''; }
+
+    const url = "{% url 'admin:main_product_list_media_images' %}?type=" + _sipActiveTab + "&page=" + _sipCurrentPage;
+    fetch(url)
+        .then(r => r.json())
+        .then(data => {
+            if (loadingEl) loadingEl.style.display = 'none';
+            _sipTotalPages = data.total_pages || 1;
+            _sipCurrentPage = data.current_page || 1;
+
+            if (prevBtn) prevBtn.disabled = (_sipCurrentPage <= 1);
+            if (nextBtn) nextBtn.disabled = (_sipCurrentPage >= _sipTotalPages);
+            if (pageInfo) {
+                pageInfo.textContent = _sipTotalPages > 1 ? `Trang ${_sipCurrentPage}/${_sipTotalPages}` : '';
+            }
+
+            const items = data.items || [];
+            if (items.length === 0) {
+                if (emptyEl) emptyEl.style.display = 'flex';
+                if (gridEl) gridEl.style.display = 'none';
+                return;
+            }
+
+            if (gridEl) {
+                gridEl.style.display = 'grid';
+                items.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'sip-card';
+                    card.setAttribute('title', item.name || '');
+
+                    const isSelected = (targetSelectUrl && targetSelectUrl === item.url) || (_sipSelectedUrl === item.url);
+                    if (isSelected) {
+                        card.classList.add('selected');
+                        _sipSelectedUrl = item.url;
+                        _sipSelectedName = item.name;
+                        sipUpdateInsertButton();
+                    }
+
+                    const img = document.createElement('img');
+                    img.src = item.url;
+                    img.alt = item.name || '';
+                    img.loading = 'lazy';
+
+                    card.appendChild(img);
+
+                    card.addEventListener('click', function () {
+                        gridEl.querySelectorAll('.sip-card').forEach(c => c.classList.remove('selected'));
+                        card.classList.add('selected');
+                        _sipSelectedUrl = item.url;
+                        _sipSelectedName = item.name;
+                        sipUpdateInsertButton();
+                    });
+
+                    card.addEventListener('dblclick', function () {
+                        _sipSelectedUrl = item.url;
+                        _sipSelectedName = item.name;
+                        sipInsertSelectedImage();
+                    });
+
+                    gridEl.appendChild(card);
+                });
+            }
+        })
+        .catch(err => {
+            if (loadingEl) loadingEl.style.display = 'none';
+            if (emptyEl) {
+                emptyEl.style.display = 'flex';
+                emptyEl.querySelector('p').textContent = 'Lỗi tải ảnh: ' + err;
+            }
+        });
+}
+
+function sipChangePage(delta) {
+    const next = _sipCurrentPage + delta;
+    if (next >= 1 && next <= _sipTotalPages) {
+        _sipCurrentPage = next;
+        sipLoadImages();
+    }
+}
+
+function sipUpdateInsertButton() {
+    const insertBtn = document.getElementById('sipInsertBtn');
+    if (insertBtn) {
+        insertBtn.disabled = !_sipSelectedUrl;
+    }
+}
+
+function sipTriggerUpload() {
+    const input = document.getElementById('sipHiddenFileInput');
+    if (input) {
+        input.value = '';
+        input.click();
+    }
+}
+
+function sipHandleUpload(input) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    const csrftoken = (document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)') || [])[2];
+
+    const uploadBtn = document.querySelector('.sip-btn-upload');
+    const origText = uploadBtn ? uploadBtn.textContent : '';
+    if (uploadBtn) {
+        uploadBtn.textContent = 'Đang tải lên...';
+        uploadBtn.disabled = true;
+    }
+
+    fetch('{% url "admin:main_product_upload_content_image" %}', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrftoken },
+        body: formData
+    })
+        .then(r => r.json())
+        .then(data => {
+            if (uploadBtn) {
+                uploadBtn.textContent = origText;
+                uploadBtn.disabled = false;
+            }
+            if (data.location) {
+                _sipActiveTab = 'uploaded';
+                _sipCurrentPage = 1;
+                sipUpdateTabUI();
+                sipLoadImages(data.location);
+            } else {
+                alert(data.error || 'Tải ảnh lên thất bại.');
+            }
+        })
+        .catch(err => {
+            if (uploadBtn) {
+                uploadBtn.textContent = origText;
+                uploadBtn.disabled = false;
+            }
+            alert('Lỗi tải ảnh lên: ' + err);
+        });
+}
+
+function sipInsertSelectedImage() {
+    if (!_sipSelectedUrl) return;
+    const editor = _sipEditor || (window.tinymce ? tinymce.activeEditor : null);
+    if (editor) {
+        const html = '<img src="' + _sipSelectedUrl + '" alt="' + (_sipSelectedName || 'Ảnh') + '" style="max-width:100%;height:auto;" />';
+        editor.insertContent(html);
+    }
+    closeImagePickerModal();
+}
+
+function convertToSlug(str) {
+    if (!str) return '';
+    str = str.toLowerCase();
+    str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, 'a');
+    str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, 'e');
+    str = str.replace(/ì|í|ị|ỉ|ĩ/g, 'i');
+    str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, 'o');
+    str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, 'u');
+    str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, 'y');
+    str = str.replace(/đ/g, 'd');
+    str = str.replace(/[^a-z0-9\s-]/g, '');
+    str = str.replace(/\s+/g, '-');
+    str = str.replace(/-+/g, '-');
+    str = str.replace(/^-+|-+$/g, '');
+    return str;
+}
+
+function updateProductFormTabsUI() {
+    const categorySelect = document.getElementById('id_category');
+    const nameInput = document.getElementById('id_name');
+    
+    let isSand = false;
+
+    if (categorySelect && categorySelect.selectedIndex >= 0) {
+        const selectedText = (categorySelect.options[categorySelect.selectedIndex] ? categorySelect.options[categorySelect.selectedIndex].text : '').toLowerCase();
+        const selectedVal = categorySelect.value;
+        if (selectedVal === '6' || selectedText.includes('cát') || selectedText.includes('cat')) {
+            isSand = true;
+        }
+    }
+
+    if (!isSand && nameInput) {
+        const nameVal = nameInput.value.toLowerCase();
+        if (nameVal.includes('cát') || nameVal.includes('cat say') || nameVal.includes('cát sấy')) {
+            isSand = true;
+        }
+    }
+
+    const guideTitle = document.getElementById('pdTabGuideTitle');
+    const guideLabel = document.getElementById('pdTabGuideLabel');
+    const normsBtn = document.getElementById('pdTabBtnNorms');
+    const normsPanel = document.getElementById('pdTabPanelNorms');
+
+    if (isSand) {
+        if (guideTitle) guideTitle.textContent = '{% trans "Ứng dụng" %}';
+        if (guideLabel) guideLabel.textContent = '{% trans "Ứng dụng" %}';
+        if (normsBtn) normsBtn.style.display = 'none';
+        if (normsPanel) normsPanel.style.display = 'none';
+    } else {
+        if (guideTitle) guideTitle.textContent = '{% trans "Hướng dẫn thi công" %}';
+        if (guideLabel) guideLabel.textContent = '{% trans "Hướng dẫn thi công" %}';
+        if (normsBtn) normsBtn.style.display = '';
+        if (normsPanel) normsPanel.style.display = '';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    initProductTinyMCE();
+    updateProductFormTabsUI();
+
+    const nameInput = document.getElementById('id_name');
+    const slugInput = document.getElementById('id_slug');
+    const categorySelect = document.getElementById('id_category');
+
+    if (categorySelect) {
+        categorySelect.addEventListener('change', updateProductFormTabsUI);
+    }
+
+    if (nameInput) {
+        nameInput.addEventListener('input', updateProductFormTabsUI);
+    }
+
+    if (nameInput && slugInput) {
+        let isManualSlug = !!slugInput.value.trim();
+
+        nameInput.addEventListener('input', function() {
+            if (!isManualSlug) {
+                slugInput.value = convertToSlug(this.value);
+            }
+        });
+
+        slugInput.addEventListener('input', function() {
+            if (!this.value.trim()) {
+                isManualSlug = false;
+                slugInput.value = convertToSlug(nameInput.value);
+            } else {
+                isManualSlug = true;
+            }
+        });
+
+        const productForm = document.getElementById('product_form');
+        if (productForm) {
+            productForm.addEventListener('submit', function() {
+                if (!slugInput.value.trim() && nameInput.value.trim()) {
+                    slugInput.value = convertToSlug(nameInput.value.trim());
+                }
+            });
+        }
+    }
+
+    // Gắn listener auto-save cho tất cả các input text, select
+    ['id_name', 'id_sku', 'id_category', 'id_slug'].forEach(function (id) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', triggerDebouncedDraftSave);
+            el.addEventListener('change', triggerDebouncedDraftSave);
+        }
+    });
+
+    // Định kỳ lưu nháp tự động mỗi 10 giây nếu có chỉnh sửa
+    setInterval(saveProductDraft, 10000);
+
+    // Khi submit form thành công, xóa bản nháp
+    const prodForm = document.getElementById('product_form');
+    if (prodForm) {
+        prodForm.addEventListener('submit', function () {
+            try { localStorage.removeItem(DRAFT_STORAGE_KEY); } catch (e) {}
+        });
+    }
+
+    // Kiểm tra bản nháp cũ để hiện banner sau khi TinyMCE đã load
+    setTimeout(checkAndShowDraftBanner, 600);
+});
+</script>
+{% endblock %}

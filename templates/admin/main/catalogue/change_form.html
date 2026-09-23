@@ -1,0 +1,739 @@
+{% extends 'unfold/layouts/base.html' %}
+{% load i18n admin_urls static admin_modify unfold %}
+
+{% block content %}
+<div class="pd-wrap">
+
+    <!-- Topbar -->
+    <div class="pd-topbar">
+        <div class="flex items-center gap-3">
+            <a href="{% url 'admin:main_catalogue_changelist' %}"
+                class="w-9 h-9 flex items-center justify-center rounded-default border border-base-300 bg-white hover:bg-base-100 hover:text-primary-600 text-base-700 dark:bg-base-800 dark:border-base-700 dark:text-base-200 dark:hover:bg-base-700 transition-colors shadow-xs"
+                title="{% trans 'Quay lại danh sách' %}">
+                <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            </a>
+            <h1 class="pd-h1">
+                {% if original %}{{ original.title }}{% else %}{% trans "Thêm tài liệu E-catalog mới" %}{% endif %}
+            </h1>
+        </div>
+        <div class="pd-topbar-actions">
+            <a href="{% url 'admin:main_catalogue_changelist' %}" class="pd-btn pd-btn-ghost">{% trans "Hủy bỏ" %}</a>
+            <a href="{% url 'catalogue' %}" target="_blank" class="pd-btn pd-btn-ghost">{% trans "Xem trên web" %}</a>
+            <button type="button" onclick="handleCatalogueSave()" class="pd-btn pd-btn-primary">Lưu thay đổi</button>
+        </div>
+    </div>
+
+    <form action="{{ form_url }}" method="post" id="catalogue_form" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        {% block form_top %}{% endblock %}
+        {{ adminform.form.non_field_errors }}
+        {% if adminform.form.errors %}
+        <div class="text-red-600 text-xs mb-3 p-3 border border-red-200 bg-red-50 rounded">
+            <strong>{% trans "Có lỗi khiến form chưa lưu được, vui lòng kiểm tra lại các trường sau:" %}</strong>
+            <ul class="list-disc pl-5 mt-1">
+                {% for field in adminform.form %}
+                {% for error in field.errors %}
+                <li>{{ field.label }}: {{ error }}</li>
+                {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <!-- 2 Cột: 68% Nội dung tài liệu - 30% File & Ảnh -->
+        <div class="pd-top-grid">
+
+            <!-- Cột trái 68% -->
+            <div class="space-y-4">
+
+                <!-- 1. Thông tin tài liệu -->
+                <div class="pd-card">
+                    <h3 class="pd-card-title">
+                        <span class="material-symbols-outlined md-18">library_books</span>
+                        {% trans "Thông tin tài liệu" %}
+                    </h3>
+
+                    <!-- Tiêu đề -->
+                    <div class="pd-field">
+                        <label class="pd-label">{{ adminform.form.title.label }} *</label>
+                        {{ adminform.form.title }}
+                        {% if adminform.form.title.errors %}
+                        <div class="text-red-500 text-xs mt-1">{{ adminform.form.title.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="pd-field-row">
+                        <!-- Tên nhóm tài liệu -->
+                        <div class="pd-field">
+                            <label class="pd-label">{{ adminform.form.group_name.label }}</label>
+                            {{ adminform.form.group_name }}
+                        </div>
+
+                        <!-- Slug -->
+                        <div class="pd-field">
+                            <label class="pd-label pd-label-muted">{{ adminform.form.slug.label }}</label>
+                            {{ adminform.form.slug }}
+                        </div>
+                    </div>
+
+                    <!-- Mô tả -->
+                    <div class="pd-field">
+                        <label class="pd-label">{{ adminform.form.description.label }}</label>
+                        {{ adminform.form.description }}
+                        {% if adminform.form.description.errors %}
+                        <div class="text-red-500 text-xs mt-1">{{ adminform.form.description.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Cột phải 30%: File PDF & Ảnh bìa -->
+            <div class="pd-card">
+                <h3 class="pd-card-title">
+                    <span class="material-symbols-outlined md-18">picture_as_pdf</span>
+                    {% trans "Tài liệu & Ảnh bìa" %}
+                </h3>
+
+                <!-- Hiển thị File / Ảnh hiện tại -->
+                <div class="pd-image-section">
+                    <!-- Khung xem trước (ảnh hoặc PDF) khi đã có file -->
+                    <div class="pd-image-preview-box" id="catImgPreviewBox" {% if not original.thumbnail and not original.file %}style="display: none;"{% endif %}>
+                        <img id="catImgDisplay" 
+                             src="{% if original.thumbnail %}{{ original.thumbnail.url }}{% elif original.file %}{{ original.file.url }}{% endif %}" 
+                             alt="Ảnh bìa"
+                             style="{% if not original.thumbnail and original.file and not '.jpg' in original.file.name|lower and not '.png' in original.file.name|lower and not '.webp' in original.file.name|lower and not '.jpeg' in original.file.name|lower %}display:none;{% endif %}">
+                        
+                        <!-- Block hiển thị khi là file PDF chưa có ảnh trực tiếp -->
+                        <div id="catPdfNotice" style="width: 100%; height: 100%; display: {% if not original.thumbnail and original.file and '.pdf' in original.file.name|lower %}flex{% else %}none{% endif %}; flex-direction: column; align-items: center; justify-content: center; background: #FFF8F2; color: #8C5A2B; padding: 12px; text-align: center;">
+                            <span class="material-symbols-outlined" style="font-size: 40px; margin-bottom: 6px;">picture_as_pdf</span>
+                            <span id="catPdfName" style="font-size: 11.5px; font-weight: 600; word-break: break-all; max-height: 40px; overflow: hidden;">{% if original.file %}{{ original.file.name }}{% endif %}</span>
+                        </div>
+
+                        <div class="pd-image-badge">{% trans "Ảnh bìa E-Catalog" %}</div>
+
+                        <!-- Hover Overlay với các nút thao tác: Xem phóng to, Đổi file khác, Xóa file -->
+                        <div class="pd-card-overlay">
+                            <button type="button" class="pd-card-action-btn" title="{% trans 'Xem ảnh lớn' %}"
+                                onclick="previewLargeImage(document.getElementById('catImgDisplay').src)">
+                                <span class="material-symbols-outlined">visibility</span>
+                            </button>
+                            <button type="button" class="pd-card-action-btn" title="{% trans 'Đổi file khác' %}"
+                                onclick="document.getElementById('catFileInput').click()">
+                                <span class="material-symbols-outlined">edit</span>
+                            </button>
+                            <button type="button" class="pd-card-action-btn btn-del" title="{% trans 'Xóa file' %}"
+                                onclick="clearCatalogueFile()">
+                                <span class="material-symbols-outlined">delete</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Khung tải file nét đứt khi chưa có file hoặc đã bấm xóa -->
+                    <div class="pd-upload-card" id="catUploadCard"
+                        onclick="document.getElementById('catFileInput').click()"
+                        title="{% trans 'Bấm để tải file PDF hoặc file Ảnh lên từ máy tính' %}" 
+                        {% if original.thumbnail or original.file %}style="display: none;"{% endif %}>
+                        <div class="flex flex-col items-center justify-center p-3 text-center">
+                            <span class="material-symbols-outlined text-3xl text-primary-600 mb-1">upload_file</span>
+                            <span class="text-xs font-medium text-base-700 dark:text-base-300">{% trans "Chọn file PDF hoặc Ảnh" %}</span>
+                            <span class="text-[11px] text-base-400 mt-0.5">PDF, JPG, PNG, WEBP</span>
+                        </div>
+                    </div>
+
+                    <!-- Thông tin file hiện tại kèm link tải nếu có -->
+                    <div id="catCurrentFileInfo" class="mt-2" style="{% if not original.file %}display: none;{% endif %}">
+                        <a id="catCurrentFileLink" href="{% if original.file %}{{ original.file.url }}{% else %}#{% endif %}" target="_blank" rel="noopener noreferrer" class="pd-current-file">
+                            <span class="material-symbols-outlined md-18">description</span>
+                            <span id="catCurrentFileName" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                {% if original.file %}{{ original.file.name }}{% else %}{% trans "File đã chọn" %}{% endif %}
+                            </span>
+                        </a>
+                    </div>
+
+                    <!-- Input file ẩn thực tế -->
+                    <div style="display: none;">
+                        <input type="file" name="file" id="catFileInput" accept=".pdf,image/*" onchange="handleCatFileChange(this)">
+                        <input type="checkbox" name="file-clear" id="file-clear_id">
+                        <input type="checkbox" name="thumbnail-clear" id="thumbnail-clear_id">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Thanh thao tác dưới đáy -->
+        <div class="pd-bottombar">
+            <a href="{% url 'admin:main_catalogue_changelist' %}" class="pd-btn pd-btn-ghost">{% trans "Hủy bỏ" %}</a>
+            <button type="button" onclick="handleCatalogueSave()" class="pd-btn pd-btn-primary">Lưu thay đổi</button>
+        </div>
+    </form>
+
+    <!-- Modal Xem ảnh phóng to (Lightbox) -->
+    <div id="pdLightboxModal" class="pd-lightbox-backdrop" style="display: none;" onclick="closeLightbox()">
+        <div class="pd-lightbox-content" onclick="event.stopPropagation()">
+            <img id="pdLightboxImg" src="" alt="Ảnh tài liệu">
+            <button type="button" class="pd-lightbox-close" onclick="closeLightbox()">&times;</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .pd-wrap,
+    .pd-wrap * {
+        box-sizing: border-box;
+    }
+
+    .pd-wrap {
+        max-width: 980px;
+        margin: 0 auto;
+        font-size: 13.5px !important;
+    }
+
+    .pd-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .pd-h1 {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+        color: #111827 !important;
+        line-height: 24px !important;
+        margin: 0 !important;
+    }
+
+    html.dark .pd-h1 {
+        color: #F9FAFB !important;
+    }
+
+    .pd-topbar-actions {
+        display: flex;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    .pd-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 15px !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        border-radius: 6px !important;
+        border: 1px solid #8C5A2B;
+        text-decoration: none;
+        cursor: pointer;
+        line-height: 1.4;
+        transition: all 0.15s ease;
+    }
+
+    .pd-btn-ghost {
+        background: #FFFFFF;
+        color: #8C5A2B !important;
+    }
+
+    .pd-btn-ghost:hover {
+        background: #FDF8F3;
+        color: #70441E !important;
+        border-color: #70441E;
+    }
+
+    .pd-btn-primary {
+        background: #8C5A2B;
+        color: #FFFFFF !important;
+    }
+
+    .pd-btn-primary:hover {
+        background: #70441E;
+        border-color: #70441E;
+    }
+
+    .pd-top-grid {
+        display: grid;
+        grid-template-columns: 68% 30%;
+        gap: 2%;
+        align-items: start;
+    }
+
+    @media (max-width: 768px) {
+        .pd-top-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+    }
+
+    .pd-card {
+        background: #FFFFFF;
+        border: 1px solid #E5E7EB;
+        border-radius: 8px;
+        padding: 16px 18px;
+        margin-bottom: 14px;
+    }
+
+    html.dark .pd-card {
+        background: #1F2937;
+        border-color: #374151;
+    }
+
+    .pd-card-title {
+        font-size: 14px !important;
+        font-weight: 700 !important;
+        color: #111827 !important;
+        margin: 0 0 14px 0 !important;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #F3F4F6;
+    }
+
+    html.dark .pd-card-title {
+        color: #F9FAFB !important;
+        border-bottom-color: #374151;
+    }
+
+    .pd-field-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    @media (max-width: 600px) {
+        .pd-field-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .pd-field {
+        margin-bottom: 12px;
+    }
+
+    .pd-label {
+        display: block;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        color: #374151 !important;
+        margin-bottom: 5px;
+    }
+
+    html.dark .pd-label {
+        color: #D1D5DB !important;
+    }
+
+    .pd-label-muted {
+        color: #9CA3AF !important;
+    }
+
+    .pd-mt {
+        margin-top: 14px;
+    }
+
+    /* Checkbox */
+    .pd-checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        color: #374151 !important;
+        cursor: pointer;
+    }
+
+    html.dark .pd-checkbox-row {
+        color: #D1D5DB !important;
+    }
+
+    .pd-checkbox-row input[type="checkbox"] {
+        width: 16px !important;
+        height: 16px !important;
+        accent-color: #8C5A2B;
+        cursor: pointer;
+    }
+
+    /* Current file link */
+    .pd-current-file {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: #8C5A2B !important;
+        text-decoration: none;
+        padding: 8px 10px;
+        background: #FDF8F3;
+        border-radius: 6px;
+    }
+
+    .pd-current-file:hover {
+        text-decoration: underline;
+    }
+
+    html.dark .pd-current-file {
+        background: #1F2937;
+    }
+
+    /* Inputs */
+    .pd-wrap input[type="text"],
+    .pd-wrap input[type="url"],
+    .pd-wrap input[type="email"],
+    .pd-wrap input[type="number"],
+    .pd-wrap select {
+        width: 100% !important;
+        max-width: 100% !important;
+        display: block !important;
+        height: 38px;
+        border: 1px solid #D1D5DB !important;
+        padding: 6px 12px !important;
+        font-size: 13.5px !important;
+        color: #111827 !important;
+        background: #FFFFFF !important;
+        border-radius: 6px !important;
+        box-sizing: border-box !important;
+    }
+
+    .pd-wrap input[type="file"] {
+        width: 100%;
+        font-size: 12.5px;
+        color: #374151;
+    }
+
+    html.dark .pd-wrap input[type="file"] {
+        color: #D1D5DB;
+    }
+
+    .pd-wrap textarea {
+        width: 100% !important;
+        border: 1px solid #D1D5DB !important;
+        padding: 8px 12px !important;
+        font-size: 13.5px !important;
+        color: #111827 !important;
+        background: #FFFFFF !important;
+        border-radius: 6px !important;
+        min-height: 80px;
+        resize: vertical;
+        box-sizing: border-box !important;
+    }
+
+    .pd-wrap input:focus,
+    .pd-wrap textarea:focus,
+    .pd-wrap select:focus {
+        outline: none !important;
+        border-color: #8C5A2B !important;
+        box-shadow: 0 0 0 2px rgba(140, 90, 43, 0.15) !important;
+    }
+
+    /* Image & File preview section */
+    .pd-image-section {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .pd-image-preview-box {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        border-radius: 8px;
+        border: 1px solid #E2E8F0;
+        overflow: hidden;
+        position: relative;
+        background: #F8FAFC;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .pd-image-preview-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .pd-image-badge {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(140, 90, 43, 0.92);
+        color: #FFFFFF;
+        font-size: 10.5px;
+        font-weight: 600;
+        text-align: center;
+        padding: 3px 0;
+    }
+
+    .pd-card-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        border-radius: 8px;
+    }
+
+    .pd-image-preview-box:hover .pd-card-overlay {
+        opacity: 1;
+    }
+
+    .pd-card-action-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.95);
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #334155;
+        transition: all 0.15s ease;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .pd-card-action-btn:hover {
+        background: #FFFFFF;
+        color: #8C5A2B;
+        transform: scale(1.12);
+    }
+
+    .pd-card-action-btn.btn-del:hover {
+        background: #EF4444;
+        color: #FFFFFF;
+    }
+
+    .pd-card-action-btn .material-symbols-outlined {
+        font-size: 18px !important;
+    }
+
+    .pd-upload-card {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        min-height: 140px;
+        border: 2px dashed #8C5A2B;
+        border-radius: 8px;
+        background: #FDF8F3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .pd-upload-card:hover {
+        background: #FAF0E6;
+        border-color: #70441E;
+        transform: translateY(-2px);
+    }
+
+    html.dark .pd-upload-card {
+        background: #2D2319;
+        border-color: #8C5A2B;
+    }
+
+    /* Modal Xem ảnh phóng to (Lightbox) */
+    .pd-lightbox-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.82);
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+    }
+
+    .pd-lightbox-content {
+        position: relative;
+        max-width: 90vw;
+        max-height: 90vh;
+    }
+
+    .pd-lightbox-content img {
+        max-width: 100%;
+        max-height: 85vh;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        display: block;
+    }
+
+    .pd-lightbox-close {
+        position: absolute;
+        top: -14px;
+        right: -14px;
+        width: 32px;
+        height: 32px;
+        background: #FFFFFF;
+        color: #111827;
+        border: none;
+        border-radius: 50%;
+        font-size: 20px;
+        line-height: 1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Bottombar */
+    .pd-bottombar {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+        margin-bottom: 40px;
+    }
+
+    .object-tools {
+        display: none !important;
+    }
+</style>
+
+<script>
+    function convertToSlug(str) {
+        if (!str) return '';
+        str = str.toLowerCase();
+        // Chuyển ký tự tiếng Việt có dấu sang không dấu
+        str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, 'a');
+        str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, 'e');
+        str = str.replace(/ì|í|ị|ỉ|ĩ/g, 'i');
+        str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, 'o');
+        str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, 'u');
+        str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, 'y');
+        str = str.replace(/đ/g, 'd');
+        // Xóa ký tự đặc biệt
+        str = str.replace(/[^a-z0-9\s-]/g, '');
+        // Thay khoảng trắng thành gạch ngang
+        str = str.replace(/\s+/g, '-');
+        // Xóa nhiều dấu gạch ngang liên tiếp
+        str = str.replace(/-+/g, '-');
+        // Xóa gạch ngang đầu/cuối
+        str = str.replace(/^-+|-+$/g, '');
+        return str;
+    }
+
+    function handleCatFileChange(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const isImg = file.type.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif)$/i.test(file.name);
+            
+            const fileClear = document.getElementById('file-clear_id');
+            if (fileClear) fileClear.checked = false;
+            const thumbClear = document.getElementById('thumbnail-clear_id');
+            if (thumbClear) thumbClear.checked = false;
+
+            document.getElementById('catUploadCard').style.display = 'none';
+            document.getElementById('catImgPreviewBox').style.display = 'block';
+
+            if (isImg) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imgDisp = document.getElementById('catImgDisplay');
+                    imgDisp.src = e.target.result;
+                    imgDisp.style.display = 'block';
+                    document.getElementById('catPdfNotice').style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // PDF file
+                document.getElementById('catImgDisplay').style.display = 'none';
+                document.getElementById('catPdfNotice').style.display = 'flex';
+                document.getElementById('catPdfName').textContent = file.name;
+            }
+
+            const currentFileInfo = document.getElementById('catCurrentFileInfo');
+            if (currentFileInfo) {
+                currentFileInfo.style.display = 'block';
+                document.getElementById('catCurrentFileName').textContent = file.name;
+                const link = document.getElementById('catCurrentFileLink');
+                if (link) link.removeAttribute('href');
+            }
+        }
+    }
+
+    function clearCatalogueFile() {
+        if (!confirm('{% trans "Bạn có chắc chắn muốn xóa file / ảnh này không?" %}')) return;
+        document.getElementById('catImgPreviewBox').style.display = 'none';
+        document.getElementById('catUploadCard').style.display = 'flex';
+        document.getElementById('catFileInput').value = '';
+        const fileClear = document.getElementById('file-clear_id');
+        if (fileClear) fileClear.checked = true;
+        const thumbClear = document.getElementById('thumbnail-clear_id');
+        if (thumbClear) thumbClear.checked = true;
+        const currentFileInfo = document.getElementById('catCurrentFileInfo');
+        if (currentFileInfo) currentFileInfo.style.display = 'none';
+    }
+
+    function previewLargeImage(src) {
+        if (!src) return;
+        document.getElementById('pdLightboxImg').src = src;
+        document.getElementById('pdLightboxModal').style.display = 'flex';
+    }
+
+    function closeLightbox() {
+        document.getElementById('pdLightboxModal').style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const titleInput = document.getElementById('id_title');
+        const slugInput = document.getElementById('id_slug');
+        if (!titleInput || !slugInput) return;
+
+        let isManualSlug = !!slugInput.value.trim();
+
+        titleInput.addEventListener('input', function () {
+            if (!isManualSlug) {
+                slugInput.value = convertToSlug(this.value);
+            }
+        });
+
+        slugInput.addEventListener('input', function () {
+            if (!this.value.trim()) {
+                isManualSlug = false;
+                slugInput.value = convertToSlug(titleInput.value);
+            } else {
+                isManualSlug = true;
+            }
+        });
+    });
+
+    function handleCatalogueSave() {
+        const titleInput = document.getElementById('id_title');
+        const titleVal = titleInput?.value?.trim();
+        if (!titleVal) {
+            alert('{% trans "Vui lòng nhập tiêu đề catalogue!" %}');
+            titleInput?.focus();
+            return;
+        }
+
+        const slugInput = document.getElementById('id_slug');
+        if (slugInput && !slugInput.value.trim()) {
+            slugInput.value = convertToSlug(titleVal);
+        }
+
+        if (!confirm('{% trans "Bạn có chắc chắn muốn lưu tài liệu này không?" %}')) {
+            return;
+        }
+
+        const form = document.getElementById('catalogue_form');
+        let saveInput = document.getElementById('hidden_save_input');
+        if (!saveInput) {
+            saveInput = document.createElement('input');
+            saveInput.type = 'hidden';
+            saveInput.id = 'hidden_save_input';
+            saveInput.name = '_save';
+            saveInput.value = 'Lưu thay đổi';
+            form.appendChild(saveInput);
+        }
+        form.submit();
+    }
+
+</script>
+{% endblock %}

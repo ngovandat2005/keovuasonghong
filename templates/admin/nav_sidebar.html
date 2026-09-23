@@ -1,0 +1,15 @@
+{% load i18n unfold %}
+
+<div class="relative z-60" x-data="{ min: 220, max: 360, resizing: false }">
+    <div class="fixed xl:relative {% element_classes 'navigation_wrapper' %}" x-bind:style="`width: ${sidebarOpen ? sidebarWidth : 68}px; transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);`">
+        <div class="bg-base-50 relative z-30 dark:bg-base-900">
+            <div id="nav-sidebar" class="bg-base-50 border-r border-base-200 bottom-0 fixed max-h-screen top-0 dark:border-base-800 dark:bg-base-900 overflow-x-hidden {% element_classes 'navigation' %}" :class="{ 'sidebar-collapsed': !sidebarOpen }" x-bind:style="`width: ${sidebarOpen ? sidebarWidth : 68}px; transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);`">
+                {% if templates.navigation %}
+                    {% include templates.navigation %}
+                {% else %}
+                    {% include "unfold/helpers/navigation.html" %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

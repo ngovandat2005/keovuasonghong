@@ -1,0 +1,35 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}Công cụ tính – Keo Vữa Sông Hồng{% endblock %}
+{% block content %}
+
+<!-- ── FULL-WIDTH HERO BANNER (GIỐNG GIỚI THIỆU, SẢN PHẨM & E-CATALOG) ── -->
+<div class="cat-hero-banner-wrap">
+  <div class="cat-hero-bg">
+    <div class="cat-hero-overlay">
+      <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 0 32px;">
+        <div class="cat-hero-content">
+          <h1 class="cat-hero-title">Công cụ tính</h1>
+          <nav class="cat-hero-breadcrumb">
+            <a href="{% url 'home' %}">Trang chủ</a>
+            <span class="sep">&gt;</span>
+            <span class="curr">Công cụ tính</span>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── NỘI DUNG SẮP RA MẮT ĐƠN GIẢN ── -->
+<div style="padding: 110px 24px; text-align: center; background: #FAF8F5;">
+  <h2
+    style="font-family: 'Bai Jamjuree', sans-serif; font-size: 28px; font-weight: 700; color: #8C5A2B; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 10px;">
+    SẮP RA MẮT
+  </h2>
+  <p style="font-size: 15.5px; color: #666666; margin: 0;">
+    Tính năng đang trong quá trình hoàn thiện và sẽ sớm được cập nhật.
+  </p>
+</div>
+
+{% endblock %}

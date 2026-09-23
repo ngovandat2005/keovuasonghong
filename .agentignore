@@ -1,0 +1,17 @@
+# Ignore large binaries, databases and virtual environments
+*.exe
+*.sqlite3
+*.db
+venv/
+.venv/
+env/
+media/
+static/vendor/
+**/__pycache__/
+*.pyc
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.mp4

@@ -1,0 +1,195 @@
+{% extends 'unfold/layouts/base.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans "Chỉnh sửa nhiều dự án" %} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block content %}
+<div class="sp-bulk-wrap" x-data="{
+    openCols: false,
+    showCategory: true,
+    showAuthor: true,
+    showClient: false,
+    showLocation: false,
+    showActive: true,
+    submitting: false,
+    submitForm() {
+        this.submitting = true;
+        document.getElementById('bulk-edit-form').submit();
+    }
+}">
+
+    <!-- Topbar Header -->
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-4 border-b border-base-200 dark:border-base-800">
+        <div class="flex items-center gap-3">
+            <a href="{% url 'admin:main_project_changelist' %}" class="w-9 h-9 flex items-center justify-center rounded-default border border-base-300 bg-white hover:bg-base-100 hover:text-primary-600 text-base-700 dark:bg-base-800 dark:border-base-700 dark:text-base-200 transition-colors shadow-xs" title="{% trans 'Quay lại danh sách dự án' %}">
+                <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="text-2xl font-bold text-base-900 dark:text-white">{% trans "Chỉnh sửa nhiều dự án" %}</h1>
+                <p class="text-xs text-base-500 mt-0.5">
+                    {% trans "Đang chỉnh sửa" %} <span class="font-semibold text-base-800 dark:text-base-200">{{ projects|length }}</span> {% trans "dự án được chọn" %}
+                </p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <a href="{% url 'admin:main_project_changelist' %}" class="px-4 py-2 border border-base-300 text-base-700 bg-white hover:bg-base-100 text-sm font-medium rounded-default transition-colors dark:bg-base-800 dark:border-base-700 dark:text-base-300">
+                {% trans "Hủy bỏ" %}
+            </a>
+            <button type="submit" form="bulk-edit-form" class="flex items-center gap-2 px-5 py-2 bg-[#8C5A2B] hover:bg-[#70441E] text-white text-sm font-semibold rounded-default transition-colors shadow-xs cursor-pointer border-none">
+                <span class="material-symbols-outlined text-[18px]">save</span>
+                <span>{% trans 'Lưu thay đổi' %}</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Controls Bar: Dropdown chọn trường hiển thị (giống Ảnh 2) -->
+    <div class="flex items-center justify-between gap-4 mb-4">
+        <div class="relative inline-block text-left">
+            <button type="button" x-on:click="openCols = !openCols" x-on:click.outside="openCols = false" class="inline-flex items-center gap-2 px-3.5 py-2 bg-white border border-base-300 rounded-default text-sm font-medium text-base-800 hover:bg-base-50 dark:bg-base-800 dark:border-base-700 dark:text-base-200 shadow-xs transition-colors cursor-pointer">
+                <span>{% trans "Trường thông tin chỉnh sửa" %}</span>
+                <span class="material-symbols-outlined text-[16px] text-base-500 transition-transform" x-bind:class="{ 'rotate-180': openCols }">expand_more</span>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div x-show="openCols" x-transition.opacity.duration.150ms x-cloak class="absolute left-0 z-30 mt-2 w-64 origin-top-left rounded-default bg-white dark:bg-base-800 p-2 shadow-lg ring-1 ring-black/5 dark:ring-white/10 focus:outline-hidden">
+                <div class="text-xs font-semibold uppercase text-base-400 px-3 py-1.5 border-b border-base-100 dark:border-base-700 mb-1">
+                    {% trans "Chọn các cột hiển thị" %}
+                </div>
+                <label class="flex items-center gap-2.5 px-3 py-2 rounded-default hover:bg-base-50 dark:hover:bg-base-700/50 cursor-pointer text-sm">
+                    <input type="checkbox" checked disabled class="rounded text-[#8C5A2B]">
+                    <span class="text-base-700 dark:text-base-200">{% trans "Tên dự án" %} <span class="text-xs text-base-400">({% trans "Mặc định" %})</span></span>
+                </label>
+                <label class="flex items-center gap-2.5 px-3 py-2 rounded-default hover:bg-base-50 dark:hover:bg-base-700/50 cursor-pointer text-sm">
+                    <input type="checkbox" x-model="showCategory" class="rounded text-[#8C5A2B]">
+                    <span class="text-base-700 dark:text-base-200">{% trans "Loại dự án" %}</span>
+                </label>
+                <label class="flex items-center gap-2.5 px-3 py-2 rounded-default hover:bg-base-50 dark:hover:bg-base-700/50 cursor-pointer text-sm">
+                    <input type="checkbox" x-model="showAuthor" class="rounded text-[#8C5A2B]">
+                    <span class="text-base-700 dark:text-base-200">{% trans "Tác giả" %}</span>
+                </label>
+                <label class="flex items-center gap-2.5 px-3 py-2 rounded-default hover:bg-base-50 dark:hover:bg-base-700/50 cursor-pointer text-sm">
+                    <input type="checkbox" x-model="showClient" class="rounded text-[#8C5A2B]">
+                    <span class="text-base-700 dark:text-base-200">{% trans "Chủ đầu tư" %}</span>
+                </label>
+                <label class="flex items-center gap-2.5 px-3 py-2 rounded-default hover:bg-base-50 dark:hover:bg-base-700/50 cursor-pointer text-sm">
+                    <input type="checkbox" x-model="showLocation" class="rounded text-[#8C5A2B]">
+                    <span class="text-base-700 dark:text-base-200">{% trans "Địa điểm" %}</span>
+                </label>
+                <label class="flex items-center gap-2.5 px-3 py-2 rounded-default hover:bg-base-50 dark:hover:bg-base-700/50 cursor-pointer text-sm">
+                    <input type="checkbox" x-model="showActive" class="rounded text-[#8C5A2B]">
+                    <span class="text-base-700 dark:text-base-200">{% trans "Hiển thị web" %}</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="text-xs text-base-500">
+            {% trans "Tip: Nhấn nút Lưu thay đổi sau khi chỉnh sửa các ô trong bảng" %}
+        </div>
+    </div>
+
+    <!-- Main Bulk Edit Form & Table -->
+    <form id="bulk-edit-form" method="post" action="">
+        {% csrf_token %}
+
+        <div class="border border-base-200 rounded-default overflow-hidden bg-white shadow-xs dark:bg-base-900 dark:border-base-800">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead>
+                        <tr class="bg-base-50 border-b border-base-200 text-base-700 font-semibold dark:bg-base-800 dark:border-base-700 dark:text-base-200">
+                            <th class="px-4 py-3.5 min-w-[320px]">{% trans "Tên dự án" %}</th>
+                            <th class="px-4 py-3.5 min-w-[240px]" x-show="showCategory">{% trans "Loại dự án" %}</th>
+                            <th class="px-4 py-3.5 min-w-[220px]" x-show="showAuthor">{% trans "Tác giả" %}</th>
+                            <th class="px-4 py-3.5 min-w-[200px]" x-show="showClient">{% trans "Chủ đầu tư" %}</th>
+                            <th class="px-4 py-3.5 min-w-[200px]" x-show="showLocation">{% trans "Địa điểm" %}</th>
+                            <th class="px-4 py-3.5 min-w-[120px] text-center" x-show="showActive">{% trans "Hiển thị web" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-base-100 dark:divide-base-800">
+                        {% for p in projects %}
+                        <tr class="hover:bg-base-50/60 dark:hover:bg-base-800/40 transition-colors">
+                            <input type="hidden" name="project_ids" value="{{ p.pk }}">
+
+                            <!-- Cột Tên dự án: Có thumbnail ảnh + input text -->
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 shrink-0 rounded-default border border-base-200 overflow-hidden bg-base-100 dark:bg-base-800 dark:border-base-700 flex items-center justify-center">
+                                        {% if p.image %}
+                                            <img src="{{ p.image.url }}" alt="{{ p.title }}" class="w-full h-full object-cover">
+                                        {% else %}
+                                            <span class="material-symbols-outlined text-base-400 text-[20px]">architecture</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="grow">
+                                        <input type="text" name="title_{{ p.pk }}" value="{{ p.title }}" required class="w-full px-3 py-1.5 text-sm font-medium text-base-900 dark:text-base-100 bg-white dark:bg-base-800 border border-base-300 dark:border-base-700 rounded-default focus:border-[#8C5A2B] focus:ring-1 focus:ring-[#8C5A2B] outline-none transition-all">
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Cột Loại dự án -->
+                            <td class="px-4 py-3" x-show="showCategory">
+                                <select name="category_{{ p.pk }}" class="w-full px-3 py-1.5 text-sm text-base-900 dark:text-base-100 bg-white dark:bg-base-800 border border-base-300 dark:border-base-700 rounded-default focus:border-[#8C5A2B] focus:ring-1 focus:ring-[#8C5A2B] outline-none transition-all cursor-pointer">
+                                    {% for val, label in categories %}
+                                    <option value="{{ val }}" {% if p.category == val %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+
+                            <!-- Cột Tác giả -->
+                            <td class="px-4 py-3" x-show="showAuthor">
+                                <input type="text" name="author_{{ p.pk }}" value="{{ p.author }}" placeholder="{% trans 'Nhập tác giả' %}" class="w-full px-3 py-1.5 text-sm text-base-900 dark:text-base-100 bg-white dark:bg-base-800 border border-base-300 dark:border-base-700 rounded-default focus:border-[#8C5A2B] focus:ring-1 focus:ring-[#8C5A2B] outline-none transition-all">
+                            </td>
+
+                            <!-- Cột Chủ đầu tư -->
+                            <td class="px-4 py-3" x-show="showClient">
+                                <input type="text" name="client_{{ p.pk }}" value="{{ p.client|default:'' }}" placeholder="{% trans 'Tên chủ đầu tư' %}" class="w-full px-3 py-1.5 text-sm text-base-900 dark:text-base-100 bg-white dark:bg-base-800 border border-base-300 dark:border-base-700 rounded-default focus:border-[#8C5A2B] focus:ring-1 focus:ring-[#8C5A2B] outline-none transition-all">
+                            </td>
+
+                            <!-- Cột Địa điểm -->
+                            <td class="px-4 py-3" x-show="showLocation">
+                                <input type="text" name="location_{{ p.pk }}" value="{{ p.location|default:'' }}" placeholder="{% trans 'Địa điểm công trình' %}" class="w-full px-3 py-1.5 text-sm text-base-900 dark:text-base-100 bg-white dark:bg-base-800 border border-base-300 dark:border-base-700 rounded-default focus:border-[#8C5A2B] focus:ring-1 focus:ring-[#8C5A2B] outline-none transition-all">
+                            </td>
+
+                            <!-- Cột Hiển thị web -->
+                            <td class="px-4 py-3 text-center" x-show="showActive">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="is_active_{{ p.pk }}" value="1" {% if p.is_active %}checked{% endif %} class="sr-only peer">
+                                    <div class="w-11 h-6 bg-base-300 peer-focus:outline-none rounded-full peer dark:bg-base-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-base-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-base-600 peer-checked:bg-[#8C5A2B]"></div>
+                                </label>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="px-6 py-12 text-center text-base-500">
+                                {% trans "Không có dự án nào được chọn để chỉnh sửa." %}
+                                <div class="mt-3">
+                                    <a href="{% url 'admin:main_project_changelist' %}" class="text-[#8C5A2B] hover:underline font-medium">{% trans "Quay lại danh sách dự án" %}</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Bottom Action Bar -->
+        {% if projects %}
+        <div class="flex items-center justify-between mt-6 pt-4 border-t border-base-200 dark:border-base-800">
+            <a href="{% url 'admin:main_project_changelist' %}" class="text-sm text-base-600 hover:text-base-900 dark:text-base-400 dark:hover:text-base-200 hover:underline">
+                &larr; {% trans "Quay lại danh sách dự án" %}
+            </a>
+            <div class="flex items-center gap-3">
+                <a href="{% url 'admin:main_project_changelist' %}" class="px-4 py-2 border border-base-300 text-base-700 bg-white hover:bg-base-100 text-sm font-medium rounded-default transition-colors dark:bg-base-800 dark:border-base-700 dark:text-base-300">
+                    {% trans "Hủy bỏ" %}
+                </a>
+                <button type="submit" form="bulk-edit-form" class="flex items-center gap-2 px-5 py-2 bg-[#8C5A2B] hover:bg-[#70441E] text-white text-sm font-semibold rounded-default transition-colors shadow-xs cursor-pointer border-none">
+                    <span class="material-symbols-outlined text-[18px]">save</span>
+                    <span>{% trans 'Lưu thay đổi' %}</span>
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

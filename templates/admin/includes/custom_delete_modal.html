@@ -1,0 +1,471 @@
+{% load i18n %}
+<!-- Custom Delete Confirmation Modal (Design System: Strict Radius 0px, No URL Header) -->
+<div id="customDeleteModal" class="custom-del-backdrop" style="display: none;" onclick="closeCustomDeleteModal(event)">
+    <div class="custom-del-card" onclick="event.stopPropagation()">
+        <div class="custom-del-header">
+            <span class="material-symbols-outlined custom-del-icon">warning</span>
+            <h3 class="custom-del-title">{% trans "Xác nhận xóa dữ liệu" %}</h3>
+        </div>
+        <div class="custom-del-body">
+            <p id="customDelMessage" class="custom-del-text">{% trans "Bạn có chắc chắn muốn xóa mục này không? Dữ liệu bị xóa sẽ không thể phục hồi." %}</p>
+        </div>
+        <div class="custom-del-actions">
+            <button type="button" class="custom-del-btn custom-del-btn-cancel" onclick="closeCustomDeleteModal()">{% trans "Hủy bỏ" %}</button>
+            <button type="button" class="custom-del-btn custom-del-btn-confirm" id="customDelConfirmBtn">{% trans "Xóa vĩnh viễn" %}</button>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Bulk Action Dock (Zero layout shift, sleek floating bar) -->
+<div id="spFloatingBulkDock" class="sp-floating-bulk-dock">
+    <div class="sp-floating-bulk-content">
+        <div class="sp-floating-bulk-left">
+            <span class="material-symbols-outlined text-[#EA580C] text-[20px]">check_circle</span>
+            <span class="sp-floating-bulk-text">
+                {% trans "Đã chọn" %} <strong id="spBulkSelectedCount">0</strong> {% trans "mục" %}
+            </span>
+        </div>
+        <div class="sp-floating-bulk-right">
+            <button type="button" id="spClearSelectionBtn" class="sp-floating-btn-clear" title="{% trans "Bỏ chọn tất cả" %}">
+                <span class="material-symbols-outlined text-[16px]">close</span>
+                <span>{% trans "Bỏ chọn" %}</span>
+            </button>
+            <button type="button" id="spTriggerBulkDelete" class="sp-floating-btn-delete">
+                <span class="material-symbols-outlined text-[16px]">delete</span>
+                <span>{% trans "Xóa các mục đã chọn" %}</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* ── CONFIRMATION MODAL ── */
+.custom-del-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 99999999;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    animation: customDelFadeIn 0.15s ease-out;
+}
+@keyframes customDelFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.custom-del-card {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 0px !important;
+    width: 100%;
+    max-width: 440px;
+    padding: 24px 26px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    font-family: 'Bai Jamjuree', sans-serif !important;
+}
+html.dark .custom-del-card {
+    background: #1F2937;
+    border-color: #374151;
+}
+.custom-del-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+.custom-del-icon {
+    color: #7A0000;
+    font-size: 26px !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.custom-del-title {
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    color: #111827 !important;
+    margin: 0 !important;
+    line-height: 1.3 !important;
+}
+html.dark .custom-del-title {
+    color: #F9FAFB !important;
+}
+.custom-del-body {
+    margin-bottom: 22px;
+}
+.custom-del-text {
+    font-size: 13.5px !important;
+    line-height: 1.55 !important;
+    color: #4B5563 !important;
+    margin: 0 !important;
+}
+html.dark .custom-del-text {
+    color: #D1D5DB !important;
+}
+.custom-del-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+}
+.custom-del-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 18px !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    border-radius: 0px !important;
+    cursor: pointer;
+    line-height: 1.4;
+    transition: all 0.15s ease;
+    text-decoration: none;
+}
+.custom-del-btn-cancel {
+    background: #FFFFFF;
+    color: #374151 !important;
+    border: 1px solid #D1D5DB;
+}
+.custom-del-btn-cancel:hover {
+    background: #F3F4F6;
+    color: #111827 !important;
+}
+html.dark .custom-del-btn-cancel {
+    background: #374151;
+    color: #E5E7EB !important;
+    border-color: #4B5563;
+}
+.custom-del-btn-confirm {
+    background: #7A0000 !important;
+    color: #FFFFFF !important;
+    border: 1px solid #7A0000 !important;
+}
+.custom-del-btn-confirm:hover {
+    background: #5C0000 !important;
+    border-color: #5C0000 !important;
+}
+
+/* ── FLOATING BULK DOCK (ZERO LAYOUT SHIFT) ── */
+.sp-floating-bulk-dock {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(25px);
+    z-index: 99999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.sp-floating-bulk-dock.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+}
+.sp-floating-bulk-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 10px 18px;
+    background: #18181B;
+    color: #FFFFFF;
+    border: 1px solid #3F3F46;
+    border-radius: 0px !important;
+    box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.45), 0 4px 14px rgba(0, 0, 0, 0.25);
+    font-family: 'Bai Jamjuree', sans-serif !important;
+}
+.sp-floating-bulk-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+.sp-floating-bulk-left strong {
+    color: #FDBA74;
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0 2px;
+}
+.sp-floating-bulk-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+}
+.sp-floating-btn-clear {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #D4D4D8 !important;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0px !important;
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+}
+.sp-floating-btn-clear:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #FFFFFF !important;
+}
+.sp-floating-btn-delete {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    background: #7A0000 !important;
+    color: #FFFFFF !important;
+    border: 1px solid #7A0000 !important;
+    border-radius: 0px !important;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: inherit;
+}
+.sp-floating-btn-delete:hover {
+    background: #5C0000 !important;
+    border-color: #5C0000 !important;
+}
+
+/* Selected row highlight in table */
+tr.sp-row-selected {
+    background-color: rgba(140, 90, 43, 0.08) !important;
+}
+html.dark tr.sp-row-selected {
+    background-color: rgba(140, 90, 43, 0.22) !important;
+}
+</style>
+
+<script>
+let _delTargetUrl = '';
+let _delTargetRow = null;
+let _delIsBulk = false;
+
+function openCustomDeleteModal(deleteUrl, itemName, triggerEl) {
+    _delIsBulk = false;
+    _delTargetUrl = deleteUrl;
+    _delTargetRow = triggerEl ? triggerEl.closest('tr') : null;
+    const msgEl = document.getElementById('customDelMessage');
+    if (msgEl) {
+        if (itemName) {
+            msgEl.innerHTML = `Bạn có chắc chắn muốn xóa "<strong>${itemName}</strong>" không?<br><span style="color:#7A0000; font-size:12px; margin-top:6px; display:inline-block;">Dữ liệu liên quan cũng sẽ bị xóa và không thể khôi phục.</span>`;
+        } else {
+            msgEl.innerHTML = `Bạn có chắc chắn muốn xóa mục này không?<br><span style="color:#7A0000; font-size:12px; margin-top:6px; display:inline-block;">Dữ liệu liên quan cũng sẽ bị xóa và không thể khôi phục.</span>`;
+        }
+    }
+    const modal = document.getElementById('customDeleteModal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function openCustomBulkDeleteModal(count) {
+    _delIsBulk = true;
+    _delTargetUrl = '';
+    _delTargetRow = null;
+    const msgEl = document.getElementById('customDelMessage');
+    if (msgEl) {
+        msgEl.innerHTML = `Bạn có chắc chắn muốn xóa <strong>${count} mục đã chọn</strong> không?<br><span style="color:#7A0000; font-size:12px; margin-top:6px; display:inline-block;">Tất cả dữ liệu liên quan sẽ bị xóa vĩnh viễn và không thể khôi phục.</span>`;
+    }
+    const modal = document.getElementById('customDeleteModal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeCustomDeleteModal(e) {
+    if (e && e.target !== e.currentTarget && e.target.id !== 'customDeleteModal') return;
+    const modal = document.getElementById('customDeleteModal');
+    if (modal) modal.style.display = 'none';
+    _delTargetUrl = '';
+    _delTargetRow = null;
+    _delIsBulk = false;
+    const confirmBtn = document.getElementById('customDelConfirmBtn');
+    if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = '{% trans "Xóa vĩnh viễn" %}';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmBtn = document.getElementById('customDelConfirmBtn');
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', function() {
+            if (_delIsBulk) {
+                confirmBtn.disabled = true;
+                confirmBtn.textContent = '{% trans "Đang xóa..." %}';
+                const changelistForm = document.getElementById('sp-changelist-form');
+                if (changelistForm) {
+                    let actionInput = changelistForm.querySelector('input[name="action"]');
+                    if (!actionInput) {
+                        actionInput = document.createElement('input');
+                        actionInput.type = 'hidden';
+                        actionInput.name = 'action';
+                        changelistForm.appendChild(actionInput);
+                    }
+                    actionInput.value = 'delete_selected';
+
+                    let postInput = changelistForm.querySelector('input[name="post"]');
+                    if (!postInput) {
+                        postInput = document.createElement('input');
+                        postInput.type = 'hidden';
+                        postInput.name = 'post';
+                        changelistForm.appendChild(postInput);
+                    }
+                    postInput.value = 'yes';
+
+                    let selectAcross = changelistForm.querySelector('input[name="select_across"]');
+                    if (!selectAcross) {
+                        selectAcross = document.createElement('input');
+                        selectAcross.type = 'hidden';
+                        selectAcross.name = 'select_across';
+                        changelistForm.appendChild(selectAcross);
+                    }
+                    selectAcross.value = '0';
+
+                    changelistForm.submit();
+                }
+                return;
+            }
+
+            if (!_delTargetUrl) return;
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = '{% trans "Đang xóa..." %}';
+            
+            const csrftoken = (document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)') || [])[2];
+            const formData = new FormData();
+            formData.append('post', 'yes');
+            formData.append('csrfmiddlewaretoken', csrftoken);
+
+            fetch(_delTargetUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(response => {
+                if (response.ok || response.redirected) {
+                    if (_delTargetRow) {
+                        _delTargetRow.style.transition = 'all 0.25s ease';
+                        _delTargetRow.style.opacity = '0';
+                        _delTargetRow.style.transform = 'scale(0.96)';
+                        setTimeout(() => {
+                            _delTargetRow.remove();
+                            closeCustomDeleteModal();
+                            window.location.reload();
+                        }, 250);
+                    } else {
+                        window.location.reload();
+                    }
+                } else {
+                    submitDirectDeleteForm();
+                }
+            })
+            .catch(err => {
+                submitDirectDeleteForm();
+            });
+        });
+    }
+
+    function submitDirectDeleteForm() {
+        const csrftoken = (document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)') || [])[2];
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = _delTargetUrl;
+        const pInput = document.createElement('input');
+        pInput.type = 'hidden';
+        pInput.name = 'post';
+        pInput.value = 'yes';
+        form.appendChild(pInput);
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrftoken;
+        form.appendChild(csrfInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeCustomDeleteModal();
+    });
+
+    // ── XỬ LÝ CHỌN NHIỀU (SELECT ALL & FLOATING BULK ACTION DOCK) ──
+    const masterCheckbox = document.querySelector('.sp-master-checkbox') || document.getElementById('action-toggle');
+    const rowCheckboxes = document.querySelectorAll('.sp-row-checkbox, .action-select');
+    const floatingDock = document.getElementById('spFloatingBulkDock');
+    const countEl = document.getElementById('spBulkSelectedCount');
+    const clearBtn = document.getElementById('spClearSelectionBtn');
+    const bulkDelBtn = document.getElementById('spTriggerBulkDelete');
+
+    function updateBulkState() {
+        const checkedBoxes = document.querySelectorAll('.sp-row-checkbox:checked, .action-select:checked');
+        const count = checkedBoxes.length;
+        
+        if (countEl) countEl.textContent = count;
+
+        if (floatingDock) {
+            if (count > 0) {
+                floatingDock.classList.add('active');
+            } else {
+                floatingDock.classList.remove('active');
+            }
+        }
+
+        // Highlight selected rows
+        rowCheckboxes.forEach(cb => {
+            const tr = cb.closest('tr');
+            if (tr) {
+                if (cb.checked) {
+                    tr.classList.add('sp-row-selected');
+                } else {
+                    tr.classList.remove('sp-row-selected');
+                }
+            }
+        });
+
+        // Sync master checkbox
+        if (masterCheckbox && rowCheckboxes.length > 0) {
+            masterCheckbox.checked = (count === rowCheckboxes.length);
+            masterCheckbox.indeterminate = (count > 0 && count < rowCheckboxes.length);
+        }
+    }
+
+    if (masterCheckbox) {
+        masterCheckbox.addEventListener('change', function() {
+            rowCheckboxes.forEach(cb => cb.checked = masterCheckbox.checked);
+            updateBulkState();
+        });
+    }
+
+    rowCheckboxes.forEach(cb => {
+        cb.addEventListener('change', updateBulkState);
+    });
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (masterCheckbox) masterCheckbox.checked = false;
+            rowCheckboxes.forEach(cb => cb.checked = false);
+            updateBulkState();
+        });
+    }
+
+    if (bulkDelBtn) {
+        bulkDelBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const checkedBoxes = document.querySelectorAll('.sp-row-checkbox:checked, .action-select:checked');
+            if (checkedBoxes.length > 0) {
+                openCustomBulkDeleteModal(checkedBoxes.length);
+            }
+        });
+    }
+});
+</script>

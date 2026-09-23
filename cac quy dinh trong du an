@@ -1,0 +1,30 @@
+Thiết kế UI website theo đúng Design System sau. 
+STYLE: - Minimal - Modern - Clean - Professional - Premium nhưng không cầu kỳ - Typography-led - White background - Strong visual hierarchy - Brand color được sử dụng có kiểm soát 
+FONT: 
+Bai Jamjuree Family Fonts 
+TYPOGRAPHY: 
+H1: 36px / 600 / 54px / #FF7E2E 
+H2: 24px / 600 / 31px / #808080 
+H3: 20px / 600 
+H4: 18px / 600 
+Body: 17px / 400 / 27px / #000000 
+COLORS: 
+Orange: #FF7E2E 
+Brown: #8C5A2B 
+Gray: #808080 
+Success: #6F8A3A 
+Error: #7A0000 
+Black: #000000 
+White: #FFFFFF 
+BUTTON: - Brown #8C5A2B - White text - Radius 0px (Không bo góc) - Text 16px - CTA rõ ràng - Không dùng gradient 
+LINE: - 3px - #8C5A2B 
+HOVER: - Text chuyển sang #FF7E2E 
+SUCCESS: - #6F8A3A 
+ERROR: - #7A0000 
+LANGUAGE: 
+Vietnamese / Chinese / US English 
+YÊU CẦU: - Giữ visual hierarchy rõ ràng. - Không dùng màu ngoài palette. - Không dùng font ngoài Bai Jamjuree. - Không tự thêm gradient. - Không tự thêm shadow nếu không cần thiết. - Không sử dụng style mặc định của framework. - Không làm UI quá nhiều decoration. - Tất cả các nút bấm (button) và các dạng ảnh/banner/khung tài liệu đều KHÔNG BO GÓC (border-radius: 0px / vuông vắn). - Responsive trên desktop/tablet/mobile. - Khi text tiếng Trung hoặc tiếng Anh dài hơn tiếng Việt, layout vẫn phải ổn định.
+Đuôi ảnh phải .png
+ảnh btn k bo viền
+những bài viết mới hoặc sản phẩm mới sẽ được đẩy lên đầu 
+không tự í thay đôi theo í bạn, mình bảo gì bạn phải nghe như thế

@@ -1,0 +1,521 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}E-Catalog – Keo Vữa Sông Hồng{% endblock %}
+{% block meta_desc %}Tải về catalog sản phẩm, catalog giải pháp và tài liệu kỹ thuật SHK Mortar{% endblock %}
+
+{% block content %}
+
+<div class="cat-page-wrapper">
+  
+  <!-- ── FULL-WIDTH HERO BANNER WITH TEXT INSIDE ── -->
+  <div class="cat-hero-banner-wrap">
+    <div class="cat-hero-bg">
+      <div class="cat-hero-overlay">
+        <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 0 32px;">
+          <div class="cat-hero-content">
+            <h1 class="cat-hero-title">E-Catalog</h1>
+            <nav class="cat-hero-breadcrumb">
+              <a href="{% url 'home' %}">Trang chủ</a>
+              <span class="sep">&gt;</span>
+              <span class="curr">E-Catalog</span>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MAIN SPLIT VIEWER SECTION (CANVA SPLIT DESIGN) ── -->
+  <section class="cat-full-split-section">
+    <!-- Tiêu đề chính căn giữa -->
+    <div class="cat-header-wrap" style="width: 100%; text-align: center; margin: 0 auto 36px; padding: 0 20px; display: flex; justify-content: center; align-items: center;">
+      <h2 class="cat-main-heading-title" style="font-family: 'Bai Jamjuree', sans-serif; font-size: 28px; font-weight: 700; color: #8C5A2B; text-transform: uppercase; letter-spacing: 0.5px; margin: 0; text-align: center;">TÀI LIỆU &amp; HỒ SƠ SHK MORTAR</h2>
+    </div>
+
+    <div class="cat-full-split-grid">
+      <!-- Cột Trái: Nền banner tràn full 100% qua mép trái màn hình -->
+      <div class="cat-left-orange-block">
+        <div class="cat-booklet-wrapper">
+          <div class="cat-booklet-cover" id="docCoverBox">
+            <img src="{% static 'images/ho_so_nang_luc_cover.png' %}" alt="Hồ Sơ Năng Lực SHK Mortar" id="docCoverImg" class="booklet-cover-img">
+          </div>
+          <!-- Dòng text hiển thị tên sản phẩm / tài liệu tương ứng bên dưới ảnh -->
+          <div class="doc-cover-caption" id="docCoverCaption">Hồ Sơ Năng Lực</div>
+        </div>
+      </div>
+
+      <!-- Cột Phải: Danh sách tài liệu bắt đầu song song ngang hàng với đỉnh ảnh -->
+      <div class="cat-right-text-block">
+        <div class="doc-list-wrapper">
+          {% regroup catalogues by group_name as cat_list %}
+          {% for cat in cat_list %}
+          <div class="doc-group">
+            <div class="doc-item-header">
+              <span class="doc-main-label">{% if cat.grouper %}{{ cat.grouper }}{% else %}Nhóm khác{% endif %}</span>
+            </div>
+            <ul class="doc-sub-list">
+              {% for doc in cat.list %}
+              <li class="doc-sub-item {% if forloop.parentloop.first and forloop.first %}active{% endif %}" 
+                  data-slug="{{ doc.slug }}"
+                  data-type="{% if doc.slug == 'ho-so-nang-luc' or 'nang-luc' in doc.slug %}slide{% elif doc.file and '.pdf' in doc.file.url.lower %}pdf{% else %}single{% endif %}"
+                  data-pages="{% if doc.slug == 'ho-so-nang-luc' or 'nang-luc' in doc.slug %}12{% else %}1{% endif %}"
+                  data-prefix="{% if doc.slug == 'ho-so-nang-luc' or 'nang-luc' in doc.slug %}{% static 'docs/Ho_So_Nang_Luc_SHK_2026/page_' %}{% endif %}"
+                  data-suffix="{% if doc.slug == 'ho-so-nang-luc' or 'nang-luc' in doc.slug %}.webp{% endif %}"
+                  data-title="{{ doc.title|upper }}" 
+                  data-sub="{{ doc.description|default:'' }}" 
+                  data-img="{% if doc.file %}{{ doc.file.url }}{% elif doc.thumbnail %}{{ doc.thumbnail.url }}{% else %}{% static 'images/ho_so_nang_luc_cover.png' %}{% endif %}"
+                  data-cover="{% if doc.thumbnail %}{{ doc.thumbnail.url }}{% elif doc.file %}{{ doc.file.url }}{% else %}{% static 'images/ho_so_nang_luc_cover.png' %}{% endif %}"
+                  data-pdf="{% if doc.file %}{{ doc.file.url }}{% elif doc.slug == 'ho-so-nang-luc' or 'nang-luc' in doc.slug %}{% static 'Ho_So_Nang_Luc_SHK_2026.pdf' %}{% else %}#{% endif %}">
+                {{ doc.title }}
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% empty %}
+          <div class="doc-group">
+            <p style="padding: 10px; color: #64748B;">Chưa có tài liệu nào. Vui lòng thêm Catalog trong phần Admin.</p>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Hai nút xem và tải tài liệu -->
+        <div class="doc-action-btns">
+          <button type="button" class="btn-doc-view" id="btnDocView">
+            XEM TÀI LIỆU
+          </button>
+          <a href="{% static 'Ho_So_Nang_Luc_SHK_2026.pdf' %}" download class="btn-doc-download" id="btnDocDownload">
+            TẢI TÀI LIỆU
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── SUPPORT BANNER SECTION (YÊU CẦU HỖ TRỢ) ── -->
+  <section class="cat-support-banner-section">
+    <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 0 32px;">
+      <div class="cat-support-inner">
+        
+        <!-- Cột Trái: Tiêu đề & phụ đề -->
+        <div class="cat-support-left">
+          <h2 class="cat-support-title">Yêu cầu hỗ trợ</h2>
+          <p class="cat-support-subtitle">Vui lòng liên hệ với đội ngũ của chúng tôi<br>để nhận được sự hỗ trợ nhanh chóng nhất</p>
+        </div>
+
+        <!-- Cột Phải: Thông tin liên hệ -->
+        <div class="cat-support-right">
+          <div class="cat-support-items">
+            
+            <!-- Zalo OA -->
+            <a href="https://zalo.me/3423135266242009757" target="_blank" rel="noopener noreferrer" class="cat-support-item">
+              <div class="cat-support-icon cat-zalo-icon-box">
+                <img src="{% static 'images/zalo-oa-logo.svg' %}" alt="Zalo Official Account" class="cat-zalo-img">
+              </div>
+              <div class="cat-support-info">
+                <span class="cat-support-label">Zalo OA</span>
+                <span class="cat-support-val">Công ty TNHH Keo Vữa Sông Hồng</span>
+              </div>
+            </a>
+
+            <!-- Email (Mở Gmail gửi đến admin@keovuasonghong.vn) -->
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=admin@keovuasonghong.vn" target="_blank" rel="noopener noreferrer" class="cat-support-item" title="Soạn email gửi đến admin@keovuasonghong.vn qua Gmail">
+              <div class="cat-support-icon cat-circle-icon">
+                <i class="fa-solid fa-envelope"></i>
+              </div>
+              <div class="cat-support-info">
+                <span class="cat-support-label">Email</span>
+                <span class="cat-support-val">admin@keovuasonghong.vn</span>
+              </div>
+            </a>
+
+            <!-- Phone -->
+            <a href="tel:+84938016788" class="cat-support-item">
+              <div class="cat-support-icon cat-circle-icon">
+                <i class="fa-solid fa-phone"></i>
+              </div>
+              <div class="cat-support-info">
+                <span class="cat-support-label">Phone</span>
+                <span class="cat-support-val">+84 938 016 788 / +84 386 360 797</span>
+              </div>
+            </a>
+
+          </div>
+          <!-- Đường nét đứt trang trí bên dưới -->
+          <div class="cat-support-divider"></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ── SUPPORT EMAIL MODAL POPUP FORM ── -->
+<div class="support-email-modal" id="supportEmailModal" aria-hidden="true">
+  <div class="support-email-backdrop" id="supportEmailBackdrop"></div>
+  <div class="support-email-card">
+    <div class="support-email-header">
+      <h3 class="support-email-header-title">
+        <i class="fa-solid fa-envelope" style="color: #FF7E2E; margin-right: 8px;"></i> GỬI YÊU CẦU HỖ TRỢ
+      </h3>
+      <button type="button" class="support-email-close" id="supportEmailClose" aria-label="Đóng (Esc)">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    
+    <form action="{% url 'consultation' %}" method="POST" class="support-email-form">
+      {% csrf_token %}
+      <input type="hidden" name="province" value="Hưng Yên / Trực tuyến">
+      <input type="hidden" name="interest" value="E-Catalog & Tài liệu kỹ thuật SHK Mortar">
+      
+      <div class="support-form-group">
+        <label for="sup_fullname">Họ và tên <span class="required" style="color: #7A0000;">*</span></label>
+        <input type="text" id="sup_fullname" name="full_name" required placeholder="Nhập họ và tên của bạn">
+      </div>
+
+      <div class="support-form-row">
+        <div class="support-form-group">
+          <label for="sup_phone">Số điện thoại <span class="required" style="color: #7A0000;">*</span></label>
+          <input type="tel" id="sup_phone" name="phone" required placeholder="VD: 0912345678">
+        </div>
+        <div class="support-form-group">
+          <label for="sup_email">Địa chỉ Email <span class="required" style="color: #7A0000;">*</span></label>
+          <input type="email" id="sup_email" name="email" required placeholder="example@gmail.com">
+        </div>
+      </div>
+
+      <div class="support-form-group">
+        <label for="sup_company">Công ty / Dự án công trình</label>
+        <input type="text" id="sup_company" name="company" placeholder="Tên công ty hoặc tên công trình (nếu có)">
+      </div>
+
+      <div class="support-form-group">
+        <label for="sup_message">Nội dung yêu cầu cần hỗ trợ <span class="required" style="color: #7A0000;">*</span></label>
+        <textarea id="sup_message" name="message" rows="4" required placeholder="Vui lòng nhập nội dung tài liệu hoặc tư vấn kỹ thuật bạn cần hỗ trợ..."></textarea>
+      </div>
+
+      <div class="support-form-action">
+        <button type="submit" class="btn-support-submit">
+          <i class="fa-solid fa-paper-plane" style="margin-right: 6px;"></i> GỬI YÊU CẦU HỖ TRỢ
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── PDF / DOCUMENT SLIDE VIEWER MODAL (LIGHTBOX) ── -->
+<div class="doc-slide-modal" id="docSlideModal" aria-hidden="true">
+  <div class="doc-modal-backdrop" id="docModalBackdrop"></div>
+  
+  <!-- Nút đóng góc phải -->
+  <button type="button" class="doc-modal-close" id="docModalClose" aria-label="Đóng (Esc)">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+  
+  <!-- Khung hiển thị Slide với 2 nút mũi tên áp sát 2 bên -->
+  <div class="doc-slide-container" id="docSlideContainer">
+    <!-- Nút chuyển trang trái -->
+    <button type="button" class="doc-modal-arrow doc-arrow-prev" id="docSlidePrev" aria-label="Trang trước">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+
+    <div class="doc-slide-card" id="docSlideCard">
+      <img src="{% static 'docs/Ho_So_Nang_Luc_SHK_2026/page_1.webp' %}" alt="Tài liệu" id="docSlideImg" class="doc-slide-img" onerror="if(this.src.endsWith('.webp')){this.src=this.src.replace('.webp','.png');}">
+      <iframe src="" id="docSlideIframe" class="doc-slide-iframe" style="display: none; width: 85vw; height: 85vh; max-width: 1100px; border: none; border-radius: 4px; background: #fff;"></iframe>
+    </div>
+
+    <!-- Nút chuyển trang phải -->
+    <button type="button" class="doc-modal-arrow doc-arrow-next" id="docSlideNext" aria-label="Trang sau">
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+  </div>
+  
+  <!-- Huy hiệu số trang dưới cùng -->
+  <div class="doc-slide-badge" id="docSlideBadge">1 / 12</div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const docCoverImg = document.getElementById('docCoverImg');
+  const docCoverBox = document.getElementById('docCoverBox');
+  const btnDocView = document.getElementById('btnDocView');
+  const btnDocDownload = document.getElementById('btnDocDownload');
+  
+  // Modal elements
+  const docSlideModal = document.getElementById('docSlideModal');
+  const docModalBackdrop = document.getElementById('docModalBackdrop');
+  const docModalClose = document.getElementById('docModalClose');
+  const docSlidePrev = document.getElementById('docSlidePrev');
+  const docSlideNext = document.getElementById('docSlideNext');
+  const docSlideImg = document.getElementById('docSlideImg');
+  const docSlideIframe = document.getElementById('docSlideIframe');
+  const docSlideBadge = document.getElementById('docSlideBadge');
+  
+  // Current document state
+  let currentDoc = {
+    type: 'slide',
+    pages: 12,
+    prefix: "{% static 'docs/Ho_So_Nang_Luc_SHK_2026/page_' %}",
+    suffix: '.webp',
+    img: "{% static 'docs/Ho_So_Nang_Luc_SHK_2026/page_1.webp' %}",
+    cover: "{% static 'images/ho_so_nang_luc_cover.png' %}",
+    pdf: "{% static 'Ho_So_Nang_Luc_SHK_2026.pdf' %}"
+  };
+  let currentPage = 1;
+  
+  // Tải trước (Preload) toàn bộ các trang vào bộ nhớ đệm RAM để lướt tức thì 0ms độ trễ
+  const imageCache = {};
+  function preloadAllPages(prefix, pages, suffix) {
+    if (!prefix || !pages) return;
+    for (let p = 1; p <= pages; p++) {
+      const src = prefix + p + suffix;
+      if (!imageCache[src]) {
+        const img = new Image();
+        img.src = src;
+        imageCache[src] = img;
+      }
+    }
+  }
+  
+  // Kích hoạt nạp trước ngay khi vào trang
+  preloadAllPages(currentDoc.prefix, currentDoc.pages, currentDoc.suffix);
+  
+  function updateModalView() {
+    if (!docSlideModal.classList.contains('active')) return;
+    
+    const isPdf = (currentDoc.type === 'pdf' || (currentDoc.pdf && currentDoc.pdf.toLowerCase().endsWith('.pdf') && currentDoc.type !== 'slide'));
+
+    if (currentDoc.type === 'slide') {
+      if (docSlideIframe) { docSlideIframe.style.display = 'none'; docSlideIframe.src = ''; }
+      if (docSlideImg) {
+        docSlideImg.style.display = 'block';
+        docSlideImg.src = currentDoc.prefix + currentPage + currentDoc.suffix;
+      }
+      if (docSlideBadge) {
+        docSlideBadge.textContent = currentPage + ' / ' + currentDoc.pages;
+        docSlideBadge.style.display = 'block';
+      }
+      if (docSlidePrev) {
+        docSlidePrev.style.display = 'flex';
+        docSlidePrev.style.opacity = '1';
+        docSlidePrev.style.pointerEvents = 'auto';
+      }
+      if (docSlideNext) {
+        docSlideNext.style.display = 'flex';
+        docSlideNext.style.opacity = '1';
+        docSlideNext.style.pointerEvents = 'auto';
+      }
+    } else if (isPdf) {
+      if (docSlideImg) docSlideImg.style.display = 'none';
+      if (docSlideBadge) docSlideBadge.style.display = 'none';
+      if (docSlidePrev) docSlidePrev.style.display = 'none';
+      if (docSlideNext) docSlideNext.style.display = 'none';
+      if (docSlideIframe) {
+        docSlideIframe.src = currentDoc.pdf;
+        docSlideIframe.style.display = 'block';
+      }
+    } else {
+      if (docSlideIframe) { docSlideIframe.style.display = 'none'; docSlideIframe.src = ''; }
+      if (docSlideImg) {
+        docSlideImg.style.display = 'block';
+        docSlideImg.src = currentDoc.img || currentDoc.cover;
+      }
+      if (docSlideBadge) docSlideBadge.style.display = 'none';
+      if (docSlidePrev) docSlidePrev.style.display = 'none';
+      if (docSlideNext) docSlideNext.style.display = 'none';
+    }
+  }
+  
+  function openModal() {
+    currentPage = 1;
+    docSlideModal.classList.add('active');
+    docSlideModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    updateModalView();
+  }
+  
+  function closeModal() {
+    docSlideModal.classList.remove('active');
+    docSlideModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    if (docSlideIframe) {
+      docSlideIframe.src = '';
+      docSlideIframe.style.display = 'none';
+    }
+  }
+  
+  function changePage(delta) {
+    if (currentDoc.type !== 'slide') return;
+    let newPage = currentPage + delta;
+    
+    // Vòng lặp: Nếu đang ở trang cuối (12) bấm sang phải -> quay về trang 1
+    if (newPage > currentDoc.pages) {
+      newPage = 1;
+    }
+    // Nếu đang ở trang 1 bấm sang trái -> quay về trang cuối (12)
+    else if (newPage < 1) {
+      newPage = currentDoc.pages;
+    }
+    
+    currentPage = newPage;
+    updateModalView();
+  }
+  
+  // Event listeners for Document Selector
+  const docCoverCaption = document.getElementById('docCoverCaption');
+  const allClickableItems = document.querySelectorAll('.doc-sub-item');
+  allClickableItems.forEach(item => {
+    item.addEventListener('click', function(e) {
+      e.stopPropagation();
+      
+      // Remove previous active classes
+      document.querySelectorAll('.doc-sub-item').forEach(el => el.classList.remove('active'));
+      
+      // Set active on clicked element
+      this.classList.add('active');
+      
+      // Extract document metadata
+      const slug = this.getAttribute('data-slug') || '';
+      let type = this.getAttribute('data-type') || 'single';
+      let pages = parseInt(this.getAttribute('data-pages') || '1', 10);
+      let prefix = this.getAttribute('data-prefix') || '';
+      let suffix = this.getAttribute('data-suffix') || '';
+      let img = this.getAttribute('data-img') || '';
+      let cover = this.getAttribute('data-cover') || '';
+      let pdf = this.getAttribute('data-pdf') || '#';
+      const label = this.innerText.trim() || this.getAttribute('data-title') || 'Tài liệu';
+
+      // Fallback detection for Hồ sơ năng lực
+      if (slug === 'ho-so-nang-luc' || slug === 'hsnl' || slug.includes('nang-luc')) {
+        type = 'slide';
+        pages = 12;
+        prefix = "{% static 'docs/Ho_So_Nang_Luc_SHK_2026/page_' %}";
+        suffix = '.webp';
+        if (!pdf || pdf === '#') {
+          pdf = "{% static 'Ho_So_Nang_Luc_SHK_2026.pdf' %}";
+        }
+      }
+      
+      currentDoc = { type, pages, prefix, suffix, img, cover, pdf };
+      
+      // Update preview card cover image & caption text
+      if (cover && docCoverImg) {
+        docCoverImg.src = cover;
+      }
+      if (docCoverCaption) {
+        docCoverCaption.textContent = label;
+      }
+      
+      // Update Download button href
+      if (btnDocDownload) {
+        btnDocDownload.href = pdf;
+      }
+    });
+  });
+
+  // Tự động khởi tạo hiển thị cho tài liệu đang được chọn mặc định đầu tiên
+  const firstActiveDoc = document.querySelector('.doc-sub-item.active');
+  if (firstActiveDoc) {
+    firstActiveDoc.click();
+  }
+  
+  // Open modal only on [XEM TÀI LIỆU] button click
+  if (btnDocView) btnDocView.addEventListener('click', openModal);
+  
+  // Close modal events
+  if (docModalClose) docModalClose.addEventListener('click', closeModal);
+  if (docModalBackdrop) docModalBackdrop.addEventListener('click', closeModal);
+  
+  // Navigation arrows
+  if (docSlidePrev) docSlidePrev.addEventListener('click', () => changePage(-1));
+  if (docSlideNext) docSlideNext.addEventListener('click', () => changePage(1));
+  
+  // Support Email Modal
+  const btnOpenSupportEmailModal = document.getElementById('btnOpenSupportEmailModal');
+  const supportEmailModal = document.getElementById('supportEmailModal');
+  const supportEmailBackdrop = document.getElementById('supportEmailBackdrop');
+  const supportEmailClose = document.getElementById('supportEmailClose');
+
+  function openSupportModal(e) {
+    if (e) e.preventDefault();
+    if (supportEmailModal) {
+      supportEmailModal.classList.add('active');
+      supportEmailModal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeSupportModal() {
+    if (supportEmailModal) {
+      supportEmailModal.classList.remove('active');
+      supportEmailModal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+  }
+
+  if (btnOpenSupportEmailModal) btnOpenSupportEmailModal.addEventListener('click', openSupportModal);
+  if (supportEmailClose) supportEmailClose.addEventListener('click', closeSupportModal);
+  if (supportEmailBackdrop) supportEmailBackdrop.addEventListener('click', closeSupportModal);
+
+  // Keyboard navigation
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeModal();
+      closeSupportModal();
+    }
+    if (docSlideModal && docSlideModal.classList.contains('active')) {
+      if (e.key === 'ArrowLeft') changePage(-1);
+      if (e.key === 'ArrowRight') changePage(1);
+    }
+  });
+
+  // Tự động nhận diện tài liệu hoặc chứng chỉ khi chuyển từ trang Sản phẩm sang (?doc=...&type=cert)
+  const urlParams = new URLSearchParams(window.location.search);
+  const targetDocSlug = urlParams.get('doc');
+  const targetType = urlParams.get('type');
+
+  if (targetDocSlug) {
+    let matchedItem = null;
+    const items = document.querySelectorAll('.doc-sub-item');
+    for (let item of items) {
+      const slugData = item.getAttribute('data-slug') || '';
+      const dataTitle = (item.getAttribute('data-title') || '').toLowerCase();
+      if (slugData.includes(targetDocSlug) || dataTitle.includes(targetDocSlug.replace(/-/g, ' '))) {
+        matchedItem = item;
+        break;
+      }
+    }
+
+    if (!matchedItem) {
+      for (let item of items) {
+        const slugData = item.getAttribute('data-slug') || '';
+        if (targetDocSlug.includes('aac') && slugData.includes('aac')) { matchedItem = item; break; }
+        if (targetDocSlug.includes('keo') && slugData.includes('keo')) { matchedItem = item; break; }
+        if (targetDocSlug.includes('cat') && slugData.includes('cat')) { matchedItem = item; break; }
+        if (targetDocSlug.includes('vua') && slugData.includes('vua')) { matchedItem = item; break; }
+      }
+    }
+
+    if (matchedItem) {
+      matchedItem.click();
+      setTimeout(function() {
+        const splitSec = document.querySelector('.cat-full-split-section');
+        if (splitSec) {
+          splitSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 150);
+
+      if (targetType === 'cert') {
+        setTimeout(function() {
+          openModal();
+        }, 400);
+      }
+    }
+  }
+});
+</script>
+
+{% endblock %}

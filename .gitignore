@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Environments
+.venv/
+venv/
+env/
+
+# Scratch and temporary files
+scratch/
+homepage.html
+test_click.py
+test_click_btn.py
+*_backup.py
+*.bak
+*.tmp
+
+# Binary / Executables
+*.exe
+*.msi
+*.zip
+*.rar
+
+# IDE and OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

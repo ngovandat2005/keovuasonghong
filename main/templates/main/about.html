@@ -1,0 +1,224 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}Giới thiệu – Công ty TNHH Keo Vữa Sông Hồng (SHK Mortar){% endblock %}
+{% block meta_desc %}Tìm hiểu về Công ty TNHH Keo Vữa Sông Hồng - Nhà sản xuất vữa khô trộn sẵn, keo dán gạch và cát sấy
+khô chất lượng cao tại Hưng Yên.{% endblock %}
+
+{% block content %}
+
+<!-- ── FULL-WIDTH HERO BANNER (GIỐNG E-CATALOG) ── -->
+<div class="cat-hero-banner-wrap">
+  <div class="cat-hero-bg">
+    <div class="cat-hero-overlay">
+      <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 0 32px;">
+        <div class="cat-hero-content">
+          <h1 class="cat-hero-title">{{ theme.about_hero_title|default:'Về chúng tôi' }}</h1>
+          <nav class="cat-hero-breadcrumb">
+            <a href="{% url 'home' %}">Trang chủ</a>
+            <span class="sep">&gt;</span>
+            <span class="curr">Giới thiệu</span>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ 
+     PHẦN 1: ẢNH/VIDEO 16:9 + TEXT GIỚI THIỆU + 3 TAB SẢN PHẨM CỐT LÕI
+     ══════════════════════════════════════════════════════════════ -->
+<section class="about-sec-1">
+  <div class="container">
+    <div class="about-s1-grid">
+
+      <!-- Cột Trái: Ảnh 16:9 chất lượng cao -->
+      <div class="about-s1-media">
+        <div class="about-media-16x9">
+          {% if theme.about_intro_image %}
+          <img src="{{ theme.about_intro_image.url }}"
+            alt="{{ theme.about_main_heading|default:'Nhà máy Công ty TNHH Keo Vữa Sông Hồng' }}"
+            class="about-media-img">
+          {% else %}
+          <img src="{% static 'images/construction_bg_mortar.jpg' %}" alt="Nhà máy Công ty TNHH Keo Vữa Sông Hồng"
+            class="about-media-img">
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Cột Phải: Text Giới Thiệu + 3 Tab Nút [Vữa khô] [Keo dán] [Cát sấy] + Text chuyển đổi -->
+      <div class="about-s1-content">
+        <h2 class="about-main-heading">{{ theme.about_main_heading|default:'Giới thiệu Công ty TNHH Keo Vữa Sông Hồng'|linebreaksbr }}</h2>
+
+        <div class="about-intro-paras">
+          {% if theme and theme.about_intro_content %}
+          {% if '<p' in theme.about_intro_content %} {{ theme.about_intro_content|safe }} {% else %} {{ theme.about_intro_content|linebreaks }} {% endif %} {% else %} <p class="about-lead-para">
+            Công ty TNHH Keo Vữa Sông Hồng (SHK Mortar) được thành lập năm 2025, hoạt động trong lĩnh vực sản xuất và
+            phân phối vật liệu xây dựng, với nhà máy đầu tiên đặt tại Hưng Yên, có quy mô hơn 3.000 m².
+            </p>
+            <p class="about-lead-para">
+              Nhà máy được đầu tư máy móc hiện đại, hệ thống sản xuất bán tự động và quy trình vận hành bài bản, với hai
+              dây chuyền chuyên sản xuất vữa khô trộn sẵn, keo dán gạch và cát tự nhiên sấy khô, đáp ứng đa dạng nhu cầu
+              của thị trường.
+            </p>
+            <p class="about-lead-para">
+              Sở hữu đội ngũ giàu kinh nghiệm và am hiểu thực tiễn ngành vật liệu xây dựng, SHK Mortar chú trọng kiểm
+              soát chất lượng từ nguồn nguyên liệu đầu vào đến quá trình sản xuất, nhằm tạo ra những sản phẩm ổn định,
+              chất lượng và phù hợp với yêu cầu thi công.
+            </p>
+            <p class="about-lead-para">
+              Với lợi thế về vị trí nhà máy, nguồn nguyên vật liệu dồi dào và năng lực sản xuất, Keo Vữa Sông Hồng hướng
+              tới xây dựng hệ thống cung ứng vật liệu xây dựng chất lượng, vận chuyển nhanh chóng và dịch vụ hậu mãi
+              chuyên nghiệp, trở thành đối tác tin cậy của khách hàng và các đơn vị thi công.
+            </p>
+            {% endif %}
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PHẦN 2: THÔNG ĐIỆP & NĂNG LỰC CỐT LÕI (2 CỘT TEXT CÂN ĐỐI)
+     ══════════════════════════════════════════════════════════════ -->
+<section class="about-sec-statement">
+  <div class="container">
+    <div class="about-statement-wrap">
+
+      <!-- Big Headline on Top -->
+      <h2 class="about-statement-heading">
+        {{ theme.about_statement_heading|default:'Sự khởi nguồn của mọi công trình bền vững' }}
+      </h2>
+
+      <!-- 2 Balanced Columns of Text Below -->
+      <div class="about-statement-grid">
+        <div class="about-statement-col">
+          {% if theme and theme.about_statement_col1 %}
+          {% if '<p' in theme.about_statement_col1 %}{{ theme.about_statement_col1|safe }}{% else %}{{ theme.about_statement_col1|linebreaks }}{% endif %} {% else %} <p>
+            Chúng tôi mang đến hệ sản phẩm vật liệu xây dựng <strong>tối ưu cho thi công</strong>, giúp người thợ
+            <strong>đơn giản hóa quy trình</strong>, <strong>tiết kiệm thời gian</strong> và nâng cao hiệu quả công
+            việc. Thay thế những hạn chế của phương pháp truyền thống bằng các giải pháp vật liệu hiện đại, ổn định và
+            phù hợp với yêu cầu ngày càng cao của công trình.
+            </p>
+            {% endif %}
+        </div>
+        <div class="about-statement-col">
+          {% if theme and theme.about_statement_col2 %}
+          {% if '<p' in theme.about_statement_col2 %}{{ theme.about_statement_col2|safe }}{% else %}{{ theme.about_statement_col2|linebreaks }}{% endif %} {% else %} <p>
+            Đồng thời không ngừng <strong>mở rộng và đồng hành cùng hệ thống đại lý</strong>, kết nối sâu hơn với các
+            đội thợ và nhà thầu từ quy mô vừa đến nhỏ. Bằng việc đưa giải pháp vật liệu chất lượng đến từng công trình,
+            từng ngôi nhà, góp phần kiến tạo hàng vạn công trình bền vững, hiện thực hóa <strong>sứ mệnh "Khởi nguồn cho
+              hàng vạn công trình bền vững"</strong>.
+            </p>
+            {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PHẦN 3: CÂU CHUYỆN THƯƠNG HIỆU (BRAND STORY)
+     ══════════════════════════════════════════════════════════════ -->
+<section class="about-sec-3">
+  <div class="container">
+    <div class="about-s3-grid">
+
+      <!-- Cột Trái: Tiêu đề CÂU CHUYỆN THƯƠNG HIỆU + Đoạn văn -->
+      <div class="about-s3-content">
+        <h2 class="about-main-heading">{{ theme.about_story_heading|default:'Câu chuyện thương hiệu' }}</h2>
+        <div class="about-story-text">
+          {% if theme and theme.about_story_content %}
+          {% if '<p' in theme.about_story_content %}{{ theme.about_story_content|safe }}{% else %}{{ theme.about_story_content|linebreaks }}{% endif %} {% else %} <p>
+            SHK Mortar ra đời từ mong muốn giúp người thợ thi công hiệu quả hơn — nhanh hơn, tiết
+            kiệm hơn và bền vững hơn. Từ hành trình nghiên cứu, hoàn thiện công thức phối trộn đến
+            đồng hành cùng đại lý, đội thợ và nhà thầu, chúng tôi tạo ra những giải pháp vật liệu phù hợp
+            với thực tế, góp phần kiến tạo những công trình trọn vẹn và bền vững.
+            </p>
+            {% endif %}
+        </div>
+      </div>
+
+      <!-- Cột Phải: Ảnh hình chữ nhật chân thực -->
+      <div class="about-s3-media">
+        <div class="about-story-card">
+          {% if theme.about_story_image %}
+          <img src="{{ theme.about_story_image.url }}"
+            alt="{{ theme.about_story_heading|default:'Câu chuyện thương hiệu' }}" class="about-story-img">
+          {% else %}
+          <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80"
+            alt="Câu chuyện thương hiệu Keo Vữa Sông Hồng" class="about-story-img">
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PHẦN 4A: DẢI MÀU NÂU - TẦM NHÌN
+     ══════════════════════════════════════════════════════════════ -->
+<section class="about-sec-vision">
+  <div class="container">
+    <div class="about-s4-centered">
+      <h2 class="about-vision-title">{{ theme.about_vision_title|default:'Tầm nhìn' }}</h2>
+      <p class="about-vision-desc">
+        {{ theme.about_vision_desc|default:'Trở thành thương hiệu vữa khô trộn sẵn và keo dán gạch hàng đầu trên thị trường, mở rộng hệ thống phân phối đại lý tới khắp các tỉnh thành tại Việt Nam.' }}
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- DẢI CAM MỎNG PHÂN CÁCH -->
+<div class="about-vision-cam-divider"></div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PHẦN 4B: NỀN TRẮNG - CAM KẾT
+     ══════════════════════════════════════════════════════════════ -->
+<section class="about-sec-commitment">
+  <div class="container">
+    <div class="about-s4-centered">
+      <h2 class="about-commitment-title">{{ theme.about_commitment_title|default:'Cam kết của chúng tôi' }}</h2>
+      <p class="about-commitment-desc">
+        {{ theme.about_commitment_desc|default:'SHK Mortar cam kết cung cấp sản phẩm chất lượng, tối ưu chi phí và dịch vụ chu đáo; chúng tôi lấy khách hàng làm trọng tâm của mọi sự phát triển, liên tục cập nhật và chuyển mình để phù hợp với nhu cầu của khách hàng mục tiêu.' }}
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PHẦN 5: SHK GALLERY (MASONRY 3 CỘT STYLE EVERYHALF - 12 ẢNH)
+     ══════════════════════════════════════════════════════════════ -->
+<section class="about-sec-5">
+  <div class="container">
+
+    <div class="about-gallery-header">
+      <h2 class="about-main-heading gallery-memories-title">{{ theme.about_gallery_title|default:'Thư viện ảnh SHK' }}
+      </h2>
+    </div>
+
+    <!-- Bố cục Masonry 3 Cột so le nghệ thuật -->
+    <div class="everyhalf-gallery-grid">
+      {% for column in gallery_columns %}
+      <div class="everyhalf-col">
+        {% for img in column %}
+        <div class="eh-item eh-ratio-{{ img.ratio }}">
+          <img src="{{ img.display_url }}" alt="{{ img.caption|default:'Thư viện ảnh SHK' }}" loading="lazy">
+          {% if img.caption %}
+          <div class="eh-overlay">
+            <span class="eh-caption">{{ img.caption }}</span>
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

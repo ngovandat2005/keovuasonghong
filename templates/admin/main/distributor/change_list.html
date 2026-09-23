@@ -1,0 +1,321 @@
+{% extends "admin/change_list.html" %}
+{% load i18n static %}
+
+{% block content %}
+<div class="sp-wrap">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <div>
+            <h1 class="sp-page-title font-bold">{% trans "Danh sách đại lý phân phối" %}</h1>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'distributors' %}" target="_blank" class="sp-btn-secondary flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-default border border-base-300 bg-white hover:bg-base-50 text-base-700 transition-colors">
+                <span class="material-symbols-outlined md-18">visibility</span>
+                <span>{% trans "Xem trên web" %}</span>
+            </a>
+            <a href="{% url 'admin:main_distributor_add' %}" class="sp-btn-add">
+                <span class="material-symbols-outlined md-18">add</span>
+                <span>{% trans "Thêm đại lý mới" %}</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white border border-base-200 rounded-default dark:bg-base-900 dark:border-base-800">
+        <!-- Search & Filter Form -->
+        <form method="get" class="flex flex-wrap items-center gap-3 px-4 py-3 border-b border-base-200 dark:border-base-800" id="sp-search-form" onsubmit="this.querySelectorAll('input, select').forEach(function(el){ if(!el.value) el.disabled = true; });">
+            <div class="flex items-center bg-white border border-base-200 rounded-default px-3 grow min-w-64 dark:bg-base-900 dark:border-base-700 focus-within:border-[#8C5A2B]">
+                <button type="submit" class="sp-search-icon-btn p-1 text-base-400 hover:text-[#8C5A2B] cursor-pointer flex items-center justify-center border-none bg-transparent" title="{% trans 'Tìm kiếm' %}">
+                    <span class="material-symbols-outlined md-18" style="font-size:18px;">search</span>
+                </button>
+                <input type="text" name="q" value="{{ cl.query }}" placeholder="{% trans 'Tìm theo tên đại lý, địa chỉ, số điện thoại...' %}" class="grow p-2 text-sm bg-transparent focus:outline-hidden">
+                {% if cl.query %}
+                <a href="{% querystring q=None %}" class="p-1 text-base-400 hover:text-red-500 cursor-pointer flex items-center justify-center" title="{% trans 'Xóa tìm kiếm' %}">
+                    <span class="material-symbols-outlined md-18" style="font-size:18px;">close</span>
+                </a>
+                {% endif %}
+            </div>
+
+            <select name="is_active__exact" onchange="if(!this.value){ this.disabled = true; } this.form.submit();" class="text-sm border border-base-200 rounded-default px-3 py-2 bg-white dark:bg-base-900 dark:border-base-700">
+                <option value="">{% trans "Tất cả trạng thái" %} ({{ total_count }})</option>
+                <option value="1" {% if current_is_active == "1" %}selected{% endif %}>{% trans "Hiển thị" %}</option>
+                <option value="0" {% if current_is_active == "0" %}selected{% endif %}>{% trans "Đang ẩn" %}</option>
+            </select>
+
+            <button type="submit" class="px-4 py-2 bg-[#8C5A2B] hover:bg-[#70441E] text-white text-sm font-medium rounded-default transition-colors cursor-pointer flex items-center gap-1 border-none">
+                <span class="material-symbols-outlined md-18" style="font-size:18px;">search</span>
+                {% trans "Tìm kiếm" %}
+            </button>
+        </form>
+
+        <!-- Distributor Table -->
+        <form id="sp-changelist-form" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" id="sp-action-input" value="">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm" style="min-width: 1100px; width: 100%;">
+                    <thead>
+                        <tr class="sp-table-header border-b border-base-200 dark:border-base-800">
+                            <th class="px-4 py-3 text-center" style="width: 52px; min-width: 52px;">
+                                <input type="checkbox" id="action-toggle" class="sp-master-checkbox w-4 h-4 cursor-pointer accent-[#8C5A2B] rounded-none align-middle">
+                            </th>
+                            <th class="px-5 py-3 text-left sp-th" style="min-width: 270px; width: 28%;">{% trans "Tên đại lý / Công ty" %}</th>
+                            <th class="px-5 py-3 text-left sp-th" style="min-width: 300px; width: 32%;">{% trans "Địa chỉ" %}</th>
+                            <th class="px-4 py-3 text-left sp-th" style="width: 140px; min-width: 130px;">{% trans "Khu vực" %}</th>
+                            <th class="px-4 py-3 text-left sp-th" style="width: 160px; min-width: 150px;">{% trans "Hotline / Liên hệ" %}</th>
+                            <th class="px-3 py-3 text-center sp-th" style="width: 110px; min-width: 100px;">{% trans "Liên kết" %}</th>
+                            <th class="px-3 py-3 text-center sp-th" style="width: 90px; min-width: 80px;">{% trans "Hiển thị" %}</th>
+                            <th class="px-4 py-3 text-right sp-th" style="width: 90px; min-width: 80px;">{% trans "Hành động" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sp-distributor-tbody">
+                        {% for obj in cl.result_list %}
+                        <tr class="border-b border-base-100 last:border-0 dark:border-base-800/60 hover:bg-base-50/50 dark:hover:bg-base-800/30 transition-colors" data-pk="{{ obj.pk }}">
+                            <!-- Checkbox -->
+                            <td class="px-4 py-3 text-center">
+                                <input type="checkbox" name="_selected_action" value="{{ obj.pk }}" class="sp-row-checkbox w-4 h-4 cursor-pointer accent-[#8C5A2B] rounded-none align-middle">
+                            </td>
+
+                            <!-- Name -->
+                            <td class="px-5 py-3">
+                                <a href="{% url 'admin:main_distributor_change' obj.pk %}" class="sp-plain-text font-medium text-[13px] text-gray-900 dark:text-gray-100 hover:text-[#8C5A2B] hover:underline block leading-snug">
+                                    {{ obj.name }}
+                                </a>
+                            </td>
+
+                            <!-- Address -->
+                            <td class="px-5 py-3">
+                                <span class="text-[12.5px] text-gray-600 dark:text-gray-400 leading-relaxed block">{{ obj.address }}</span>
+                            </td>
+
+                            <!-- Province -->
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-base-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-base-700 whitespace-nowrap">
+                                    {{ obj.province }}
+                                </span>
+                            </td>
+
+                            <!-- Phone -->
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <div class="text-xs font-medium text-gray-800 dark:text-gray-200 leading-relaxed">
+                                    {{ obj.phone|linebreaksbr }}
+                                </div>
+                            </td>
+
+                            <!-- Social / Links Icons -->
+                            <td class="px-3 py-3 text-center whitespace-nowrap">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    {% if obj.email %}
+                                    <a href="mailto:{{ obj.email }}" class="w-6 h-6 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center" title="Email: {{ obj.email }}">
+                                        <i class="fa-solid fa-envelope text-[11px]"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% if obj.website %}
+                                    <a href="{{ obj.website }}" target="_blank" rel="noopener noreferrer" class="w-6 h-6 rounded-full bg-green-50 text-green-600 hover:bg-green-100 flex items-center justify-center" title="Website: {{ obj.website }}">
+                                        <i class="fa-solid fa-globe text-[11px]"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% if obj.youtube_url %}
+                                    <a href="{{ obj.youtube_url }}" target="_blank" rel="noopener noreferrer" class="w-6 h-6 rounded-full bg-red-50 text-red-600 hover:bg-red-100 flex items-center justify-center" title="YouTube">
+                                        <i class="fa-brands fa-youtube text-[11px]"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% if obj.tiktok_url %}
+                                    <a href="{{ obj.tiktok_url }}" target="_blank" rel="noopener noreferrer" class="w-6 h-6 rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200 flex items-center justify-center" title="TikTok">
+                                        <i class="fa-brands fa-tiktok text-[11px]"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% if not obj.email and not obj.website and not obj.youtube_url and not obj.tiktok_url %}
+                                    <span class="text-xs text-base-300">-</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <!-- Toggle Active -->
+                            <td class="px-3 py-3 text-center whitespace-nowrap">
+                                <button type="button" onclick="toggleActive({{ obj.pk }}, this)" class="sp-toggle-btn {% if obj.is_active %}active{% endif %}" title="{% trans 'Bấm để bật/tắt hiển thị' %}">
+                                    <span class="sp-toggle-track">
+                                        <span class="sp-toggle-thumb"></span>
+                                    </span>
+                                </button>
+                            </td>
+
+                            <!-- Actions -->
+                            <td class="px-3 py-3 text-right whitespace-nowrap">
+                                <div class="flex items-center justify-end gap-1">
+                                    <a href="{% url 'admin:main_distributor_change' obj.pk %}" class="p-1.5 text-base-500 hover:text-[#8C5A2B] hover:bg-base-100 dark:hover:bg-base-800 rounded transition-colors" title="{% trans 'Chỉnh sửa' %}">
+                                        <span class="material-symbols-outlined text-[18px]">edit</span>
+                                    </a>
+                                    <button type="button" onclick="openCustomDeleteModal('{% url 'admin:main_distributor_delete' obj.pk %}', '{{ obj.name|escapejs }}', this)" title="{% trans 'Xóa' %}" class="p-1.5 text-base-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded transition-colors border-none bg-transparent cursor-pointer">
+                                        <span class="material-symbols-outlined text-[18px]">delete</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-12 text-base-400">
+                                <span class="material-symbols-outlined text-4xl mb-2">store</span>
+                                <p class="text-sm">{% trans "Không tìm thấy đại lý nào phù hợp." %}</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </form>
+
+        <!-- Pagination & Footer -->
+        <div class="flex items-center justify-between px-4 py-3 border-t border-base-200 dark:border-base-800 text-sm text-subtle flex-wrap gap-2">
+            <div>
+                {% if cl.result_count %}
+                {% blocktrans with count=cl.result_count start=range_start end=range_end %}
+                Hiển thị {{ start }} – {{ end }} trên tổng {{ count }} đại lý
+                {% endblocktrans %}
+                {% endif %}
+            </div>
+
+            <!-- Page Size -->
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs">{% trans "Hiển thị:" %}</span>
+                    <select onchange="changePageSize(this.value)" class="text-xs border border-base-200 rounded px-2 py-1 bg-white dark:bg-base-900 dark:border-base-700">
+                        <option value="10" {% if cl.list_per_page == 10 %}selected{% endif %}>10</option>
+                        <option value="20" {% if cl.list_per_page == 20 %}selected{% endif %}>20</option>
+                        <option value="50" {% if cl.list_per_page == 50 %}selected{% endif %}>50</option>
+                        <option value="100" {% if cl.list_per_page == 100 %}selected{% endif %}>100</option>
+                    </select>
+                </div>
+
+                {% if cl.pagination_required %}
+                <div class="flex items-center gap-1">
+                    {% for page_num in cl.page_range %}
+                        {% if page_num == cl.page_num %}
+                            <span class="px-2.5 py-1 rounded-default text-xs font-semibold bg-[#8C5A2B] text-white">{{ page_num }}</span>
+                        {% elif page_num == '...' %}
+                            <span class="px-1 text-xs text-base-400">...</span>
+                        {% else %}
+                            <a href="{% querystring p=page_num %}" class="px-2.5 py-1 rounded-default text-xs font-medium text-base-700 hover:bg-base-100 dark:text-base-300 dark:hover:bg-base-800">{{ page_num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.sp-wrap { max-width: 100%; }
+.sp-page-title { font-size: 20px; color: #111827; }
+html.dark .sp-page-title { color: #F9FAFB; }
+
+.sp-btn-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #8C5A2B;
+    color: #FFFFFF !important;
+    border-radius: 6px;
+    font-size: 13.5px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.15s;
+}
+.sp-btn-add:hover { background: #70441E; }
+
+.sp-tab-pill {
+    color: #4B5563;
+    background: #F3F4F6;
+    text-decoration: none;
+    transition: all 0.15s;
+}
+html.dark .sp-tab-pill { color: #9CA3AF; background: #1F2937; }
+.sp-tab-pill:hover { background: #E5E7EB; color: #111827; }
+.sp-tab-pill.active {
+    background: #8C5A2B !important;
+    color: #FFFFFF !important;
+}
+
+/* Table Header Styles (High Contrast & Clear) */
+.sp-table-header {
+    background-color: #f8fafc;
+    border-bottom: 1.5px solid #e2e8f0;
+}
+html.dark .sp-table-header {
+    background-color: #0f172a;
+    border-bottom-color: #1e293b;
+}
+.sp-th {
+    color: #374151 !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.1px;
+}
+html.dark .sp-th {
+    color: #e2e8f0 !important;
+}
+
+/* Toggle Switch */
+.sp-toggle-btn { background: none; border: none; cursor: pointer; padding: 2px; }
+.sp-toggle-track {
+    display: inline-block;
+    width: 36px;
+    height: 20px;
+    background: #D1D5DB;
+    border-radius: 20px;
+    position: relative;
+    transition: background 0.2s;
+}
+.sp-toggle-btn.active .sp-toggle-track { background: #16A34A; }
+.sp-toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: #FFFFFF;
+    border-radius: 50%;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.sp-toggle-btn.active .sp-toggle-thumb { transform: translateX(16px); }
+
+</style>
+
+<script>
+function changePageSize(val) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('list_per_page', val);
+    url.searchParams.delete('p');
+    window.location.href = url.toString();
+}
+
+function toggleActive(pk, btn) {
+    const csrftoken = (document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)') || [])[2];
+    fetch(`/admin/main/distributor/toggle-active/${pk}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrftoken }
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.ok) {
+            btn.classList.toggle('active', res.is_active);
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Nạp FontAwesome cho icon liên kết (email/website/youtube/tiktok) vì trang admin không có sẵn
+    if (!document.getElementById('fontawesome')) {
+        let fa = document.createElement('link');
+        fa.id = 'fontawesome';
+        fa.rel = 'stylesheet';
+        fa.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css';
+        document.head.appendChild(fa);
+    }
+
+});
+</script>
+{% include "admin/includes/custom_delete_modal.html" %}
+{% endblock %}

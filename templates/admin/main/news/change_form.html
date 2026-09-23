@@ -1,0 +1,2407 @@
+{% extends 'unfold/layouts/base.html' %}
+{% load i18n admin_urls static admin_modify unfold %}
+
+{% block content %}
+<div class="pd-wrap"
+    x-data="{ tab: 'content' }">
+
+    <!-- Topbar -->
+    <div class="pd-topbar">
+        <div class="flex items-center gap-3">
+            <a href="{% url 'admin:main_news_changelist' %}"
+                class="w-9 h-9 flex items-center justify-center rounded-default border border-base-300 bg-white hover:bg-base-100 hover:text-primary-600 text-base-700 dark:bg-base-800 dark:border-base-700 dark:text-base-200 dark:hover:bg-base-700 transition-colors shadow-xs"
+                title="{% trans 'Quay lại danh sách' %}">
+                <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            </a>
+            <h1 class="pd-h1">
+                {% if original %}{{ original.title }}{% else %}{% trans "Thêm tin tức mới" %}{% endif %}
+            </h1>
+        </div>
+        <div class="pd-topbar-actions">
+            <a href="{% url 'admin:main_news_changelist' %}" class="pd-btn pd-btn-ghost">{% trans "Hủy bỏ" %}</a>
+            {% if original and original.slug and original.category %}
+            <a href="{% url 'news_detail' original.category.slug original.slug %}" target="_blank" class="pd-btn pd-btn-ghost">{% trans "Xem trên web" %}</a>
+            {% endif %}
+            <button type="button" onclick="handleNewsSave()" class="pd-btn pd-btn-primary">{% trans "Lưu thay đổi" %}</button>
+        </div>
+    </div>
+
+    <!-- Thanh thông báo khôi phục bản nháp (Crash Recovery Draft) -->
+    <div id="pdDraftBanner" style="display: none; background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <div style="display: flex; align-items: center; gap: 10px; color: #92400E; font-size: 13.5px;">
+            <span class="material-symbols-outlined" style="font-size: 20px; color: #D97706;">history</span>
+            <span><strong>Phát hiện bản nháp chưa lưu:</strong> Hệ thống tìm thấy dữ liệu tin tức được tự động sao lưu lúc <span id="pdDraftTime" style="font-weight: 700;"></span>. Bạn có muốn khôi phục không?</span>
+        </div>
+        <div style="display: flex; gap: 8px; flex-shrink: 0;">
+            <button type="button" onclick="restoreNewsDraft()" style="background: #D97706; color: #FFFFFF; border: none; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;">Khôi phục dữ liệu</button>
+            <button type="button" onclick="clearNewsDraft()" style="background: transparent; color: #92400E; border: 1px solid #D97706; padding: 6px 12px; border-radius: 6px; font-size: 13px; cursor: pointer;">Bỏ qua</button>
+        </div>
+    </div>
+
+    <form enctype="multipart/form-data" action="{{ form_url }}" method="post" id="news_form" novalidate>
+        {% csrf_token %}
+        {% block form_top %}{% endblock %}
+        {{ adminform.form.non_field_errors }}
+        {{ adminform.form.media }}
+
+        <!-- Grid 70% / 30%: Thông tin tin tức (70%) và Ảnh tin tức (30%) -->
+        <div class="pd-top-grid">
+            <!-- Cột trái 70%: Thông tin tin tức -->
+            <div class="pd-card pd-col-info">
+                <h3 class="pd-card-title">
+                    <span class="material-symbols-outlined md-18">article</span>
+                    {% trans "Thông tin tin tức" %}
+                </h3>
+
+                <div class="pd-field">
+                    <label class="pd-label">{{ adminform.form.title.label }} *</label>
+                    {{ adminform.form.title }}
+                    {% if adminform.form.title.errors %}
+                    <div class="text-red-500 text-xs mt-1">{{ adminform.form.title.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="pd-field">
+                    <label class="pd-label">{% trans "Đường dẫn tĩnh (Slug)" %} <span class="text-xs font-normal text-gray-500">(Tự động tạo theo tiêu đề)</span></label>
+                    <div style="position: relative;">
+                        {{ adminform.form.slug }}
+                    </div>
+                    <div class="text-[11.5px] text-gray-500 mt-1 flex items-center gap-1">
+                        <span>{% trans "Xem trước URL:" %}</span>
+                        <span class="font-mono text-[#8C5A2B] font-semibold" id="slugPreviewText">/tin-tuc/{{ original.slug|default:"..." }}/</span>
+                    </div>
+                    {% if adminform.form.slug.errors %}
+                    <div class="text-red-500 text-xs mt-1">{{ adminform.form.slug.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="pd-field">
+                    <label class="pd-label">{{ adminform.form.category.label }}</label>
+                    {{ adminform.form.category }}
+                    {% if adminform.form.category.errors %}
+                    <div class="text-red-500 text-xs mt-1">{{ adminform.form.category.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="pd-field">
+                    <label class="pd-label">{{ adminform.form.author.label }}</label>
+                    {{ adminform.form.author }}
+                    {% if adminform.form.author.errors %}
+                    <div class="text-red-500 text-xs mt-1">{{ adminform.form.author.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="pd-field">
+                    <label class="pd-label">{% trans "Video YouTube (không bắt buộc)" %}</label>
+                    {{ adminform.form.video_url }}
+                    <div class="text-[11px] text-gray-500 mt-1">{% trans "Dán link YouTube. Nếu chưa chọn ảnh đại diện, hệ thống sẽ tự lấy ảnh thumbnail của video này làm ảnh tin tức." %}</div>
+                    {% if adminform.form.video_url.errors %}
+                    <div class="text-red-500 text-xs mt-1">{{ adminform.form.video_url.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <label class="pd-checkbox-row">
+                    {{ adminform.form.is_active }}
+                    <span>{{ adminform.form.is_active.label }}</span>
+                </label>
+            </div>
+
+            <!-- Cột phải 30%: Ảnh tin tức -->
+            <div class="pd-card pd-col-image">
+                <h3 class="pd-card-title">
+                    <span class="material-symbols-outlined md-18">image</span>
+                    {% trans "Ảnh tin tức" %}
+                </h3>
+
+                <div class="pd-image-section">
+                    <!-- Preview ô ảnh hiện tại -->
+                    <div class="pd-image-preview-box" id="newsImgPreviewBox" {% if not original.thumbnail_url %}style="display: none;"{% endif %}>
+                        <img src="{{ original.thumbnail_url|default:'' }}" id="newsImgDisplay"
+                            alt="Ảnh tin tức">
+                        <div class="pd-image-badge">{% trans "Ảnh đại diện" %}</div>
+
+                        <div class="pd-card-overlay">
+                            <button type="button" class="pd-card-action-btn" title="{% trans 'Xem ảnh lớn' %}"
+                                onclick="previewLargeImage(document.getElementById('newsImgDisplay').src)">
+                                <span class="material-symbols-outlined">visibility</span>
+                            </button>
+                            <button type="button" class="pd-card-action-btn" title="{% trans 'Đổi ảnh khác' %}"
+                                onclick="document.getElementById('newsImageFileInput').click()">
+                                <span class="material-symbols-outlined">edit</span>
+                            </button>
+                            <button type="button" class="pd-card-action-btn btn-del" title="{% trans 'Xóa ảnh' %}"
+                                onclick="clearNewsImage()">
+                                <span class="material-symbols-outlined">delete</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Nút tải ảnh lên dạng khung nét đứt -->
+                    <div class="pd-upload-card" id="newsUploadCard"
+                        onclick="document.getElementById('newsImageFileInput').click()"
+                        title="{% trans 'Bấm để tải ảnh lên từ máy tính' %}" {% if original.thumbnail_url %}style="display: none;"{% endif %}>
+                        <span class="material-symbols-outlined" style="font-size:48px;color:#8C5A2B;">add_photo_alternate</span>
+                    </div>
+
+                    <!-- Input file ẩn thực tế -->
+                    <div style="display: none;">
+                        <input type="file" name="image" id="newsImageFileInput" accept="image/*"
+                            onchange="handleNewsImageChange(this)">
+                        <input type="checkbox" name="image-clear" id="image-clear_id">
+                    </div>
+
+                    <!-- Hoặc dán link ảnh (khi không có sẵn file ảnh) -->
+                    <div class="pd-field" style="margin-top: 10px;">
+                        <label class="pd-label" style="font-size: 11px; color: #64748b;">{% trans "Hoặc dán link ảnh (URL)" %}</label>
+                        {{ adminform.form.image_url }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nội dung tin tức (Tóm tắt / Nội dung chi tiết với TinyMCE) -->
+        <div class="pd-card pd-mt-lg">
+            <div class="pd-tabs-nav">
+                <button type="button" class="pd-tab-btn" x-bind:class="tab === 'content' ? 'pd-tab-active' : ''"
+                    x-on:click="tab = 'content'">{% trans "Nội dung chi tiết" %}</button>
+                <button type="button" class="pd-tab-btn" x-bind:class="tab === 'summary' ? 'pd-tab-active' : ''"
+                    x-on:click="tab = 'summary'">{% trans "Tóm tắt" %}</button>
+            </div>
+
+            <div class="pd-tab-panel" x-show="tab === 'content'">
+                {{ adminform.form.content }}
+            </div>
+
+            <div class="pd-tab-panel" x-show="tab === 'summary'" x-cloak>
+                <label class="pd-label">{% trans "Tóm tắt ngắn hiển thị ở danh sách tin tức" %}</label>
+                {{ adminform.form.summary }}
+            </div>
+        </div>
+
+        <!-- Xem trước kết quả tìm kiếm (Google SERP Snippet Preview / SEO) -->
+        <div class="pd-card pd-mt-lg">
+            <h3 class="pd-card-title">
+                {% trans "Xem trước kết quả tìm kiếm" %}
+            </h3>
+
+            <!-- Khung xem trước kết quả Google -->
+            <div class="seo-preview-box">
+                <div class="seo-preview-title" id="seoGooglePreviewTitle">
+                    {{ original.title|default:"Tiêu đề trang tin tức..." }}
+                </div>
+                <div class="seo-preview-url" id="seoGooglePreviewUrl">
+                    https://www.keovuasonghong.vn/<span id="seoGooglePreviewSlug">{{ original.slug|default:"duong-dan-tin-tuc" }}</span>
+                </div>
+                <div class="seo-preview-desc" id="seoGooglePreviewDesc">
+                    {{ original.summary|default:"Nhập mô tả bài viết để xem trước cách hiển thị tóm tắt trên trang kết quả tìm kiếm Google..." }}
+                </div>
+            </div>
+
+            <div class="seo-divider"></div>
+
+            <!-- Các trường cấu hình SEO -->
+            <div class="seo-field">
+                <div class="seo-field-header">
+                    <label class="seo-field-label">{% trans "Tiêu đề trang" %}</label>
+                    <span class="seo-counter">{% trans "Số ký tự đã dùng" %} <span id="seoTitleCount">0</span>/70</span>
+                </div>
+                <input type="text" id="seoTitleInput" class="seo-input" placeholder="{% trans 'Nhập tiêu đề trang hiển thị trên Google...' %}" value="{{ original.title|default:'' }}">
+            </div>
+
+            <div class="seo-field">
+                <div class="seo-field-header">
+                    <label class="seo-field-label">{% trans "Thẻ mô tả" %}</label>
+                    <span class="seo-counter">{% trans "Số ký tự đã dùng" %} <span id="seoDescCount">0</span>/320</span>
+                </div>
+                <textarea id="seoDescInput" class="seo-textarea" rows="3" placeholder="{% trans 'Nhập mô tả tóm tắt của bài viết hiển thị trên Google...' %}">{{ original.summary|default:'' }}</textarea>
+            </div>
+
+            <div class="seo-field" style="margin-bottom: 0;">
+                <label class="seo-field-label" style="display: block; margin-bottom: 6px;">{% trans "Đường dẫn / Alias" %}</label>
+                <div class="seo-alias-group">
+                    <span class="seo-alias-prefix">https://www.keovuasonghong.vn/</span>
+                    <input type="text" id="seoSlugInput" class="seo-alias-input" placeholder="duong-dan-bai-viet" value="{{ original.slug|default:'' }}">
+                </div>
+            </div>
+        </div>
+
+        <!-- Thanh thao tác dưới đáy -->
+        <div class="pd-bottombar">
+            <a href="{% url 'admin:main_news_changelist' %}" class="pd-btn pd-btn-ghost">{% trans "Hủy bỏ" %}</a>
+            <button type="button" onclick="handleNewsSave()" class="pd-btn pd-btn-primary">{% trans "Lưu thay đổi" %}</button>
+        </div>
+    </form>
+
+    <!-- Modal Xem ảnh phóng to (Lightbox) -->
+    <div id="pdLightboxModal" class="pd-lightbox-backdrop" style="display: none;" onclick="closeLightbox()">
+        <div class="pd-lightbox-content" onclick="event.stopPropagation()">
+            <img id="pdLightboxImg" src="" alt="Ảnh tin tức">
+            <button type="button" class="pd-lightbox-close" onclick="closeLightbox()">&times;</button>
+        </div>
+    </div>
+
+    <!-- ── Custom Color Picker Panel ── -->
+    <div id="customColorPanel" style="display:none;position:fixed;z-index:999999;background:#fff;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,0.22);padding:14px 14px 12px;width:264px;border:1px solid #E5E7EB;">
+        <div class="ccp-tabs-row">
+            <button class="ccp-tab ccp-tab-active" data-mode="forecolor" onclick="ccpSwitchTab('forecolor')">Màu chữ</button>
+            <button class="ccp-tab" data-mode="backcolor" onclick="ccpSwitchTab('backcolor')">Màu nền</button>
+            <button class="ccp-close" onclick="closeCCP()">&#x2715;</button>
+        </div>
+        <div style="position:relative;margin:10px 0 8px;cursor:crosshair;user-select:none;">
+            <canvas id="ccpCanvas" width="236" height="148" style="border-radius:8px;display:block;width:100%;"></canvas>
+        </div>
+        <div style="position:relative;margin-bottom:10px;cursor:crosshair;user-select:none;">
+            <canvas id="ccpHue" width="236" height="14" style="border-radius:7px;display:block;width:100%;"></canvas>
+            <div id="ccpHueCursor" style="position:absolute;top:50%;width:18px;height:18px;border-radius:50%;border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.45);transform:translate(-50%,-50%);pointer-events:none;left:0;background:#f00;"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <div id="ccpPreview" style="width:32px;height:32px;border-radius:7px;border:1px solid #E5E7EB;background:#000;flex-shrink:0;transition:background .1s;"></div>
+            <input id="ccpHexInput" type="text" maxlength="7" placeholder="#000000" style="flex:1;border:1px solid #D1D5DB;border-radius:7px;padding:6px 10px;font-size:13px;outline:none;font-family:monospace;letter-spacing:.5px;">
+        </div>
+        <div style="display:flex;gap:8px;">
+            <button onclick="closeCCP()" style="flex:1;padding:7px;border:1px solid #D1D5DB;border-radius:7px;background:#fff;cursor:pointer;font-size:13px;color:#6B7280;font-weight:600;">Hủy</button>
+            <button onclick="applyCCP()" style="flex:1;padding:7px;border:none;border-radius:7px;background:#8C5A2B;color:#fff;cursor:pointer;font-size:13px;font-weight:600;">Áp dụng</button>
+        </div>
+    </div>
+
+    <!-- ── Sapo-style Custom Image Picker Modal ── -->
+    <div id="imagePickerModal" class="sip-backdrop" style="display: none;" onclick="closeImagePickerModal()">
+        <div class="sip-modal" onclick="event.stopPropagation()">
+            <!-- Header -->
+            <div class="sip-header">
+                <h3 class="sip-title">Chèn ảnh</h3>
+                <button type="button" class="sip-close-btn" onclick="closeImagePickerModal()">&times;</button>
+            </div>
+
+            <!-- Tabs: Ảnh sản phẩm | Ảnh đã tải lên (bỏ tab URL) -->
+            <div class="sip-tabs">
+                <button type="button" class="sip-tab-btn" id="sipTabProduct" onclick="sipSwitchTab('products')">Ảnh sản phẩm</button>
+                <button type="button" class="sip-tab-btn active" id="sipTabUploaded" onclick="sipSwitchTab('uploaded')">Ảnh đã tải lên</button>
+            </div>
+
+            <!-- Body: Image Grid -->
+            <div class="sip-body">
+                <div id="sipLoading" class="sip-loading" style="display: none;">
+                    <div class="sip-spinner"></div>
+                    <span>Đang tải danh sách ảnh...</span>
+                </div>
+                <div id="sipEmpty" class="sip-empty" style="display: none;">
+                    <span class="material-symbols-outlined" style="font-size: 44px; color: #9CA3AF;">photo_library</span>
+                    <p style="margin: 0; font-size: 14px;">Chưa có ảnh nào trong mục này</p>
+                </div>
+                <div id="sipGrid" class="sip-grid">
+                    <!-- Dynamic image cards will be rendered here -->
+                </div>
+            </div>
+
+            <!-- Footer: Pagination (left) and Action buttons (right) -->
+            <div class="sip-footer">
+                <div class="sip-pagination">
+                    <button type="button" class="sip-page-btn" id="sipPrevBtn" onclick="sipChangePage(-1)" title="Trang trước">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </button>
+                    <button type="button" class="sip-page-btn" id="sipNextBtn" onclick="sipChangePage(1)" title="Trang sau">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
+                    <span id="sipPageInfo" style="font-size: 12.5px; color: #8C8C8C; margin-left: 6px;"></span>
+                </div>
+                <div class="sip-actions">
+                    <button type="button" class="sip-btn sip-btn-cancel" onclick="closeImagePickerModal()">Hủy</button>
+                    <button type="button" class="sip-btn sip-btn-upload" onclick="sipTriggerUpload()">Tải ảnh lên</button>
+                    <input type="file" id="sipHiddenFileInput" accept="image/*" style="display: none;" onchange="sipHandleUpload(this)">
+                    <button type="button" class="sip-btn sip-btn-insert" id="sipInsertBtn" disabled onclick="sipInsertSelectedImage()">Chèn ảnh</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .pd-wrap,
+    .pd-wrap * {
+        box-sizing: border-box;
+    }
+
+    .pd-wrap {
+        max-width: 980px;
+        margin: 0 auto;
+        font-size: 13.5px !important;
+    }
+
+    .pd-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .pd-h1 {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+        color: #111827 !important;
+        line-height: 24px !important;
+        margin: 0 !important;
+    }
+
+    html.dark .pd-h1 {
+        color: #F9FAFB !important;
+    }
+
+    .pd-topbar-actions {
+        display: flex;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    .pd-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 15px !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        border-radius: 6px !important;
+        border: 1px solid #8C5A2B;
+        text-decoration: none;
+        cursor: pointer;
+        line-height: 1.4;
+        transition: all 0.15s ease;
+    }
+
+    .pd-btn-ghost {
+        background: #FFFFFF;
+        color: #8C5A2B !important;
+    }
+
+    .pd-btn-ghost:hover {
+        background: #FDF8F3;
+        color: #70441E !important;
+        border-color: #70441E;
+    }
+
+    .pd-btn-primary {
+        background: #8C5A2B;
+        color: #FFFFFF !important;
+    }
+
+    .pd-btn-primary:hover {
+        background: #70441E;
+        border-color: #70441E;
+    }
+
+    html.dark .pd-btn-ghost {
+        background: #1F2937;
+        border-color: #8C5A2B;
+    }
+
+    /* Thẻ Card */
+    .pd-card {
+        background: #FFFFFF;
+        border: 1px solid #E5E7EB;
+        padding: 18px 20px;
+        border-radius: 8px;
+    }
+
+    html.dark .pd-card {
+        background: #1F2937;
+        border-color: #374151;
+    }
+
+    /* Grid 70% / 30% */
+    .pd-top-grid {
+        display: grid;
+        grid-template-columns: 7fr 3fr;
+        gap: 16px;
+        margin-bottom: 18px;
+        align-items: stretch;
+    }
+
+    @media (max-width: 860px) {
+        .pd-top-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .pd-card-title {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14.5px !important;
+        font-weight: 700 !important;
+        color: #111827 !important;
+        margin: 0 0 14px;
+    }
+
+    .pd-mb-0 {
+        margin-bottom: 0 !important;
+    }
+
+    html.dark .pd-card-title {
+        color: #F9FAFB !important;
+    }
+
+    .pd-field {
+        margin-bottom: 14px;
+        width: 100%;
+    }
+
+    .pd-field-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-bottom: 0;
+        width: 100%;
+    }
+
+    @media (max-width: 640px) {
+        .pd-field-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .pd-label {
+        display: block;
+        font-size: 12.5px !important;
+        font-weight: 600 !important;
+        color: #374151 !important;
+        margin-bottom: 5px;
+    }
+
+    .pd-label-muted {
+        color: #6B7280 !important;
+    }
+
+    html.dark .pd-label {
+        color: #D1D5DB !important;
+    }
+
+    .pd-mt {
+        margin-top: 14px;
+    }
+
+    .pd-mt-lg {
+        margin-top: 18px;
+    }
+
+    /* Checkbox hiển thị */
+    .pd-checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        color: #374151 !important;
+        cursor: pointer;
+        margin-top: 4px;
+    }
+
+    html.dark .pd-checkbox-row {
+        color: #D1D5DB !important;
+    }
+
+    .pd-checkbox-row input[type="checkbox"] {
+        width: 16px !important;
+        height: 16px !important;
+        accent-color: #8C5A2B;
+        cursor: pointer;
+    }
+
+    /* Kéo kịch chiều rộng của các input */
+    .pd-wrap input[type="text"],
+    .pd-wrap input[type="url"],
+    .pd-wrap input[type="number"],
+    .pd-wrap input[type="datetime-local"],
+    .pd-wrap select,
+    .pd-field input,
+    #id_title,
+    #id_slug,
+    #id_author,
+    #id_category,
+    #id_video_url,
+    #id_order,
+    #id_published_at {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
+        display: block !important;
+        height: 38px;
+        border: 1px solid #D1D5DB !important;
+        padding: 6px 12px !important;
+        font-size: 13.5px !important;
+        color: #111827 !important;
+        background: #FFFFFF !important;
+        border-radius: 6px !important;
+        box-sizing: border-box !important;
+    }
+
+    .pd-field .related-widget-wrapper {
+        display: flex !important;
+        align-items: center !important;
+        width: 100% !important;
+    }
+
+    .pd-field .related-widget-wrapper select {
+        flex: 1 1 auto !important;
+        width: 100% !important;
+    }
+
+    /* Ẩn nút 3 chấm thao tác danh mục (more_vert) */
+    .pd-field .related-widget-wrapper [x-data],
+    .pd-field .related-widget-wrapper [x-ref],
+    .pd-field .related-widget-wrapper .related-widget-wrapper-link,
+    .pd-field div:has(> [x-ref*="relatedWidgetWrapper"]) {
+        display: none !important;
+    }
+
+    .pd-wrap textarea {
+        width: 100% !important;
+        border: 1px solid #D1D5DB !important;
+        padding: 8px 12px !important;
+        font-size: 13.5px !important;
+        color: #111827 !important;
+        background: #FFFFFF !important;
+        border-radius: 6px !important;
+        min-height: 90px;
+        resize: vertical;
+        box-sizing: border-box !important;
+    }
+
+    html.dark .pd-wrap input[type="text"],
+    html.dark .pd-wrap input[type="url"],
+    html.dark .pd-wrap input[type="number"],
+    html.dark .pd-wrap input[type="datetime-local"],
+    html.dark .pd-wrap select,
+    html.dark .pd-wrap textarea,
+    html.dark .pd-field input {
+        background: #111827 !important;
+        border-color: #4B5563 !important;
+        color: #F9FAFB !important;
+    }
+
+    /* Image preview section */
+    .pd-image-section {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .pd-image-preview-box {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        border-radius: 8px;
+        border: 1px solid #E2E8F0;
+        overflow: hidden;
+        position: relative;
+        background: #F8FAFC;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .pd-image-preview-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .pd-image-badge {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(140, 90, 43, 0.92);
+        color: #FFFFFF;
+        font-size: 10.5px;
+        font-weight: 600;
+        text-align: center;
+        padding: 3px 0;
+    }
+
+    .pd-card-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        border-radius: 8px;
+    }
+
+    .pd-image-preview-box:hover .pd-card-overlay {
+        opacity: 1;
+    }
+
+    .pd-card-action-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.95);
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #334155;
+        transition: all 0.15s ease;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .pd-card-action-btn:hover {
+        background: #FFFFFF;
+        color: #8C5A2B;
+        transform: scale(1.12);
+    }
+
+    .pd-card-action-btn.btn-del:hover {
+        background: #EF4444;
+        color: #FFFFFF;
+    }
+
+    .pd-card-action-btn .material-symbols-outlined {
+        font-size: 18px !important;
+    }
+
+    .pd-upload-card {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        min-height: 140px;
+        border: 2px dashed #8C5A2B;
+        border-radius: 8px;
+        background: #FDF8F3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .pd-upload-card:hover {
+        background: #FAF0E6;
+        border-color: #70441E;
+        transform: translateY(-2px);
+    }
+
+    html.dark .pd-upload-card {
+        background: #2D2319;
+        border-color: #8C5A2B;
+    }
+
+    /* Tabs */
+    .pd-tabs-nav {
+        display: flex;
+        gap: 20px;
+        border-bottom: 1px solid #E5E7EB;
+        margin-bottom: 14px;
+    }
+
+    html.dark .pd-tabs-nav {
+        border-color: #374151;
+    }
+
+    .pd-tab-btn {
+        background: none;
+        border: none;
+        padding: 8px 0;
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #6B7280;
+        border-bottom: 2px solid transparent;
+        cursor: pointer;
+        outline: none;
+        transition: all 0.15s ease;
+    }
+
+    .pd-tab-btn:hover {
+        color: #8C5A2B !important;
+    }
+
+    .pd-tab-active {
+        color: #8C5A2B !important;
+        border-bottom-color: #8C5A2B !important;
+    }
+
+    /* Collapse "Nội dung liên quan" */
+    .pd-collapse-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        color: #6B7280;
+    }
+
+    .pd-collapse-toggle .material-symbols-outlined:last-child {
+        transition: transform 0.2s ease;
+    }
+
+    .pd-rotate {
+        transform: rotate(180deg);
+    }
+
+    /* ── TinyMCE: thiết kế lại thanh công cụ theo màu thương hiệu ── */
+    .tox-tinymce {
+        border: 1px solid #E5E7EB !important;
+        border-radius: 10px !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+        overflow: hidden;
+    }
+
+    .tox .tox-editor-header {
+        box-shadow: none !important;
+    }
+
+    .tox .tox-toolbar,
+    .tox .tox-toolbar__primary,
+    .tox .tox-toolbar-overlord {
+        background: #FAFAF9 !important;
+        border-bottom: 1px solid #EDE7DE !important;
+        padding: 4px 6px !important;
+    }
+
+    .tox .tox-toolbar__group {
+        padding: 0 6px !important;
+        border-right: 1px solid #E7E1D8 !important;
+    }
+
+    .tox .tox-toolbar__group:last-child {
+        border-right: none !important;
+    }
+
+    .tox .tox-tbtn {
+        border-radius: 6px !important;
+        margin: 2px !important;
+        transition: background-color .15s ease, color .15s ease;
+    }
+
+    .tox .tox-tbtn svg {
+        fill: #4B5563 !important;
+    }
+
+    .tox .tox-tbtn:hover {
+        background: #F3EAE0 !important;
+    }
+
+    .tox .tox-tbtn:hover svg {
+        fill: #8C5A2B !important;
+    }
+
+    .tox .tox-tbtn--enabled,
+    .tox .tox-tbtn--enabled:hover {
+        background: #8C5A2B !important;
+    }
+
+    .tox .tox-tbtn--enabled svg,
+    .tox .tox-tbtn--enabled:hover svg {
+        fill: #FFFFFF !important;
+    }
+
+    .tox .tox-tbtn--select {
+        border-radius: 6px !important;
+    }
+
+    .tox .tox-tbtn__select-label {
+        font-size: 13px !important;
+        color: #374151 !important;
+    }
+
+    .tox .tox-split-button:hover {
+        box-shadow: none !important;
+        background: #F3EAE0 !important;
+        border-radius: 6px !important;
+    }
+
+    .tox .tox-statusbar {
+        border-top: 1px solid #EDE7DE !important;
+        background: #FAFAF9 !important;
+        font-size: 11px !important;
+        color: #9CA3AF !important;
+    }
+
+    /* Menu / dropdown nổi (TinyMCE render ra ngoài .pd-wrap, gắn trực tiếp vào body) */
+    .tox-tinymce-aux .tox-menu,
+    .tox-tinymce-aux .tox-collection,
+    .tox-tinymce-aux .tox-selected-menu {
+        border-radius: 10px !important;
+        border: 1px solid #E5E7EB !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12) !important;
+        overflow: hidden;
+    }
+
+    .tox-tinymce-aux .tox-collection__item--active,
+    .tox-tinymce-aux .tox-collection__item:hover {
+        background-color: #F3EAE0 !important;
+    }
+
+    .tox-tinymce-aux .tox-collection__item-label {
+        color: #111827 !important;
+    }
+
+    .tox-tinymce-aux .tox-swatches__row {
+        gap: 4px !important;
+    }
+
+    .tox-tinymce-aux .tox-swatch {
+        border-radius: 6px !important;
+        width: 22px !important;
+        height: 22px !important;
+        transition: transform .12s ease;
+    }
+
+    .tox-tinymce-aux .tox-swatch:hover {
+        transform: scale(1.15);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+        z-index: 2;
+    }
+
+    /* Hộp thoại chèn ảnh / video / bảng */
+    .tox .tox-dialog {
+        border-radius: 12px !important;
+        overflow: hidden;
+    }
+
+    .tox .tox-dialog__header {
+        background: #FAF6F1 !important;
+        border-bottom: 1px solid #EDE7DE !important;
+    }
+
+    .tox .tox-dialog__title {
+        color: #111827 !important;
+        font-weight: 700 !important;
+    }
+
+    .tox .tox-button {
+        border-radius: 6px !important;
+    }
+
+    .tox .tox-button:not(.tox-button--secondary):not(.tox-button--icon) {
+        background-color: #8C5A2B !important;
+        border-color: #8C5A2B !important;
+    }
+
+    .tox .tox-button:not(.tox-button--secondary):not(.tox-button--icon):hover {
+        background-color: #70441E !important;
+        border-color: #70441E !important;
+    }
+
+    /* ── Custom Color Picker ── */
+    .ccp-tabs-row {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        border-bottom: 1px solid #F0EBE4;
+        margin-bottom: 4px;
+        padding-bottom: 8px;
+    }
+    .ccp-tab {
+        flex: 1;
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        padding: 5px 8px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #6B7280;
+        cursor: pointer;
+        transition: color .15s, border-color .15s;
+        border-radius: 0;
+    }
+    .ccp-tab:hover { color: #8C5A2B; }
+    .ccp-tab.ccp-tab-active { color: #8C5A2B; border-bottom-color: #8C5A2B; }
+    .ccp-close {
+        background: none;
+        border: none;
+        color: #9CA3AF;
+        font-size: 16px;
+        cursor: pointer;
+        padding: 3px 6px;
+        line-height: 1;
+        border-radius: 5px;
+        transition: all .15s;
+    }
+    .ccp-close:hover { color: #374151; background: #F3F4F6; }
+    #ccpHexInput:focus {
+        border-color: #8C5A2B;
+        box-shadow: 0 0 0 3px rgba(140,90,43,0.12);
+    }
+    html.dark #customColorPanel {
+        background: #1F2937;
+        border-color: #374151;
+    }
+
+    /* ── SEO Google SERP Preview Card ── */
+    .seo-preview-box {
+        background: transparent;
+        border-radius: 4px;
+        padding: 4px 0 8px 0;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    .seo-preview-title {
+        color: #1a0dab;
+        font-size: 18px;
+        font-weight: 500;
+        line-height: 1.35;
+        margin-bottom: 3px;
+        cursor: pointer;
+        word-break: break-word;
+    }
+    .seo-preview-title:hover {
+        text-decoration: underline;
+    }
+    html.dark .seo-preview-title {
+        color: #8ab4f8;
+    }
+    .seo-preview-url {
+        color: #006621;
+        font-size: 14px;
+        line-height: 1.4;
+        margin-bottom: 5px;
+        word-break: break-all;
+    }
+    html.dark .seo-preview-url {
+        color: #81c995;
+    }
+    .seo-preview-desc {
+        color: #4d5156;
+        font-size: 13.5px;
+        line-height: 1.48;
+        word-break: break-word;
+    }
+    html.dark .seo-preview-desc {
+        color: #bdc1c6;
+    }
+    .seo-divider {
+        height: 1px;
+        background: #E5E7EB;
+        margin: 18px 0;
+    }
+    html.dark .seo-divider {
+        background: #374151;
+    }
+    .seo-field {
+        margin-bottom: 16px;
+    }
+    .seo-field-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 6px;
+    }
+    .seo-field-label {
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        color: #374151 !important;
+        margin-bottom: 0 !important;
+    }
+    html.dark .seo-field-label {
+        color: #D1D5DB !important;
+    }
+    .seo-counter {
+        font-size: 12.5px;
+        color: #6B7280;
+    }
+    html.dark .seo-counter {
+        color: #9CA3AF;
+    }
+    .seo-input,
+    .seo-textarea {
+        width: 100% !important;
+        border: 1px solid #D1D5DB !important;
+        border-radius: 6px !important;
+        padding: 8px 12px !important;
+        font-size: 13.5px !important;
+        color: #111827 !important;
+        background: #FFFFFF !important;
+        box-sizing: border-box !important;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .seo-input:focus,
+    .seo-textarea:focus {
+        border-color: #8C5A2B !important;
+        outline: none !important;
+        box-shadow: 0 0 0 3px rgba(140, 90, 43, 0.12) !important;
+    }
+    html.dark .seo-input,
+    html.dark .seo-textarea {
+        background: #111827 !important;
+        border-color: #4B5563 !important;
+        color: #F9FAFB !important;
+    }
+    .seo-alias-group {
+        display: flex;
+        align-items: center;
+        border: 1px solid #D1D5DB;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #FFFFFF;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .seo-alias-group:focus-within {
+        border-color: #8C5A2B !important;
+        box-shadow: 0 0 0 3px rgba(140, 90, 43, 0.12) !important;
+    }
+    html.dark .seo-alias-group {
+        background: #111827;
+        border-color: #4B5563;
+    }
+    .seo-alias-prefix {
+        background: #F9FAFB;
+        color: #6B7280;
+        font-size: 13px;
+        padding: 8px 10px 8px 12px;
+        border-right: 1px solid #E5E7EB;
+        white-space: nowrap;
+        user-select: none;
+    }
+    html.dark .seo-alias-prefix {
+        background: #1F2937;
+        color: #9CA3AF;
+        border-right-color: #374151;
+    }
+    .seo-alias-input {
+        flex: 1;
+        border: none !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        padding: 8px 12px !important;
+        font-size: 13.5px !important;
+        color: #111827 !important;
+        outline: none !important;
+        box-shadow: none !important;
+        height: 38px !important;
+    }
+    html.dark .seo-alias-input {
+        color: #F9FAFB !important;
+    }
+
+    /* Bottombar */
+    .pd-bottombar {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+        margin-bottom: 40px;
+    }
+
+    .object-tools {
+        display: none !important;
+    }
+
+    /* Lightbox Modal */
+    .pd-lightbox-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.82);
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+    }
+
+    .pd-lightbox-content {
+        position: relative;
+        max-width: 90vw;
+        max-height: 90vh;
+    }
+
+    .pd-lightbox-content img {
+        max-width: 100%;
+        max-height: 85vh;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        display: block;
+    }
+
+    .pd-lightbox-close {
+        position: absolute;
+        top: -14px;
+        right: -14px;
+        width: 32px;
+        height: 32px;
+        background: #FFFFFF;
+        color: #111827;
+        border: none;
+        border-radius: 50%;
+        font-size: 20px;
+        line-height: 1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* ── Image Picker Modal (Sapo Style) ── */
+    .sip-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    .sip-modal {
+        background: #FFFFFF;
+        width: 100%;
+        max-width: 820px;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        animation: sipFadeIn .18s ease-out;
+    }
+    @keyframes sipFadeIn {
+        from { opacity: 0; transform: scale(0.97); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    .sip-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 24px;
+        border-bottom: 1px solid #F0F0F0;
+    }
+    .sip-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #111827;
+        margin: 0;
+    }
+    .sip-close-btn {
+        background: none;
+        border: none;
+        font-size: 24px;
+        line-height: 1;
+        color: #8C8C8C;
+        cursor: pointer;
+        padding: 0 4px;
+        border-radius: 4px;
+        transition: color .15s;
+    }
+    .sip-close-btn:hover {
+        color: #111827;
+    }
+    .sip-tabs {
+        display: flex;
+        gap: 32px;
+        padding: 0 24px;
+        border-bottom: 1px solid #E8E8E8;
+    }
+    .sip-tab-btn {
+        background: none;
+        border: none;
+        padding: 14px 0 12px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #595959;
+        cursor: pointer;
+        position: relative;
+        transition: color .15s;
+        border-radius: 0;
+    }
+    .sip-tab-btn:hover {
+        color: #1890FF;
+    }
+    .sip-tab-btn.active {
+        color: #1890FF;
+        font-weight: 700;
+    }
+    .sip-tab-btn.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #1890FF;
+    }
+    .sip-body {
+        padding: 20px 24px;
+        min-height: 340px;
+        max-height: 420px;
+        overflow-y: auto;
+        position: relative;
+    }
+    .sip-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 14px;
+    }
+    .sip-card {
+        border: 1px solid #D9D9D9;
+        border-radius: 6px;
+        background: #FFFFFF;
+        cursor: pointer;
+        padding: 6px;
+        aspect-ratio: 1 / 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        transition: all .15s ease;
+        overflow: hidden;
+    }
+    .sip-card:hover {
+        border-color: #40A9FF;
+        box-shadow: 0 2px 8px rgba(24, 144, 255, 0.18);
+    }
+    .sip-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+        border-radius: 4px;
+    }
+    .sip-card.selected {
+        border: 2px solid #1890FF;
+        background: #F0F7FF;
+        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+    }
+    .sip-card.selected::after {
+        content: '✓';
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 20px;
+        height: 20px;
+        background: #1890FF;
+        color: #FFFFFF;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 900;
+        line-height: 1;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .sip-loading, .sip-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 260px;
+        color: #8C8C8C;
+        gap: 12px;
+        font-size: 13.5px;
+    }
+    .sip-spinner {
+        width: 32px;
+        height: 32px;
+        border: 3px solid #E8E8E8;
+        border-top-color: #1890FF;
+        border-radius: 50%;
+        animation: sipSpin .7s linear infinite;
+    }
+    @keyframes sipSpin { to { transform: rotate(360deg); } }
+    .sip-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 24px;
+        border-top: 1px solid #F0F0F0;
+        background: #FFFFFF;
+    }
+    .sip-pagination {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .sip-page-btn {
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #D9D9D9;
+        background: #FFFFFF;
+        color: #595959;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all .15s;
+    }
+    .sip-page-btn:hover:not(:disabled) {
+        border-color: #1890FF;
+        color: #1890FF;
+    }
+    .sip-page-btn:disabled {
+        color: #D9D9D9;
+        background: #F5F5F5;
+        border-color: #E8E8E8;
+        cursor: not-allowed;
+    }
+    .sip-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .sip-btn {
+        padding: 7px 18px;
+        font-size: 13.5px;
+        font-weight: 500;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all .15s;
+        line-height: 1.4;
+    }
+    .sip-btn-cancel {
+        background: #FFFFFF;
+        border: 1px solid #1890FF;
+        color: #1890FF;
+    }
+    .sip-btn-cancel:hover {
+        background: #E6F7FF;
+    }
+    .sip-btn-upload {
+        background: #FFFFFF;
+        border: 1px solid #1890FF;
+        color: #1890FF;
+    }
+    .sip-btn-upload:hover {
+        background: #E6F7FF;
+    }
+    .sip-btn-insert {
+        background: #F5F5F5;
+        border: 1px solid #D9D9D9;
+        color: #BFBFBF;
+        cursor: not-allowed;
+    }
+    .sip-btn-insert:not(:disabled) {
+        background: #1890FF;
+        border-color: #1890FF;
+        color: #FFFFFF;
+        cursor: pointer;
+    }
+    .sip-btn-insert:not(:disabled):hover {
+        background: #40A9FF;
+        border-color: #40A9FF;
+    }
+</style>
+
+<!-- Scripts: TinyMCE + Confirm Logic -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="{% static 'js/tinymce_vi.js' %}"></script>
+<script>
+    // Trích xuất ID video YouTube từ link hoặc mã nhúng <iframe>
+    function extractYoutubeId(raw) {
+        if (!raw) return null;
+        let input = raw.trim();
+        if (input.startsWith('<iframe') || input.startsWith('<video')) {
+            const m = input.match(/src=["']([^"']+)["']/);
+            if (m) input = m[1];
+        }
+        let videoId = '';
+        if (input.includes('youtu.be/')) {
+            videoId = input.split('youtu.be/')[1]?.split('?')[0]?.split('&')[0];
+        } else if (input.includes('youtube.com/watch')) {
+            const match = input.match(/[?&]v=([^&]+)/);
+            if (match) videoId = match[1];
+        } else if (input.includes('youtube.com/shorts/')) {
+            videoId = input.split('youtube.com/shorts/')[1]?.split('?')[0]?.split('&')[0];
+        } else if (input.includes('youtube.com/embed/') || input.includes('youtube-nocookie.com/embed/')) {
+            videoId = input.split('/embed/')[1]?.split('?')[0]?.split('&')[0];
+        }
+        return videoId || null;
+    }
+
+    // Ảnh thumbnail xem trước trong trình soạn thảo (không phát trực tiếp trong admin để tránh lỗi 153 do iframe lồng iframe)
+    function youtubePlaceholderHtml(videoId) {
+        return '<div class="yt-video-embed-placeholder" contenteditable="false" data-yt-id="' + videoId + '" ' +
+            'style="position:relative;width:100%;max-width:640px;aspect-ratio:16/9;margin:12px auto;border-radius:8px;overflow:hidden;' +
+            'background:#000 center/cover no-repeat url(\'https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg\');' +
+            'display:flex;align-items:center;justify-content:center;">' +
+            '<span style="width:64px;height:46px;background:rgba(0,0,0,.75);border-radius:10px;display:inline-flex;align-items:center;justify-content:center;">' +
+            '<svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"></path></svg></span></div>';
+    }
+
+    // HTML iframe thật sự được lưu vào nội dung bài viết (hiển thị trên trang chính)
+    function youtubeIframeHtml(videoId) {
+        return '<iframe src="https://www.youtube.com/embed/' + videoId + '" width="100%" height="400" frameborder="0" ' +
+            'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="allowfullscreen"></iframe>';
+    }
+
+    function initNewsTinyMCE() {
+        if (typeof tinymce === 'undefined') return;
+
+        tinymce.init({
+            selector: '#id_content',
+            height: 480,
+            menubar: false,
+            statusbar: false,
+            language: 'vi',
+            plugins: 'advlist autolink lists link image media table code wordcount',
+            // Toolbar giống Sapo admin: kiểu đoạn | cỡ chữ | B I U gạch giữa | màu gradient | căn lề | danh sách | link ảnh video bảng
+            toolbar: 'blocks | fontsize | bold italic underline strikethrough | colorpicker | alignmenu | bullist numlist outdent indent | link insertimage insertvideo table | inserttemplate',
+            toolbar_mode: 'scrolling',
+            toolbar_sticky: false,
+            fontsize_formats: '11px 12px 13px 14px 15px 16px 18px 20px 24px 28px 32px',
+            color_map: [
+                '8C5A2B', 'Nâu thương hiệu',
+                '70441E', 'Nâu đậm',
+                '111827', 'Đen',
+                '374151', 'Xám đậm',
+                '6B7280', 'Xám',
+                'D1D5DB', 'Xám nhạt',
+                'FFFFFF', 'Trắng',
+                'DC2626', 'Đỏ',
+                'EA580C', 'Cam',
+                'F59E0B', 'Vàng',
+                '16A34A', 'Xanh lá',
+                '0D9488', 'Xanh ngọc',
+                '2563EB', 'Xanh dương',
+                '4F46E5', 'Chàm',
+                '7C3AED', 'Tím',
+                'DB2777', 'Hồng'
+            ],
+            content_style: 'body { font-family: "Bai Jamjuree", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; font-size: 15px; color: #2D3748 !important; line-height: 1.8; padding: 20px 28px; max-width: 860px; margin: 0 auto; background: #FFFFFF; } p { margin: 0 0 14px 0; color: #2D3748 !important; } h2 { font-size: 20px; font-weight: 700; color: #111827; margin: 28px 0 14px 0; padding-left: 0; border-left: none; } h3 { font-size: 17px; font-weight: 700; color: #8C5A2B; margin: 22px 0 10px 0; padding-left: 0; border-left: none; } ul { list-style-type: disc !important; padding-left: 24px !important; margin: 12px 0 16px 0 !important; } ol { list-style-type: decimal !important; padding-left: 24px !important; margin: 12px 0 16px 0 !important; } li { display: list-item !important; margin-bottom: 6px !important; } table { width: 100%; border-collapse: collapse; border: 1px solid #E5E7EB; margin: 20px 0; font-size: 14px; background: #FFFFFF; } th { background: #FFFFFF; color: #111827; font-weight: 700; padding: 11px 14px; border: 1px solid #E5E7EB; border-bottom: 2px solid #D1D5DB; text-align: left; } td { padding: 10px 14px; border: 1px solid #E5E7EB; color: #374151; background: #FFFFFF; } blockquote { background: transparent; border: none; margin: 16px 0; padding: 6px 0; font-style: normal; color: #2D3748; }',
+            branding: false,
+            promotion: false,
+            // Ảnh: kéo thả hoặc chọn từ máy tính, không hỏi thêm
+            image_description: false,
+            image_dimensions: false,
+            image_advtab: false,
+            image_caption: false,
+            automatic_uploads: true,
+            file_picker_types: 'image',
+            file_picker_callback: function (cb, value, meta) {
+                if (meta.filetype === 'image') {
+                    const input = document.createElement('input');
+                    input.setAttribute('type', 'file');
+                    input.setAttribute('accept', 'image/*');
+                    input.addEventListener('change', function () {
+                        const file = this.files[0];
+                        const reader = new FileReader();
+                        reader.addEventListener('load', function () {
+                            const id = 'blobid' + (new Date()).getTime();
+                            const blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                            const base64 = reader.result.split(',')[1];
+                            const blobInfo = blobCache.create(id, file, base64);
+                            blobCache.add(blobInfo);
+                            cb(blobInfo.blobUri(), { title: file.name });
+                        });
+                        reader.readAsDataURL(file);
+                    });
+                    input.click();
+                }
+            },
+            // Video: hỗ trợ nhúng embed (YouTube, iframe) và upload video
+            media_alt_source: false,
+            media_poster: false,
+            media_dimensions: true,
+            media_live_embeds: false,
+            images_upload_handler: function (blobInfo) {
+                return new Promise(function (resolve, reject) {
+                    const formData = new FormData();
+                    formData.append('file', blobInfo.blob(), blobInfo.filename());
+                    const csrftoken = (document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)') || [])[2];
+                    fetch('{% url "admin:main_news_upload_content_image" %}', {
+                        method: 'POST',
+                        headers: { 'X-CSRFToken': csrftoken },
+                        body: formData
+                    })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.location) {
+                                resolve(data.location);
+                            } else {
+                                reject(data.error || 'Tải ảnh lên thất bại.');
+                            }
+                        })
+                        .catch(function (err) {
+                            reject('Lỗi tải ảnh lên: ' + err);
+                        });
+                });
+            },
+            setup: function (editor) {
+                // Khi nạp nội dung vào trình soạn thảo: thay iframe YouTube đã lưu bằng ảnh xem trước
+                // (tránh lỗi 153 do phát video trong iframe lồng iframe của TinyMCE)
+                editor.on('BeforeSetContent', function (e) {
+                    if (!e.content) return;
+                    e.content = e.content.replace(
+                        /<iframe[^>]*src=["']https?:\/\/(?:www\.)?youtube(?:-nocookie)?\.com\/embed\/([a-zA-Z0-9_-]{6,20})[^"']*["'][^>]*>\s*<\/iframe>/gi,
+                        function (match, vid) { return youtubePlaceholderHtml(vid); }
+                    );
+                });
+                // Khi lấy nội dung để lưu: thay ảnh xem trước bằng iframe thật để trang chính hiển thị đúng
+                editor.on('GetContent', function (e) {
+                    if (!e.content) return;
+                    e.content = e.content.replace(
+                        /<div class="yt-video-embed-placeholder"[^>]*data-yt-id="([a-zA-Z0-9_-]+)"[^>]*>[\s\S]*?<\/div>/gi,
+                        function (match, vid) { return youtubeIframeHtml(vid); }
+                    );
+                });
+                // Nút ảnh: mở modal Chèn ảnh giao diện Sapo
+                editor.ui.registry.addButton('insertimage', {
+                    icon: 'image',
+                    tooltip: 'Chèn ảnh',
+                    onAction: function () {
+                        openImagePickerModal(editor);
+                    }
+                });
+                // Nút video: mở dialog nhúng link hoặc embed code
+                // Nút video: mở dialog dán link YouTube hoặc mã nhúng iframe
+                editor.ui.registry.addButton('insertvideo', {
+                    icon: 'embed',
+                    tooltip: 'Chèn Video YouTube',
+                    onAction: function () {
+                        editor.windowManager.open({
+                            title: 'Chèn Video YouTube vào bài viết',
+                            size: 'medium',
+                            body: {
+                                type: 'panel',
+                                items: [
+                                    {
+                                        type: 'textarea',
+                                        name: 'vembed',
+                                        label: 'Dán Link YouTube (VD: https://www.youtube.com/watch?v=... hoặc https://youtu.be/...) hoặc mã nhúng <iframe>'
+                                    }
+                                ]
+                            },
+                            buttons: [
+                                { type: 'cancel', text: 'Hủy' },
+                                {
+                                    type: 'submit',
+                                    text: 'Chèn Video',
+                                    buttonType: 'primary'
+                                }
+                            ],
+                            onSubmit: function (api) {
+                                const data = api.getData();
+                                const input = (data.vembed || '').trim();
+                                if (input) {
+                                    const videoId = extractYoutubeId(input);
+                                    if (videoId) {
+                                        editor.insertContent(youtubePlaceholderHtml(videoId) + '<p></p>');
+                                    } else {
+                                        editor.insertContent(input + '<p></p>');
+                                    }
+                                }
+                                api.close();
+                            }
+                        });
+                    }
+                });
+                // Nút căn lề: gộm 4 kiểu trong 1 dropdown
+                editor.ui.registry.addMenuButton('alignmenu', {
+                    icon: 'align-left',
+                    tooltip: 'Căn lề',
+                    fetch: function (callback) {
+                        callback([
+                            { type: 'menuitem', text: 'Căn trái',  icon: 'align-left',    onAction: function () { editor.execCommand('JustifyLeft');   } },
+                            { type: 'menuitem', text: 'Căn giữa', icon: 'align-center',  onAction: function () { editor.execCommand('JustifyCenter'); } },
+                            { type: 'menuitem', text: 'Căn phải', icon: 'align-right',   onAction: function () { editor.execCommand('JustifyRight');  } },
+                            { type: 'menuitem', text: 'Căn đều',  icon: 'align-justify', onAction: function () { editor.execCommand('JustifyFull');  } },
+                        ]);
+                    }
+                });
+                // Nút màu tuỳ chỉnh: mở picker gradient
+                editor.ui.registry.addButton('colorpicker', {
+                    icon: 'text-color',
+                    tooltip: 'Màu chữ / Màu nền',
+                    onAction: function () {
+                        const btn = document.querySelector('.tox-tbtn[data-mce-name="colorpicker"], [aria-label="Màu chữ / Màu nền"]');
+                        openCCP(editor, _ccpMode || 'forecolor', btn);
+                    }
+                });
+
+                // Nút chèn mẫu khối trình bày chuẩn đẹp (A4 / Tạp chí)
+                editor.ui.registry.addMenuButton('inserttemplate', {
+                    text: 'Mẫu khối đẹp',
+                    tooltip: 'Chèn mẫu khối trình bày chuẩn tạp chí',
+                    fetch: function (callback) {
+                        callback([
+                            {
+                                type: 'menuitem',
+                                text: '📦 Bảng so sánh 3 cột chuẩn SHK',
+                                onAction: function () {
+                                    editor.insertContent(`
+                                        <table style="width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid #E2E8F0; border-radius: 8px; margin: 20px 0;">
+                                            <thead>
+                                                <tr style="background: #FDF8F3;">
+                                                    <th style="padding: 12px 16px; color: #8C5A2B; font-weight: 700; border-bottom: 2px solid #EBD5C1; text-align: left;">Tiêu chí so sánh</th>
+                                                    <th style="padding: 12px 16px; color: #8C5A2B; font-weight: 700; border-bottom: 2px solid #EBD5C1; text-align: left;">Vữa khô trộn sẵn SHK</th>
+                                                    <th style="padding: 12px 16px; color: #8C5A2B; font-weight: 700; border-bottom: 2px solid #EBD5C1; text-align: left;">Vữa tự trộn truyền thống</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td style="padding: 12px 16px; border-bottom: 1px solid #E2E8F0;"><strong>Chất lượng</strong></td>
+                                                    <td style="padding: 12px 16px; border-bottom: 1px solid #E2E8F0;">Đồng đều tuyệt đối, sản xuất theo TCVN 4314</td>
+                                                    <td style="padding: 12px 16px; border-bottom: 1px solid #E2E8F0;">Không ổn định, phụ thuộc tay nghề thợ</td>
+                                                </tr>
+                                                <tr style="background: #FAFAFA;">
+                                                    <td style="padding: 12px 16px; border-bottom: 1px solid #E2E8F0;"><strong>Thời gian thi công</strong></td>
+                                                    <td style="padding: 12px 16px; border-bottom: 1px solid #E2E8F0;">Nhanh hơn 20 - 30%, chỉ cần thêm nước</td>
+                                                    <td style="padding: 12px 16px; border-bottom: 1px solid #E2E8F0;">Tốn nhiều công sàng cát, đong đếm</td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="padding: 12px 16px;"><strong>Độ hao hụt</strong></td>
+                                                    <td style="padding: 12px 16px;">Gần như 0%, không rơi vãi lãng phí</td>
+                                                    <td style="padding: 12px 16px;">Hao hụt 15 - 20% do tập kết bừa bãi</td>
+                                                </tr>
+                                            </tbody>
+                                        </table><p></p>
+                                    `);
+                                }
+                            },
+                            {
+                                type: 'menuitem',
+                                text: '📌 Hộp ghi chú / Lưu ý nổi bật',
+                                onAction: function () {
+                                    editor.insertContent(`
+                                        <div class="shk-callout-box" style="background: #FDF8F3; border-left: 4px solid #8C5A2B; padding: 16px 20px; border-radius: 0 6px 6px 0; margin: 20px 0;">
+                                            <p style="margin: 0; color: #374151;"><strong>📌 Lưu ý quan trọng:</strong> Nhập thông tin cần lưu ý hoặc định mức kỹ thuật cần nhấn mạnh tại đây...</p>
+                                        </div><p></p>
+                                    `);
+                                }
+                            },
+                            {
+                                type: 'menuitem',
+                                text: '💡 Hộp lời khuyên chuyên gia / Kỹ sư',
+                                onAction: function () {
+                                    editor.insertContent(`
+                                        <div class="shk-expert-box" style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 18px 22px; margin: 20px 0;">
+                                            <div class="shk-expert-title" style="font-weight: 700; color: #166534; font-size: 15px; margin-bottom: 8px;">💡 Lời khuyên từ Kỹ sư SHK Mortar:</div>
+                                            <p style="margin: 0; color: #1F2937;">Nhập khuyến nghị kỹ thuật hoặc kinh nghiệm thi công từ chuyên gia tại đây...</p>
+                                        </div><p></p>
+                                    `);
+                                }
+                            },
+                            {
+                                type: 'menuitem',
+                                text: '👉 Dòng liên kết xem thêm',
+                                onAction: function () {
+                                    editor.insertContent(`
+                                        <p class="shk-readmore" style="background: #F8FAFC; border-left: 3px solid #8C5A2B; padding: 10px 14px; margin: 16px 0; border-radius: 0 4px 4px 0;">👉 <strong>Xem thêm:</strong> <a href="#" style="color: #8C5A2B; font-weight: 600;">Nhập tên bài viết hoặc sản phẩm liên quan tại đây</a></p><p></p>
+                                    `);
+                                }
+                            }
+                        ]);
+                    }
+                });
+
+                editor.on('change keyup NodeChange', function () {
+                    editor.save();
+                });
+            }
+        });
+    }
+
+    function handleNewsImageChange(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById('newsImgDisplay').src = e.target.result;
+                document.getElementById('newsImgPreviewBox').style.display = 'block';
+                document.getElementById('newsUploadCard').style.display = 'none';
+                const clearCb = document.getElementById('image-clear_id');
+                if (clearCb) clearCb.checked = false;
+                const urlInput = document.getElementById('id_image_url');
+                if (urlInput) urlInput.value = '';
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function clearNewsImage() {
+        if (!confirm('{% trans "Bạn có chắc chắn muốn xóa ảnh này không?" %}')) return;
+        document.getElementById('newsImageFileInput').value = '';
+        const clearCb = document.getElementById('image-clear_id');
+        if (clearCb) clearCb.checked = true;
+        const urlInput = document.getElementById('id_image_url');
+        if (urlInput) urlInput.value = '';
+        // Sau khi xóa ảnh/link ảnh, tự động quay về ảnh thumbnail của video (nếu có)
+        refreshNewsImagePreview();
+    }
+
+    // Thứ tự ưu tiên ảnh đại diện: file tải lên > link ảnh dán tay > thumbnail lấy từ link video YouTube
+    function refreshNewsImagePreview() {
+        const fileInput = document.getElementById('newsImageFileInput');
+        if (fileInput && fileInput.files && fileInput.files[0]) return;
+
+        const urlInput = document.getElementById('id_image_url');
+        const urlVal = urlInput ? urlInput.value.trim() : '';
+        if (urlVal) {
+            document.getElementById('newsImgDisplay').src = urlVal;
+            document.getElementById('newsImgPreviewBox').style.display = 'block';
+            document.getElementById('newsUploadCard').style.display = 'none';
+            return;
+        }
+
+        const videoInput = document.getElementById('id_video_url');
+        const vid = videoInput ? extractYoutubeId(videoInput.value.trim()) : '';
+        if (vid) {
+            document.getElementById('newsImgDisplay').src = 'https://img.youtube.com/vi/' + vid + '/hqdefault.jpg';
+            document.getElementById('newsImgPreviewBox').style.display = 'block';
+            document.getElementById('newsUploadCard').style.display = 'none';
+            return;
+        }
+
+        document.getElementById('newsImgPreviewBox').style.display = 'none';
+        document.getElementById('newsUploadCard').style.display = 'flex';
+    }
+
+    // Nếu người dùng lỡ dán link YouTube vào ô "Link ảnh", tự động chuyển sang ô "Video YouTube"
+    function isLikelyYoutubeUrl(val) {
+        return /youtube\.com\/(watch|shorts|embed)|youtu\.be\//i.test(val || '');
+    }
+    function handleNewsImageUrlInput() {
+        const imageUrlInput = document.getElementById('id_image_url');
+        const videoInput = document.getElementById('id_video_url');
+        const val = imageUrlInput ? imageUrlInput.value.trim() : '';
+        if (videoInput && isLikelyYoutubeUrl(val)) {
+            videoInput.value = val;
+            imageUrlInput.value = '';
+        }
+        refreshNewsImagePreview();
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        const urlInput = document.getElementById('id_image_url');
+        if (urlInput) {
+            urlInput.addEventListener('input', handleNewsImageUrlInput);
+            // Xử lý ngay nếu link video đã lỡ được dán sẵn từ trước khi tải lại trang
+            if (isLikelyYoutubeUrl(urlInput.value.trim())) handleNewsImageUrlInput();
+        }
+        const videoInput = document.getElementById('id_video_url');
+        if (videoInput) videoInput.addEventListener('input', refreshNewsImagePreview);
+        refreshNewsImagePreview();
+    });
+
+    function previewLargeImage(src) {
+        if (!src) return;
+        document.getElementById('pdLightboxImg').src = src;
+        document.getElementById('pdLightboxModal').style.display = 'flex';
+    }
+
+    function closeLightbox() {
+        document.getElementById('pdLightboxModal').style.display = 'none';
+    }
+
+    function handleNewsSave() {
+        // 1. Xác nhận trước khi lưu
+        const titleVal = document.getElementById('id_title')?.value?.trim();
+        if (!titleVal) {
+            alert('{% trans "Vui lòng nhập tiêu đề tin tức!" %}');
+            document.getElementById('id_title')?.focus();
+            return;
+        }
+
+        if (!confirm('{% trans "Bạn có chắc chắn muốn lưu bài viết này không?" %}')) {
+            return;
+        }
+
+        // 2. Kích hoạt lưu nội dung TinyMCE
+        if (window.tinymce) {
+            tinymce.triggerSave();
+        }
+
+        // 3. Xóa nháp khi lưu thành công
+        clearNewsDraft();
+
+        // 4. Thêm input submit name="_save" và gửi form
+        const form = document.getElementById('news_form');
+        let saveInput = document.getElementById('hidden_save_input');
+        if (!saveInput) {
+            saveInput = document.createElement('input');
+            saveInput.type = 'hidden';
+            saveInput.id = 'hidden_save_input';
+            saveInput.name = '_save';
+            saveInput.value = 'Lưu thay đổi';
+            form.appendChild(saveInput);
+        }
+        form.submit();
+    }
+
+    // ── Custom HSV Color Picker Logic ────────────────────────────────
+    let _ccpEditor = null, _ccpMode = 'forecolor';
+    let _ccpH = 0, _ccpS = 0.8, _ccpV = 0.9;
+    let _ccpEventsReady = false;
+
+    function _hsvToRgb(h, s, v) {
+        const i = Math.floor(h / 60) % 6, f = h / 60 - Math.floor(h / 60);
+        const p = v*(1-s), q = v*(1-f*s), t = v*(1-(1-f)*s);
+        return [[v,t,p],[q,v,p],[p,v,t],[p,q,v],[t,p,v],[v,p,q]][i].map(x => Math.round(x*255));
+    }
+    function _rgbToHex(r,g,b){return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');}
+    function _hexToRgb(hex){
+        hex=hex.replace('#','');
+        if(hex.length===3)hex=hex.split('').map(c=>c+c).join('');
+        const n=parseInt(hex,16);return[(n>>16)&255,(n>>8)&255,n&255];
+    }
+    function _rgbToHsv(r,g,b){
+        r/=255;g/=255;b/=255;
+        const mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;
+        let h=0,s=mx===0?0:d/mx,v=mx;
+        if(d){if(mx===r)h=((g-b)/d+(g<b?6:0))*60;else if(mx===g)h=((b-r)/d+2)*60;else h=((r-g)/d+4)*60;}
+        return[h,s,v];
+    }
+
+    function ccpDrawCanvas(){
+        const cv=document.getElementById('ccpCanvas');if(!cv)return;
+        const ctx=cv.getContext('2d'),w=cv.width,h=cv.height;
+        const [hr,hg,hb]=_hsvToRgb(_ccpH,1,1);
+        ctx.fillStyle=`rgb(${hr},${hg},${hb})`;ctx.fillRect(0,0,w,h);
+        let g=ctx.createLinearGradient(0,0,w,0);
+        g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(1,'rgba(255,255,255,0)');
+        ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+        g=ctx.createLinearGradient(0,0,0,h);
+        g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,1)');
+        ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+        // cursor
+        const cx=_ccpS*w, cy=(1-_ccpV)*h;
+        ctx.beginPath();ctx.arc(cx,cy,8,0,2*Math.PI);ctx.strokeStyle='#fff';ctx.lineWidth=2.5;ctx.stroke();
+        ctx.beginPath();ctx.arc(cx,cy,8,0,2*Math.PI);ctx.strokeStyle='rgba(0,0,0,0.25)';ctx.lineWidth=1;ctx.stroke();
+    }
+    function ccpDrawHue(){
+        const cv=document.getElementById('ccpHue');if(!cv)return;
+        const ctx=cv.getContext('2d'),w=cv.width,h=cv.height;
+        const g=ctx.createLinearGradient(0,0,w,0);
+        for(let i=0;i<=360;i+=30){const[r,rg,rb]=_hsvToRgb(i,1,1);g.addColorStop(i/360,`rgb(${r},${rg},${rb})`);}
+        ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+    }
+    function ccpSync(){
+        const[r,g,b]=_hsvToRgb(_ccpH,_ccpS,_ccpV);
+        const hex=_rgbToHex(r,g,b);
+        const prev=document.getElementById('ccpPreview');
+        const inp=document.getElementById('ccpHexInput');
+        if(prev)prev.style.background=hex;
+        if(inp&&document.activeElement!==inp)inp.value=hex;
+        ccpDrawCanvas();
+        const cur=document.getElementById('ccpHueCursor');
+        const hcv=document.getElementById('ccpHue');
+        if(cur&&hcv){
+            const[cr,cg,cb]=_hsvToRgb(_ccpH,1,1);
+            cur.style.left=(_ccpH/360*hcv.width)+'px';
+            cur.style.background=`rgb(${cr},${cg},${cb})`;
+        }
+    }
+
+    function openCCP(editor, mode, anchorEl){
+        _ccpEditor=editor; _ccpMode=mode||'forecolor';
+        const panel=document.getElementById('customColorPanel');if(!panel)return;
+        panel.querySelectorAll('.ccp-tab').forEach(t=>t.classList.toggle('ccp-tab-active',t.dataset.mode===_ccpMode));
+        // Position
+        if(anchorEl){
+            const r=anchorEl.getBoundingClientRect();
+            let top=r.bottom+6, left=r.left;
+            if(left+270>window.innerWidth)left=window.innerWidth-278;
+            if(top+360>window.innerHeight)top=r.top-360;
+            panel.style.top=top+'px'; panel.style.left=left+'px';
+            panel.style.transform='none';
+        } else {
+            panel.style.top='50%'; panel.style.left='50%'; panel.style.transform='translate(-50%,-50%)';
+        }
+        panel.style.display='block';
+        setTimeout(()=>{ccpDrawCanvas();ccpDrawHue();ccpSync();},10);
+        if(!_ccpEventsReady)ccpBindEvents();
+    }
+    function closeCCP(){const p=document.getElementById('customColorPanel');if(p)p.style.display='none';}
+    function applyCCP(){
+        if(!_ccpEditor)return;
+        let hex=(document.getElementById('ccpHexInput')||{}).value||'#000000';
+        if(!hex.startsWith('#'))hex='#'+hex;
+        _ccpEditor.execCommand(_ccpMode==='forecolor'?'ForeColor':'HiliteColor',false,hex);
+        closeCCP();
+    }
+    function ccpSwitchTab(mode){
+        _ccpMode=mode;
+        document.querySelectorAll('.ccp-tab').forEach(t=>t.classList.toggle('ccp-tab-active',t.dataset.mode===mode));
+    }
+    function ccpBindEvents(){
+        _ccpEventsReady=true;
+        const cv=document.getElementById('ccpCanvas');
+        const hv=document.getElementById('ccpHue');
+        let dragging=false, hueDrag=false;
+        function pct(e,el){const r=el.getBoundingClientRect();return{x:Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)),y:Math.max(0,Math.min(1,(e.clientY-r.top)/r.height))};}
+        function touch1(e){return e.touches[0]||e.changedTouches[0];}
+        cv.addEventListener('mousedown',e=>{dragging=true;const p=pct(e,cv);_ccpS=p.x;_ccpV=1-p.y;ccpSync();});
+        cv.addEventListener('touchstart',e=>{dragging=true;const t=touch1(e);const p=pct(t,cv);_ccpS=p.x;_ccpV=1-p.y;ccpSync();e.preventDefault();},{passive:false});
+        hv.addEventListener('mousedown',e=>{hueDrag=true;_ccpH=pct(e,hv).x*360;ccpSync();});
+        hv.addEventListener('touchstart',e=>{hueDrag=true;_ccpH=pct(touch1(e),hv).x*360;ccpSync();e.preventDefault();},{passive:false});
+        document.addEventListener('mousemove',e=>{
+            if(dragging){const p=pct(e,cv);_ccpS=p.x;_ccpV=1-p.y;ccpSync();}
+            if(hueDrag){_ccpH=pct(e,hv).x*360;ccpSync();}
+        });
+        document.addEventListener('mouseup',()=>{dragging=false;hueDrag=false;});
+        document.addEventListener('touchmove',e=>{
+            const t=touch1(e);
+            if(dragging){const p=pct(t,cv);_ccpS=p.x;_ccpV=1-p.y;ccpSync();}
+            if(hueDrag){_ccpH=pct(t,hv).x*360;ccpSync();}
+        },{passive:false});
+        document.addEventListener('touchend',()=>{dragging=false;hueDrag=false;});
+        document.getElementById('ccpHexInput').addEventListener('input',function(){
+            const hex=this.value.replace('#','');
+            if(hex.length===6){try{const[r,g,b]=_hexToRgb(this.value);[_ccpH,_ccpS,_ccpV]=_rgbToHsv(r,g,b);ccpDrawCanvas();const cur=document.getElementById('ccpHueCursor'),hcv=document.getElementById('ccpHue');if(cur&&hcv){const[cr,cg,cb]=_hsvToRgb(_ccpH,1,1);cur.style.left=(_ccpH/360*hcv.width)+'px';cur.style.background=`rgb(${cr},${cg},${cb})`;}document.getElementById('ccpPreview').style.background=this.value;}catch(e){}}
+        });
+        document.addEventListener('mousedown',function(e){
+            const panel=document.getElementById('customColorPanel');
+            if(panel&&panel.style.display!=='none'&&!panel.contains(e.target))closeCCP();
+        });
+    }
+    // ─────────────────────────────────────────────────────────────────
+
+    // ── Image Picker Modal Logic ─────────────────────────────────────
+    let _sipEditor = null;
+    let _sipActiveTab = 'uploaded'; // 'products' or 'uploaded'
+    let _sipCurrentPage = 1;
+    let _sipTotalPages = 1;
+    let _sipSelectedUrl = null;
+    let _sipSelectedName = '';
+
+    function openImagePickerModal(editor) {
+        _sipEditor = editor || (window.tinymce ? tinymce.activeEditor : null);
+        _sipSelectedUrl = null;
+        _sipSelectedName = '';
+        _sipActiveTab = 'uploaded';
+        _sipCurrentPage = 1;
+
+        const modal = document.getElementById('imagePickerModal');
+        if (modal) modal.style.display = 'flex';
+
+        sipUpdateTabUI();
+        sipLoadImages();
+    }
+
+    function closeImagePickerModal() {
+        const modal = document.getElementById('imagePickerModal');
+        if (modal) modal.style.display = 'none';
+        _sipSelectedUrl = null;
+        _sipSelectedName = '';
+        sipUpdateInsertButton();
+    }
+
+    function sipSwitchTab(tab) {
+        if (_sipActiveTab === tab) return;
+        _sipActiveTab = tab;
+        _sipCurrentPage = 1;
+        _sipSelectedUrl = null;
+        _sipSelectedName = '';
+        sipUpdateTabUI();
+        sipUpdateInsertButton();
+        sipLoadImages();
+    }
+
+    function sipUpdateTabUI() {
+        const tabProd = document.getElementById('sipTabProduct');
+        const tabUp = document.getElementById('sipTabUploaded');
+        if (tabProd) tabProd.classList.toggle('active', _sipActiveTab === 'products');
+        if (tabUp) tabUp.classList.toggle('active', _sipActiveTab === 'uploaded');
+    }
+
+    function sipLoadImages(targetSelectUrl) {
+        const loadingEl = document.getElementById('sipLoading');
+        const emptyEl = document.getElementById('sipEmpty');
+        const gridEl = document.getElementById('sipGrid');
+        const prevBtn = document.getElementById('sipPrevBtn');
+        const nextBtn = document.getElementById('sipNextBtn');
+        const pageInfo = document.getElementById('sipPageInfo');
+
+        if (loadingEl) loadingEl.style.display = 'flex';
+        if (emptyEl) emptyEl.style.display = 'none';
+        if (gridEl) { gridEl.style.display = 'none'; gridEl.innerHTML = ''; }
+
+        const url = "{% url 'admin:main_news_list_media_images' %}?type=" + _sipActiveTab + "&page=" + _sipCurrentPage;
+        fetch(url)
+            .then(r => r.json())
+            .then(data => {
+                if (loadingEl) loadingEl.style.display = 'none';
+                _sipTotalPages = data.total_pages || 1;
+                _sipCurrentPage = data.current_page || 1;
+
+                if (prevBtn) prevBtn.disabled = (_sipCurrentPage <= 1);
+                if (nextBtn) nextBtn.disabled = (_sipCurrentPage >= _sipTotalPages);
+                if (pageInfo) {
+                    pageInfo.textContent = _sipTotalPages > 1 ? `Trang ${_sipCurrentPage}/${_sipTotalPages}` : '';
+                }
+
+                const items = data.items || [];
+                if (items.length === 0) {
+                    if (emptyEl) emptyEl.style.display = 'flex';
+                    if (gridEl) gridEl.style.display = 'none';
+                    return;
+                }
+
+                if (gridEl) {
+                    gridEl.style.display = 'grid';
+                    items.forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = 'sip-card';
+                        card.setAttribute('title', item.name || '');
+
+                        const isSelected = (targetSelectUrl && targetSelectUrl === item.url) || (_sipSelectedUrl === item.url);
+                        if (isSelected) {
+                            card.classList.add('selected');
+                            _sipSelectedUrl = item.url;
+                            _sipSelectedName = item.name;
+                            sipUpdateInsertButton();
+                        }
+
+                        const img = document.createElement('img');
+                        img.src = item.url;
+                        img.alt = item.name || '';
+                        img.loading = 'lazy';
+
+                        card.appendChild(img);
+
+                        card.addEventListener('click', function () {
+                            gridEl.querySelectorAll('.sip-card').forEach(c => c.classList.remove('selected'));
+                            card.classList.add('selected');
+                            _sipSelectedUrl = item.url;
+                            _sipSelectedName = item.name;
+                            sipUpdateInsertButton();
+                        });
+
+                        card.addEventListener('dblclick', function () {
+                            _sipSelectedUrl = item.url;
+                            _sipSelectedName = item.name;
+                            sipInsertSelectedImage();
+                        });
+
+                        gridEl.appendChild(card);
+                    });
+                }
+            })
+            .catch(err => {
+                if (loadingEl) loadingEl.style.display = 'none';
+                if (emptyEl) {
+                    emptyEl.style.display = 'flex';
+                    emptyEl.querySelector('p').textContent = 'Lỗi tải ảnh: ' + err;
+                }
+            });
+    }
+
+    function sipChangePage(delta) {
+        const next = _sipCurrentPage + delta;
+        if (next >= 1 && next <= _sipTotalPages) {
+            _sipCurrentPage = next;
+            sipLoadImages();
+        }
+    }
+
+    function sipUpdateInsertButton() {
+        const insertBtn = document.getElementById('sipInsertBtn');
+        if (insertBtn) {
+            insertBtn.disabled = !_sipSelectedUrl;
+        }
+    }
+
+    function sipTriggerUpload() {
+        const input = document.getElementById('sipHiddenFileInput');
+        if (input) {
+            input.value = '';
+            input.click();
+        }
+    }
+
+    function sipHandleUpload(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+        const csrftoken = (document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)') || [])[2];
+
+        const uploadBtn = document.querySelector('.sip-btn-upload');
+        const origText = uploadBtn ? uploadBtn.textContent : '';
+        if (uploadBtn) {
+            uploadBtn.textContent = 'Đang tải lên...';
+            uploadBtn.disabled = true;
+        }
+
+        fetch('{% url "admin:main_news_upload_content_image" %}', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrftoken },
+            body: formData
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (uploadBtn) {
+                    uploadBtn.textContent = origText;
+                    uploadBtn.disabled = false;
+                }
+                if (data.location) {
+                    // Chuyển sang tab "Ảnh đã tải lên", reset trang 1 và chọn ảnh mới
+                    _sipActiveTab = 'uploaded';
+                    _sipCurrentPage = 1;
+                    sipUpdateTabUI();
+                    sipLoadImages(data.location);
+                } else {
+                    alert(data.error || 'Tải ảnh lên thất bại.');
+                }
+            })
+            .catch(err => {
+                if (uploadBtn) {
+                    uploadBtn.textContent = origText;
+                    uploadBtn.disabled = false;
+                }
+                alert('Lỗi tải ảnh lên: ' + err);
+            });
+    }
+
+    function sipInsertSelectedImage() {
+        if (!_sipSelectedUrl) return;
+        const editor = _sipEditor || (window.tinymce ? tinymce.get('id_content') || tinymce.activeEditor : null);
+        if (editor) {
+            const html = '<img src="' + _sipSelectedUrl + '" alt="' + (_sipSelectedName || 'Ảnh') + '" style="max-width:100%;height:auto;border-radius:6px;" />';
+            editor.insertContent(html);
+            saveNewsDraft();
+        }
+        closeImagePickerModal();
+    }
+    // ─────────────────────────────────────────────────────────────────
+
+    function convertToSlug(str) {
+        if (!str) return '';
+        str = str.toLowerCase().trim();
+        str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, 'a');
+        str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, 'e');
+        str = str.replace(/ì|í|ị|ỉ|ĩ/g, 'i');
+        str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, 'o');
+        str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, 'u');
+        str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, 'y');
+        str = str.replace(/đ/g, 'd');
+        str = str.replace(/[^a-z0-9\s-]/g, '');
+        str = str.replace(/[\s-]+/g, '-');
+        return str.replace(/^-+|-+$/g, '');
+    }
+
+    function initSlugAutoGenerator(prefix) {
+        const titleInput = document.getElementById('id_title');
+        const slugInput = document.getElementById('id_slug');
+        const previewEl = document.getElementById('slugPreviewText');
+        const seoSlug = document.getElementById('seoSlugInput');
+        const previewSlug = document.getElementById('seoGooglePreviewSlug');
+        if (!titleInput || !slugInput) return;
+
+        let isSlugManuallyEdited = Boolean(slugInput.value && slugInput.value.trim() !== '');
+
+        titleInput.addEventListener('input', function() {
+            if (!isSlugManuallyEdited) {
+                const generated = convertToSlug(this.value);
+                slugInput.value = generated;
+                if (previewEl) previewEl.textContent = prefix + (generated || '...') + '/';
+                if (seoSlug) seoSlug.value = generated;
+                if (previewSlug) previewSlug.textContent = generated || 'duong-dan-tin-tuc';
+                saveNewsDraft();
+            }
+        });
+
+        slugInput.addEventListener('input', function() {
+            if (this.value.trim() === '') {
+                isSlugManuallyEdited = false;
+                const generated = convertToSlug(titleInput.value);
+                this.value = generated;
+                if (previewEl) previewEl.textContent = prefix + (generated || '...') + '/';
+                if (seoSlug) seoSlug.value = generated;
+                if (previewSlug) previewSlug.textContent = generated || 'duong-dan-tin-tuc';
+            } else {
+                isSlugManuallyEdited = true;
+                if (previewEl) previewEl.textContent = prefix + this.value.trim() + '/';
+                if (seoSlug) seoSlug.value = this.value.trim();
+                if (previewSlug) previewSlug.textContent = this.value.trim() || 'duong-dan-tin-tuc';
+            }
+            saveNewsDraft();
+        });
+
+        if (previewEl && slugInput.value) {
+            previewEl.textContent = prefix + slugInput.value + '/';
+        }
+    }
+
+    // ── Google Search Preview / SEO Card Live Sync ──────────────────────────
+    function initSeoPreview() {
+        const mainTitle = document.getElementById('id_title');
+        const mainSlug = document.getElementById('id_slug');
+        const mainSummary = document.getElementById('id_summary');
+
+        const seoTitle = document.getElementById('seoTitleInput');
+        const seoDesc = document.getElementById('seoDescInput');
+        const seoSlug = document.getElementById('seoSlugInput');
+
+        const previewTitle = document.getElementById('seoGooglePreviewTitle');
+        const previewSlug = document.getElementById('seoGooglePreviewSlug');
+        const previewDesc = document.getElementById('seoGooglePreviewDesc');
+
+        const titleCount = document.getElementById('seoTitleCount');
+        const descCount = document.getElementById('seoDescCount');
+
+        function updateTitle(val, syncMain = true) {
+            val = val !== undefined && val !== null ? val : '';
+            if (seoTitle && seoTitle.value !== val) seoTitle.value = val;
+            if (syncMain && mainTitle && mainTitle.value !== val) {
+                mainTitle.value = val;
+                mainTitle.dispatchEvent(new Event('input'));
+            }
+            if (previewTitle) previewTitle.textContent = val.trim() ? val : 'Tiêu đề trang tin tức...';
+            if (titleCount) titleCount.textContent = val.length;
+        }
+
+        function updateDesc(val, syncMain = true) {
+            val = val !== undefined && val !== null ? val : '';
+            if (seoDesc && seoDesc.value !== val) seoDesc.value = val;
+            if (syncMain && mainSummary && mainSummary.value !== val) {
+                mainSummary.value = val;
+                mainSummary.dispatchEvent(new Event('input'));
+            }
+            if (previewDesc) previewDesc.textContent = val.trim() ? val : 'Nhập mô tả bài viết để xem trước cách hiển thị tóm tắt trên trang kết quả tìm kiếm Google...';
+            if (descCount) descCount.textContent = val.length;
+        }
+
+        function updateSlug(val, syncMain = true) {
+            val = val !== undefined && val !== null ? val : '';
+            if (seoSlug && seoSlug.value !== val) seoSlug.value = val;
+            if (syncMain && mainSlug && mainSlug.value !== val) {
+                mainSlug.value = val;
+                mainSlug.dispatchEvent(new Event('input'));
+            }
+            if (previewSlug) previewSlug.textContent = val.trim() ? val : 'duong-dan-tin-tuc';
+        }
+
+        if (seoTitle) {
+            seoTitle.addEventListener('input', function () { updateTitle(this.value, true); saveNewsDraft(); });
+        }
+        if (mainTitle) {
+            mainTitle.addEventListener('input', function () { updateTitle(this.value, false); });
+        }
+
+        if (seoDesc) {
+            seoDesc.addEventListener('input', function () { updateDesc(this.value, true); saveNewsDraft(); });
+        }
+        if (mainSummary) {
+            mainSummary.addEventListener('input', function () { updateDesc(this.value, false); });
+        }
+
+        if (seoSlug) {
+            seoSlug.addEventListener('input', function () { updateSlug(this.value, true); saveNewsDraft(); });
+        }
+        if (mainSlug) {
+            mainSlug.addEventListener('input', function () { updateSlug(this.value, false); });
+        }
+
+        // Initial sync
+        const initialTitle = (mainTitle && mainTitle.value) ? mainTitle.value : (seoTitle ? seoTitle.value : '');
+        const initialDesc = (mainSummary && mainSummary.value) ? mainSummary.value : (seoDesc ? seoDesc.value : '');
+        const initialSlug = (mainSlug && mainSlug.value) ? mainSlug.value : (seoSlug ? seoSlug.value : '');
+
+        updateTitle(initialTitle, false);
+        updateDesc(initialDesc, false);
+        updateSlug(initialSlug, false);
+
+        window._seoSync = { updateTitle, updateDesc, updateSlug };
+    }
+
+    // ── Auto-save Draft & Crash Recovery System for News ─────────────────────
+    const NEWS_DRAFT_KEY = 'shk_news_draft_' + ('{{ original.pk|default:"new" }}');
+
+    function getNewsDraftData() {
+        const data = {
+            title: document.getElementById('id_title')?.value || '',
+            slug: document.getElementById('id_slug')?.value || '',
+            category: document.getElementById('id_category')?.value || '',
+            author: document.getElementById('id_author')?.value || '',
+            summary: document.getElementById('id_summary')?.value || '',
+            content: (window.tinymce && tinymce.get('id_content')) ? tinymce.get('id_content').getContent() : (document.getElementById('id_content')?.value || ''),
+            updated_at: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        };
+        return data;
+    }
+
+    function saveNewsDraft() {
+        try {
+            const data = getNewsDraftData();
+            if (data.title.trim() || data.content.trim()) {
+                localStorage.setItem(NEWS_DRAFT_KEY, JSON.stringify(data));
+            }
+        } catch(e) {}
+    }
+
+    function restoreNewsDraft() {
+        try {
+            const raw = localStorage.getItem(NEWS_DRAFT_KEY);
+            if (!raw) return;
+            const data = JSON.parse(raw);
+            if (data.title && document.getElementById('id_title')) {
+                document.getElementById('id_title').value = data.title;
+                if (window._seoSync) window._seoSync.updateTitle(data.title, false);
+            }
+            if (data.slug && document.getElementById('id_slug')) {
+                document.getElementById('id_slug').value = data.slug;
+                const previewEl = document.getElementById('slugPreviewText');
+                if (previewEl) previewEl.textContent = '/tin-tuc/' + data.slug + '/';
+                if (window._seoSync) window._seoSync.updateSlug(data.slug, false);
+            }
+            if (data.category && document.getElementById('id_category')) document.getElementById('id_category').value = data.category;
+            if (data.author && document.getElementById('id_author')) document.getElementById('id_author').value = data.author;
+            if (data.summary && document.getElementById('id_summary')) {
+                document.getElementById('id_summary').value = data.summary;
+                if (window._seoSync) window._seoSync.updateDesc(data.summary, false);
+            }
+            if (data.content !== undefined) {
+                if (window.tinymce && tinymce.get('id_content')) {
+                    tinymce.get('id_content').setContent(data.content);
+                } else if (document.getElementById('id_content')) {
+                    document.getElementById('id_content').value = data.content;
+                }
+            }
+            document.getElementById('pdDraftBanner').style.display = 'none';
+            alert('✓ Đã khôi phục thành công bản nháp bài viết!');
+        } catch(e) {
+            alert('Không thể khôi phục bản nháp: ' + e);
+        }
+    }
+
+    function clearNewsDraft() {
+        try {
+            localStorage.removeItem(NEWS_DRAFT_KEY);
+            const banner = document.getElementById('pdDraftBanner');
+            if (banner) banner.style.display = 'none';
+        } catch(e) {}
+    }
+
+    function checkAndShowNewsDraftBanner() {
+        try {
+            const raw = localStorage.getItem(NEWS_DRAFT_KEY);
+            if (!raw) return;
+            const data = JSON.parse(raw);
+            const curContent = (window.tinymce && tinymce.get('id_content')) ? tinymce.get('id_content').getContent() : (document.getElementById('id_content')?.value || '');
+            const curTitle = document.getElementById('id_title')?.value || '';
+            
+            if ((data.title && data.title !== curTitle) || (data.content && data.content !== curContent)) {
+                const banner = document.getElementById('pdDraftBanner');
+                const timeEl = document.getElementById('pdDraftTime');
+                if (banner && timeEl) {
+                    timeEl.textContent = data.updated_at || 'trước đó';
+                    banner.style.display = 'flex';
+                }
+            }
+        } catch(e) {}
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        initNewsTinyMCE();
+        initSlugAutoGenerator('/tin-tuc/');
+        initSeoPreview();
+        
+        ['id_title', 'id_slug', 'id_category', 'id_author', 'id_summary'].forEach(function(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', saveNewsDraft);
+                el.addEventListener('change', saveNewsDraft);
+            }
+        });
+        
+        setTimeout(checkAndShowNewsDraftBanner, 500);
+    });
+</script>
+{% endblock %}
+
+{% block footer %}{% endblock %}

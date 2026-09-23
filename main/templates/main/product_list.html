@@ -1,0 +1,236 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}Sản phẩm – Keo Vữa Sông Hồng{% endblock %}
+{% block content %}
+
+<!-- ── FULL-WIDTH HERO BANNER (GIỐNG GIỚI THIỆU & E-CATALOG) ── -->
+<div class="cat-hero-banner-wrap">
+  <div class="cat-hero-bg">
+    <div class="cat-hero-overlay">
+      <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 0 32px;">
+        <div class="cat-hero-content">
+          <h1 class="cat-hero-title">Sản phẩm</h1>
+          <!-- <p class="cat-hero-subtitle">Vữa khô trộn sẵn, Keo dán gạch và Cát sạch chất lượng cao</p> -->
+          <nav class="cat-hero-breadcrumb">
+            <a href="{% url 'home' %}">Trang chủ</a>
+            <span class="sep">&gt;</span>
+            <span class="curr">Sản phẩm</span>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── THANH CHỌN DANH MỤC DÍNH (STICKY NAV BAR) ── -->
+<div class="pl-sticky-nav-bar" id="plStickyNav">
+  <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 0 32px;">
+    <div class="pl-nav-tabs">
+      {% for cat in category_list %}
+      <a href="{% url 'product_list_category' cat.slug %}" class="pl-nav-tab {% if selected_cat_slug == cat.slug %}active{% endif %}" data-target="cat-{{ cat.slug }}" data-slug="{{ cat.slug }}">
+        {{ cat.name }}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- ── KHU VỰC HIỂN THỊ 4 DANH MỤC & SẢN PHẨM THEO TỪNG MỤC ── -->
+<div class="pl-main-container">
+  <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 0 32px;">
+    
+    {% for cat in category_list %}
+    <!-- KHỐI TỪNG DANH MỤC SẢN PHẨM -->
+    <div class="pl-category-section" id="cat-{{ cat.slug }}">
+      
+      <!-- 1 dòng text tiêu đề danh mục sản phẩm -->
+      <div class="pl-cat-header-row">
+        <h2 class="pl-cat-heading">{{ cat.name }}</h2>
+      </div>
+
+      <!-- Danh sách sản phẩm: Ảnh to + Group Thông tin & Tên + Nút xem chi tiết -->
+      {% if cat.products %}
+      <div class="prod-grid-4">
+        {% for p in cat.products %}
+        <div class="prod-card-box">
+          <!-- Phía trên là Ảnh to nổi bật -->
+          <a href="{% url 'product_detail' cat.slug p.slug %}" class="prod-card-visual" title="{{ p.name }}">
+            {% if p.image %}
+              <img src="{{ p.image.url }}" alt="{{ p.name }}" loading="lazy">
+            {% else %}
+              <img src="{% static cat.image %}" alt="{{ p.name }}" loading="lazy">
+            {% endif %}
+          </a>
+          <!-- Phía dưới là Group Tên + Ghi chú thông tin + Nút xem chi tiết -->
+          <div class="prod-card-body">
+            <div class="prod-card-main">
+              <a href="{% url 'product_detail' cat.slug p.slug %}" class="prod-card-name" title="{{ p.name }}">{{ p.name }}</a>
+              {% if p.short_description %}
+              <p class="prod-card-desc">{{ p.display_short_description }}</p>
+              {% endif %}
+            </div>
+            <div class="prod-card-footer">
+              <a href="{% url 'product_detail' cat.slug p.slug %}" class="btn-prod-detail">
+                <span>Xem chi tiết</span> <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="pl-empty-box">
+        <p>Sản phẩm đang được cập nhật.</p>
+      </div>
+      {% endif %}
+
+    </div>
+    {% endfor %}
+
+  </div>
+</div>
+
+<!-- ── SUPPORT BANNER SECTION (YÊU CẦU HỖ TRỢ GIỐNG E-CATALOG) ── -->
+<section class="cat-support-banner-section">
+  <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 0 32px;">
+    <div class="cat-support-inner">
+      
+      <!-- Cột Trái: Tiêu đề & phụ đề -->
+      <div class="cat-support-left">
+        <h2 class="cat-support-title">Yêu cầu hỗ trợ</h2>
+        <p class="cat-support-subtitle">Vui lòng liên hệ với đội ngũ của chúng tôi<br>để nhận được sự hỗ trợ nhanh chóng nhất</p>
+      </div>
+
+      <!-- Cột Phải: Thông tin liên hệ (Zalo OA, Email, Phone) -->
+      <div class="cat-support-right">
+        <div class="cat-support-items">
+          
+          <!-- Zalo OA -->
+          <a href="https://zalo.me/3423135266242009757" target="_blank" rel="noopener noreferrer" class="cat-support-item">
+            <div class="cat-support-icon cat-zalo-icon-box">
+              <img src="{% static 'images/zalo-oa-logo.svg' %}" alt="Zalo Official Account" class="cat-zalo-img">
+            </div>
+            <div class="cat-support-info">
+              <span class="cat-support-label">Zalo OA</span>
+              <span class="cat-support-val">Công ty TNHH Keo Vữa Sông Hồng</span>
+            </div>
+          </a>
+
+          <!-- Email (Mở Gmail gửi đến admin@keovuasonghong.vn) -->
+          <a href="https://mail.google.com/mail/?view=cm&fs=1&to=admin@keovuasonghong.vn" target="_blank" rel="noopener noreferrer" class="cat-support-item" title="Soạn email gửi đến admin@keovuasonghong.vn qua Gmail">
+            <div class="cat-support-icon cat-circle-icon">
+              <i class="fa-solid fa-envelope"></i>
+            </div>
+            <div class="cat-support-info">
+              <span class="cat-support-label">Email</span>
+              <span class="cat-support-val">admin@keovuasonghong.vn</span>
+            </div>
+          </a>
+
+          <!-- Phone -->
+          <a href="tel:+84938016788" class="cat-support-item">
+            <div class="cat-support-icon cat-circle-icon">
+              <i class="fa-solid fa-phone"></i>
+            </div>
+            <div class="cat-support-info">
+              <span class="cat-support-label">Phone</span>
+              <span class="cat-support-val">+84 938 016 788 / +84 386 360 797</span>
+            </div>
+          </a>
+
+        </div>
+        <!-- Đường nét đứt trang trí bên dưới -->
+        <div class="cat-support-divider"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── SCRIPT CUỘN MƯỢT & TỰ ĐỘNG BẬT MÀU ĐỎ CHO DANH MỤC ĐANG XEM ── -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const sections = document.querySelectorAll('.pl-category-section');
+  const tabs = document.querySelectorAll('.pl-nav-tab');
+
+  function setActiveSection(targetSection) {
+    if (!targetSection) return;
+    const targetId = targetSection.getAttribute('id');
+
+    sections.forEach(sec => sec.classList.remove('is-active'));
+    targetSection.classList.add('is-active');
+
+    tabs.forEach(tab => {
+      if (tab.getAttribute('data-target') === targetId) {
+        tab.classList.add('active');
+      } else {
+        tab.classList.remove('active');
+      }
+    });
+  }
+
+  const selectedCat = "{{ selected_cat_slug }}";
+
+  function scrollToInitial() {
+    if (selectedCat) {
+      const target = document.getElementById('cat-' + selectedCat);
+      if (target) {
+        setActiveSection(target);
+        setTimeout(function() {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 150);
+        return;
+      }
+    }
+    const hash = window.location.hash;
+    if (hash) {
+      const target = document.querySelector(hash);
+      if (target) {
+        setActiveSection(target);
+        setTimeout(function() {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 150);
+      }
+    } else if (sections.length > 0) {
+      setActiveSection(sections[0]);
+    }
+  }
+
+  // Click tab để cuộn mượt và cập nhật URL sạch không dấu #
+  tabs.forEach(tab => {
+    tab.addEventListener('click', function(e) {
+      e.preventDefault();
+      const targetId = this.getAttribute('data-target');
+      const catSlug = this.getAttribute('data-slug');
+      const targetSec = document.getElementById(targetId);
+      if (targetSec) {
+        setActiveSection(targetSec);
+        targetSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (catSlug) {
+          window.history.replaceState(null, '', '/san-pham/' + catSlug + '/');
+        }
+      }
+    });
+  });
+
+  // Tự động nhận biết danh mục đang xem khi cuộn trang (Scroll-Spy)
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target);
+        }
+      });
+    }, {
+      rootMargin: '-20% 0px -55% 0px',
+      threshold: 0
+    });
+
+    sections.forEach(sec => observer.observe(sec));
+  }
+
+  scrollToInitial();
+});
+</script>
+
+{% endblock %}
