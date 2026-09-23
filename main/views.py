@@ -179,12 +179,24 @@ def product_detail(request, category, slug):
                     'title': f'Ảnh {product.name}'
                 })
 
-    # File E-catalog mở trực tiếp trên tab mới
+    # 1. File E-catalog mở trực tiếp trên tab mới
     doc_ecatalog_url = None
     if product.ecatalog_file:
-        doc_ecatalog_url = product.ecatalog_file.url
+        doc_ecatalog_url = product.get_ecatalog_url
     elif related_catalogues and related_catalogues[0].file:
-        doc_ecatalog_url = related_catalogues[0].file.url
+        doc_ecatalog_url = related_catalogues[0].file_url
+
+    if not doc_ecatalog_url:
+        ho_so = Catalogue.objects.filter(slug='ho-so-nang-luc', is_active=True).first()
+        if ho_so and ho_so.file:
+            doc_ecatalog_url = ho_so.file_url
+        else:
+            doc_ecatalog_url = reverse('catalogue')
+
+    # 2. File Chứng chỉ chất lượng mở trực tiếp trên tab mới
+    doc_certificate_url = None
+    if product.certificate_file:
+        doc_certificate_url = product.get_certificate_url
     else:
         cat_group_map = {
             'vua-kho-tron-san': 'Tài liệu vữa khô trộn sẵn',
@@ -195,24 +207,13 @@ def product_detail(request, category, slug):
         group = cat_group_map.get(product.category.slug if product.category else '', '')
         matching_cat = Catalogue.objects.filter(group_name=group, is_active=True).first() if group else None
         if matching_cat and matching_cat.file:
-            doc_ecatalog_url = matching_cat.file.url
+            doc_certificate_url = matching_cat.file_url
         else:
             ho_so = Catalogue.objects.filter(slug='ho-so-nang-luc', is_active=True).first()
             if ho_so and ho_so.file:
-                doc_ecatalog_url = ho_so.file.url
+                doc_certificate_url = ho_so.file_url
             else:
-                doc_ecatalog_url = reverse('catalogue')
-
-    # File Chứng chỉ chất lượng mở trực tiếp trên tab mới
-    doc_certificate_url = None
-    if product.certificate_file:
-        doc_certificate_url = product.certificate_file.url
-    else:
-        ho_so = Catalogue.objects.filter(slug='ho-so-nang-luc', is_active=True).first()
-        if ho_so and ho_so.file:
-            doc_certificate_url = ho_so.file.url
-        else:
-            doc_certificate_url = reverse('catalogue')
+                doc_certificate_url = reverse('catalogue')
 
     first_media = media_list[0] if media_list else None
 

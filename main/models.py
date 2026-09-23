@@ -1,8 +1,26 @@
 import html
+import os
 import re
 import unicodedata
+from django.conf import settings
 from django.db import models
 from django.utils.text import slugify
+
+
+def resolve_media_file_url(file_field):
+    """Lấy URL an toàn cho tệp tin, luôn dùng link media server nội bộ cho PDF/tài liệu để tránh lỗi 401 trên Cloudinary."""
+    if not file_field:
+        return ''
+    name = str(file_field.name or '').strip()
+    if not name:
+        return ''
+    local_path = os.path.join(settings.MEDIA_ROOT, name)
+    if os.path.exists(local_path) or name.lower().endswith(('.pdf', '.doc', '.docx', '.xls', '.xlsx', '.zip')):
+        return f"{settings.MEDIA_URL}{name}"
+    try:
+        return file_field.url
+    except Exception:
+        return f"{settings.MEDIA_URL}{name}"
 
 
 def vietnamese_slugify(text):
@@ -146,6 +164,14 @@ class Product(models.Model):
     @property
     def display_short_description(self):
         return clean_html_excerpt(self.short_description, 20)
+
+    @property
+    def get_ecatalog_url(self):
+        return resolve_media_file_url(self.ecatalog_file)
+
+    @property
+    def get_certificate_url(self):
+        return resolve_media_file_url(self.certificate_file)
 
     def __str__(self):
         return self.name
@@ -585,6 +611,10 @@ class Catalogue(models.Model):
                 self.thumbnail = None
 
         super().save(*args, **kwargs)
+
+    @property
+    def file_url(self):
+        return resolve_media_file_url(self.file)
 
     def __str__(self):
         return self.title

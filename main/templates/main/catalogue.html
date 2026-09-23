@@ -58,15 +58,15 @@
               {% for doc in cat.list %}
               <li class="doc-sub-item {% if forloop.parentloop.first and forloop.first %}active{% endif %}" 
                   data-slug="{{ doc.slug }}"
-                  data-type="{% if doc.slug == 'ho-so-nang-luc' or 'nang-luc' in doc.slug %}slide{% elif doc.file and '.pdf' in doc.file.url.lower %}pdf{% else %}single{% endif %}"
+                  data-type="{% if doc.slug == 'ho-so-nang-luc' or 'nang-luc' in doc.slug %}slide{% elif doc.file_url and '.pdf' in doc.file_url|lower %}pdf{% else %}single{% endif %}"
                   data-pages="{% if doc.slug == 'ho-so-nang-luc' or 'nang-luc' in doc.slug %}12{% else %}1{% endif %}"
                   data-prefix="{% if doc.slug == 'ho-so-nang-luc' or 'nang-luc' in doc.slug %}{% static 'docs/Ho_So_Nang_Luc_SHK_2026/page_' %}{% endif %}"
                   data-suffix="{% if doc.slug == 'ho-so-nang-luc' or 'nang-luc' in doc.slug %}.webp{% endif %}"
                   data-title="{{ doc.title|upper }}" 
                   data-sub="{{ doc.description|default:'' }}" 
-                  data-img="{% if doc.file %}{{ doc.file.url }}{% elif doc.thumbnail %}{{ doc.thumbnail.url }}{% else %}{% static 'images/ho_so_nang_luc_cover.png' %}{% endif %}"
-                  data-cover="{% if doc.thumbnail %}{{ doc.thumbnail.url }}{% elif doc.file %}{{ doc.file.url }}{% else %}{% static 'images/ho_so_nang_luc_cover.png' %}{% endif %}"
-                  data-pdf="{% if doc.file %}{{ doc.file.url }}{% elif doc.slug == 'ho-so-nang-luc' or 'nang-luc' in doc.slug %}{% static 'Ho_So_Nang_Luc_SHK_2026.pdf' %}{% else %}#{% endif %}">
+                  data-img="{% if doc.file_url %}{{ doc.file_url }}{% elif doc.thumbnail %}{{ doc.thumbnail.url }}{% else %}{% static 'images/ho_so_nang_luc_cover.png' %}{% endif %}"
+                  data-cover="{% if doc.thumbnail %}{{ doc.thumbnail.url }}{% elif doc.file_url %}{{ doc.file_url }}{% else %}{% static 'images/ho_so_nang_luc_cover.png' %}{% endif %}"
+                  data-pdf="{% if doc.file_url %}{{ doc.file_url }}{% elif doc.slug == 'ho-so-nang-luc' or 'nang-luc' in doc.slug %}/media/catalogues/files/Ho_So_Nang_Luc_SHK_2026.pdf{% else %}#{% endif %}">
                 {{ doc.title }}
               </li>
               {% endfor %}
