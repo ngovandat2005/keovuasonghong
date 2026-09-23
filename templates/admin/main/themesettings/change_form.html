@@ -178,6 +178,15 @@
                             </div>
                             <svg class="row-arrow" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
                         </div>
+
+                        <!-- 8. Công cụ tính & Tư vấn -->
+                        <div class="sapo-menu-row" onclick="navOpenModule('mod-calc-consult', '8. Công cụ tính & Tư vấn')">
+                            <div class="row-left">
+                                <span class="bullet-dot">::</span>
+                                <span class="sub-item-title">8. Công cụ tính & Tư vấn</span>
+                            </div>
+                            <svg class="row-arrow" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </div>
                     </div>
 
                     <!-- ── LEVEL 3: CHI TIẾT CÁC FORM NHẬP LIỆU ── -->
@@ -423,6 +432,20 @@
                             </div>
 
                             <div class="sapo-box">
+                                <span class="box-title">ẢNH NỀN BANNER PHÓNG SỰ</span>
+                                {% if original and original.phong_su_bg_image %}
+                                <div style="margin-bottom: 8px;"><img src="{{ original.phong_su_bg_image.url }}" alt="Ảnh nền" style="max-height: 80px; border-radius: 4px; object-fit: cover;"></div>
+                                {% else %}
+                                <div style="margin-bottom: 8px;"><img src="{% static 'images/construction_bg_mortar.jpg' %}" alt="Ảnh nền mặc định" style="max-height: 80px; opacity: 0.7; border-radius: 4px;"> <span style="font-size:11px;color:#64748b;">(Ảnh nền phác thảo mặc định)</span></div>
+                                {% endif %}
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">Chọn ảnh nền mới cho Banner</label>
+                                    {{ adminform.form.phong_su_bg_image }}
+                                    <small class="sapo-help">Tỉ lệ ngang, kích thước khuyên dùng: 1200 x 800 px</small>
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
                                 <span class="box-title">DANH SÁCH VIDEO</span>
                                 <small class="sapo-help" style="display:block;">Danh sách video hiển thị ở đây được lấy trực tiếp từ các bài viết thuộc danh mục <strong>"Phóng sự thực tế"</strong> trong Tin tức. Để thêm, sửa hoặc xóa video, hãy vào <a href="{% url 'admin:main_news_changelist' %}" target="_blank">Tin tức</a>, tạo/chỉnh bài viết với danh mục "Phóng sự thực tế" và điền link YouTube + ảnh thumbnail (upload file hoặc dán link ảnh) tại đó — trang chủ sẽ tự động đồng bộ theo.</small>
                             </div>
@@ -437,13 +460,21 @@
                                 </label>
                             </div>
 
+                            <div class="sapo-box" style="background:#f0fdf4; border:1px solid #bbf7d0;">
+                                <span class="box-title" style="color:#166534;">QUẢN LÝ 11 GIẤY CHỨNG NHẬN TRONG SLIDER</span>
+                                <small class="sapo-help" style="margin-bottom: 12px; display:block; color:#15803d;">Hiện tại có 11 chứng nhận (ISO 9001, TCVN, Keo C1/C2, Vữa...). Bạn có thể chỉnh sửa tên, tải ảnh mới, đổi thứ tự hiển thị hoặc xóa chứng chỉ tại đây:</small>
+                                <a href="{% url 'admin:main_qualitycertificate_changelist' %}" target="_blank" style="display:inline-flex; align-items:center; gap:6px; padding:9px 18px; background:#16a34a; color:#fff; font-weight:600; font-size:13px; border-radius:6px; text-decoration:none;">
+                                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                    Mở trang quản lý 11 Giấy chứng nhận / Kiểm nghiệm &rarr;
+                                </a>
+                            </div>
+
                             <div class="sapo-box">
-                                <span class="box-title">THÊM ẢNH CHỨNG NHẬN VÀO SLIDER</span>
-                                <small class="sapo-help" style="margin-bottom: 10px; margin-top: -6px;">11 ảnh chứng nhận hiện tại (ISO, TCVN...) luôn được giữ nguyên trên website. Chọn ảnh tại đây nếu bạn muốn bổ sung thêm ảnh mới vào slider.</small>
+                                <span class="box-title">THÊM NHANH ẢNH CHỨNG NHẬN MỚI</span>
                                 <div class="sapo-input-group">
                                     <label class="sapo-label">Chọn ảnh chứng nhận bổ sung</label>
                                     {{ adminform.form.quality_image }}
-                                    <small class="sapo-help">Định dạng .jpg, .png. Kích thước khuyên dùng: tỉ lệ khổ đứng A4 (800 x 1130 px)</small>
+                                    <small class="sapo-help">Định dạng .jpg, .png, .webp. Kích thước khuyên dùng: tỉ lệ khổ đứng A4 (800 x 1130 px)</small>
                                 </div>
                             </div>
 
@@ -620,6 +651,35 @@
                                 <div class="sapo-input-group">
                                     <label class="sapo-label">{{ adminform.form.footer_copyright.label }}</label>
                                     {{ adminform.form.footer_copyright }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FORM 8: CÔNG CỤ TÍNH & ĐĂNG KÝ TƯ VẤN -->
+                        <div id="mod-calc-consult" class="sapo-form-panel" style="display: none;">
+                            <div class="sapo-box">
+                                <span class="box-title">1. BANNER ƯỚC TÍNH VẬT LIỆU CẦN DÙNG</span>
+                                <div style="margin-bottom: 12px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                                    <img src="{% if original and original.calculator_bg_image %}{{ original.calculator_bg_image.url }}{% elif adminform.form.instance and adminform.form.instance.calculator_bg_image %}{{ adminform.form.instance.calculator_bg_image.url }}{% else %}{% static 'images/home_cacul.png' %}{% endif %}" alt="Banner Ước tính vật liệu" style="max-height: 120px; max-width: 100%; object-fit: cover; border-radius: 4px;">
+                                    <span style="font-size: 11px; color: #64748b;">(Ảnh nền công cụ tính hiện tại)</span>
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.calculator_bg_image.label }}</label>
+                                    {{ adminform.form.calculator_bg_image }}
+                                    <small class="sapo-help">Ảnh nền bản vẽ kỹ thuật / công trình cho khối "Ước tính vật liệu cần dùng" trên Trang chủ</small>
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">2. ẢNH MINH HOẠ ĐĂNG KÝ TƯ VẤN</span>
+                                <div style="margin-bottom: 12px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                                    <img src="{% if original and original.consultation_image %}{{ original.consultation_image.url }}{% elif adminform.form.instance and adminform.form.instance.consultation_image %}{{ adminform.form.instance.consultation_image.url }}{% else %}{% static 'images/tv.webp' %}{% endif %}" alt="Ảnh Tư vấn" style="max-height: 140px; max-width: 100%; object-fit: cover; border-radius: 4px;">
+                                    <span style="font-size: 11px; color: #64748b;">(Ảnh phòng thí nghiệm / tư vấn hiện tại)</span>
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.consultation_image.label }}</label>
+                                    {{ adminform.form.consultation_image }}
+                                    <small class="sapo-help">Ảnh hiển thị bên cạnh form "Đăng ký tư vấn" trên Trang chủ</small>
                                 </div>
                             </div>
                         </div>

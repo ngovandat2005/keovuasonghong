@@ -5,7 +5,7 @@ from .models import (ProductCategory, Product, ProductImage,
                      NewsCategory, News,
                      Banner, Distributor, DistributorLink, DealerRegistration, ContactMessage,
                      Project, ProjectCategory, ConsultationRequest, Catalogue, CATALOGUE_GROUP_CHOICES, ThemeSettings,
-                     HomeBanner, Partner, AboutGalleryImage)
+                     HomeBanner, Partner, AboutGalleryImage, QualityCertificate)
 
 
 class ThumbnailClearableFileInput(forms.ClearableFileInput):
@@ -1078,12 +1078,25 @@ class AboutGalleryImageInline(TabularInline):
     fields = ('image', 'image_url', 'caption', 'ratio')
     extra = 1
 
+class QualityCertificateInline(TabularInline):
+    model = QualityCertificate
+    fields = ('title', 'image', 'order', 'is_active')
+    extra = 1
+
+
+@admin.register(QualityCertificate)
+class QualityCertificateAdmin(ModelAdmin):
+    list_display = ['title', 'order', 'is_active']
+    list_editable = ['order', 'is_active']
+    ordering = ['order', 'id']
+
+
 @admin.register(ThemeSettings)
 class ThemeSettingsAdmin(ModelAdmin):
     change_list_template = 'admin/main/themesettings/change_list.html'
     change_form_template = 'admin/main/themesettings/change_form.html'
 
-    inlines = [PartnerInline, AboutGalleryImageInline]
+    inlines = [PartnerInline, AboutGalleryImageInline, QualityCertificateInline]
 
     fieldsets = (
         ('Đầu trang & Logo', {
@@ -1109,12 +1122,16 @@ class ThemeSettingsAdmin(ModelAdmin):
             'classes': ('tab-products',),
         }),
         ('Phóng sự thực tế', {
-            'fields': ('show_phong_su', 'phong_su_badge', 'phong_su_title', 'phong_su_desc', 'phong_su_btn_text', 'phong_su_btn_link'),
+            'fields': ('show_phong_su', 'phong_su_badge', 'phong_su_title', 'phong_su_desc', 'phong_su_btn_text', 'phong_su_btn_link', 'phong_su_bg_image'),
             'classes': ('tab-phong-su',),
         }),
         ('Minh chứng chất lượng', {
             'fields': ('show_quality', 'quality_image', 'quality_title', 'quality_description_html', 'quality_drive_link', 'quality_drive_btn_text'),
             'classes': ('tab-quality',),
+        }),
+        ('Công cụ tính & Tư vấn', {
+            'fields': ('calculator_bg_image', 'consultation_image'),
+            'classes': ('tab-calc-consult',),
         }),
         ('Chân trang (Footer)', {
             'fields': (

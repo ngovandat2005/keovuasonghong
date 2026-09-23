@@ -209,7 +209,7 @@
   <!-- Full-Width 2-Column Split Box (Edge-to-Edge, No Border Radius) -->
   <div class="ps-split-box">
     <!-- Left Orange Banner with CTA -->
-    <div class="ps-left-banner">
+    <div class="ps-left-banner" {% if theme and theme.phong_su_bg_image %}style="background-image: linear-gradient(135deg, rgba(250, 247, 242, 0.95) 0%, rgba(250, 247, 242, 0.88) 100%), url('{{ theme.phong_su_bg_image.url }}');"{% endif %}>
       <div class="ps-banner-content">
         <div class="ps-banner-subtitle">{{ theme.phong_su_badge|default:'Xem thêm' }}</div>
         <h3 class="ps-banner-heading">{{ theme.phong_su_title|default:'Phóng sự thực tế' }}</h3>
@@ -381,62 +381,40 @@ function nextProjSlide() { showProjSlide(currentProjIdx + 1); }
       <div class="proof-left-stage">
         <div class="proof-overlap-card">
           <!-- Slide items (Images/Certificates) -->
-          {% if theme and theme.quality_image %}
-          <div class="proof-slide active" id="proofSlide-0">
-            <img src="{{ theme.quality_image.url }}" alt="Giấy chứng nhận chất lượng SHK Mortar">
-          </div>
-          {% endif %}
-          <div class="proof-slide {% if not theme or not theme.quality_image %}active{% endif %}" id="proofSlide-{% if theme and theme.quality_image %}1{% else %}0{% endif %}">
-            <img src="{% static 'images/certificates/iso-9001_2015.jpg' %}" alt="Giấy chứng nhận ISO 9001:2015 Quản lý chất lượng SHK Mortar">
-          </div>
-          <div class="proof-slide" id="proofSlide-{% if theme and theme.quality_image %}2{% else %}1{% endif %}">
-            <img src="{% static 'images/certificates/tcvn-4314_2022-shk.jpg' %}" alt="Giấy chứng nhận Hợp chuẩn TCVN 4314:2022 Vữa xây dựng SHK">
-          </div>
-          <div class="proof-slide" id="proofSlide-{% if theme and theme.quality_image %}3{% else %}2{% endif %}">
-            <img src="{% static 'images/certificates/tcvn-7899_2008-shk.jpg' %}" alt="Giấy chứng nhận Tiêu chuẩn TCVN 7899-1:2008 Keo dán gạch SHK">
-          </div>
-          <div class="proof-slide" id="proofSlide-{% if theme and theme.quality_image %}4{% else %}3{% endif %}">
-            <img src="{% static 'images/certificates/tcvn-9028_2011-shk.jpg' %}" alt="Giấy chứng nhận Hợp chuẩn TCVN 9028:2011 Vữa xây dựng SHK">
-          </div>
-          <div class="proof-slide" id="proofSlide-{% if theme and theme.quality_image %}5{% else %}4{% endif %}">
-            <img src="{% static 'images/certificates/keo-c1-shk-test.jpg' %}" alt="Kết quả thử nghiệm Keo dán gạch C1 SHK">
-          </div>
-          <div class="proof-slide" id="proofSlide-{% if theme and theme.quality_image %}6{% else %}5{% endif %}">
-            <img src="{% static 'images/certificates/keo-c2-shk-test.jpg' %}" alt="Kết quả thử nghiệm Keo dán gạch C2 SHK">
-          </div>
-          <div class="proof-slide" id="proofSlide-{% if theme and theme.quality_image %}7{% else %}6{% endif %}">
-            <img src="{% static 'images/certificates/vua-mac-5-shk-test.jpg' %}" alt="Kết quả thử nghiệm Vữa Mác 5.0 SHK">
-          </div>
-          <div class="proof-slide" id="proofSlide-{% if theme and theme.quality_image %}8{% else %}7{% endif %}">
-            <img src="{% static 'images/certificates/vua-mac-75-test.jpg' %}" alt="Kết quả thử nghiệm Vữa Mác 7.5 SHK">
-          </div>
-          <div class="proof-slide" id="proofSlide-{% if theme and theme.quality_image %}9{% else %}8{% endif %}">
-            <img src="{% static 'images/certificates/vua-mac-10-test.jpg' %}" alt="Kết quả thử nghiệm Vữa Mác 10 SHK">
-          </div>
-          <div class="proof-slide" id="proofSlide-{% if theme and theme.quality_image %}10{% else %}9{% endif %}">
-            <img src="{% static 'images/certificates/vua-xay-aac-75-shk-test.jpg' %}" alt="Kết quả thử nghiệm Vữa xây AAC Mác 7.5 SHK">
-          </div>
-          <div class="proof-slide" id="proofSlide-{% if theme and theme.quality_image %}11{% else %}10{% endif %}">
-            <img src="{% static 'images/certificates/vua-trat-aac-75-test-shk.jpg' %}" alt="Kết quả thử nghiệm Vữa trát AAC Mác 7.5 SHK">
-          </div>
+          {% with certs=theme.quality_certificates.all %}
+            {% if certs %}
+              {% for cert in certs %}
+                {% if cert.is_active and cert.image %}
+                <div class="proof-slide {% if forloop.first %}active{% endif %}" id="proofSlide-{{ forloop.counter0 }}">
+                  <img src="{{ cert.image.url }}" alt="{{ cert.title }}">
+                </div>
+                {% endif %}
+              {% endfor %}
+            {% else %}
+              <div class="proof-slide active" id="proofSlide-0">
+                <img src="{% static 'images/certificates/iso-9001_2015.jpg' %}" alt="Giấy chứng nhận ISO 9001:2015 Quản lý chất lượng SHK Mortar">
+              </div>
+              <div class="proof-slide" id="proofSlide-1">
+                <img src="{% static 'images/certificates/tcvn-4314_2022-shk.jpg' %}" alt="Giấy chứng nhận Hợp chuẩn TCVN 4314:2022 Vữa xây dựng SHK">
+              </div>
+            {% endif %}
+          {% endwith %}
         </div>
 
         <!-- Slider Pagination Indicators -->
         <div class="proof-indicators-row">
-          {% if theme and theme.quality_image %}
-          <span class="proof-ind-sq active" onclick="setProofSlide(0)"></span>
-          {% endif %}
-          <span class="proof-ind-sq {% if not theme or not theme.quality_image %}active{% endif %}" onclick="setProofSlide({% if theme and theme.quality_image %}1{% else %}0{% endif %})"></span>
-          <span class="proof-ind-sq" onclick="setProofSlide({% if theme and theme.quality_image %}2{% else %}1{% endif %})"></span>
-          <span class="proof-ind-sq" onclick="setProofSlide({% if theme and theme.quality_image %}3{% else %}2{% endif %})"></span>
-          <span class="proof-ind-sq" onclick="setProofSlide({% if theme and theme.quality_image %}4{% else %}3{% endif %})"></span>
-          <span class="proof-ind-sq" onclick="setProofSlide({% if theme and theme.quality_image %}5{% else %}4{% endif %})"></span>
-          <span class="proof-ind-sq" onclick="setProofSlide({% if theme and theme.quality_image %}6{% else %}5{% endif %})"></span>
-          <span class="proof-ind-sq" onclick="setProofSlide({% if theme and theme.quality_image %}7{% else %}6{% endif %})"></span>
-          <span class="proof-ind-sq" onclick="setProofSlide({% if theme and theme.quality_image %}8{% else %}7{% endif %})"></span>
-          <span class="proof-ind-sq" onclick="setProofSlide({% if theme and theme.quality_image %}9{% else %}8{% endif %})"></span>
-          <span class="proof-ind-sq" onclick="setProofSlide({% if theme and theme.quality_image %}10{% else %}9{% endif %})"></span>
-          <span class="proof-ind-sq" onclick="setProofSlide({% if theme and theme.quality_image %}11{% else %}10{% endif %})"></span>
+          {% with certs=theme.quality_certificates.all %}
+            {% if certs %}
+              {% for cert in certs %}
+                {% if cert.is_active and cert.image %}
+                <span class="proof-ind-sq {% if forloop.first %}active{% endif %}" onclick="setProofSlide({{ forloop.counter0 }})"></span>
+                {% endif %}
+              {% endfor %}
+            {% else %}
+              <span class="proof-ind-sq active" onclick="setProofSlide(0)"></span>
+              <span class="proof-ind-sq" onclick="setProofSlide(1)"></span>
+            {% endif %}
+          {% endwith %}
         </div>
       </div>
 
@@ -890,7 +868,7 @@ setInterval(() => {
 </script>
 
 <!-- ── ƯỚC TÍNH VẬT LIỆU CẦN DÙNG BANNER ── -->
-<section class="calc-banner-section">
+<section class="calc-banner-section" {% if theme and theme.calculator_bg_image %}style="background-image: linear-gradient(90deg, rgba(250, 247, 242, 0.95) 0%, rgba(250, 247, 242, 0.85) 45%, rgba(250, 247, 242, 0.3) 100%), url('{{ theme.calculator_bg_image.url }}');"{% endif %}>
   <div class="container">
     <div class="calc-banner-wrapper">
       <!-- Left Column: Information & CTA -->
@@ -926,7 +904,7 @@ setInterval(() => {
           Để lại thông tin để nhận tư vấn về sản phẩm,<br> giải pháp và chính sách phù hợp với nhu cầu của bạn.
         </p>
         <div class="consult-home-img-holder">
-          <img src="{% static 'images/quality_lab_bg.jpg' %}" alt="Đăng ký tư vấn SHK Mortar" loading="lazy">
+          <img src="{% if theme and theme.consultation_image %}{{ theme.consultation_image.url }}{% else %}{% static 'images/quality_lab_bg.jpg' %}{% endif %}" alt="Đăng ký tư vấn SHK Mortar" loading="lazy">
         </div>
       </div>
 

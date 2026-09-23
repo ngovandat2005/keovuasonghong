@@ -685,6 +685,9 @@ Với định hướng đưa các sản phẩm chất lượng đến gần hơn
     )
     phong_su_btn_text = models.CharField(max_length=100, default="XEM TẤT CẢ", blank=True, verbose_name="Chữ trên nút phóng sự")
     phong_su_btn_link = models.CharField(max_length=255, default="/tin-tuc/?category=phong-su-thuc-te", blank=True, verbose_name="Đường dẫn nút phóng sự")
+    phong_su_bg_image = models.ImageField(upload_to='theme/backgrounds/', blank=True, null=True, verbose_name="Ảnh nền Banner Phóng sự thực tế")
+    calculator_bg_image = models.ImageField(upload_to='theme/backgrounds/', blank=True, null=True, verbose_name="Ảnh nền Banner Ước tính vật liệu")
+    consultation_image = models.ImageField(upload_to='theme/consultation/', blank=True, null=True, verbose_name="Ảnh minh hoạ Đăng ký tư vấn (phòng Lab)")
 
     # ── 4. TRANG CHỦ - MINH CHỨNG CHẤT LƯỢNG ──
     show_quality = models.BooleanField(default=True, verbose_name="Hiển thị Module Minh chứng chất lượng")
@@ -967,6 +970,22 @@ class AboutGalleryImage(models.Model):
 
     def __str__(self):
         return self.caption or f"Ảnh {self.pk}"
+
+
+class QualityCertificate(models.Model):
+    theme = models.ForeignKey(ThemeSettings, on_delete=models.CASCADE, related_name='quality_certificates', verbose_name="Cài đặt giao diện")
+    title = models.CharField(max_length=255, verbose_name="Tiêu đề chứng chỉ / Giấy kiểm nghiệm")
+    image = models.ImageField(upload_to='theme/certificates/', verbose_name="File ảnh chứng chỉ")
+    order = models.PositiveIntegerField(default=0, verbose_name="Thứ tự hiển thị")
+    is_active = models.BooleanField(default=True, verbose_name="Hiển thị")
+
+    class Meta:
+        verbose_name = "Giấy chứng nhận / Kiểm định chất lượng"
+        verbose_name_plural = "Giấy chứng nhận / Kiểm định chất lượng"
+        ordering = ['order', 'id']
+
+    def __str__(self):
+        return self.title
 
 
 class UserProfile(models.Model):

@@ -4,7 +4,7 @@ from PIL import Image
 from django.core.files.base import ContentFile
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
-from .models import Product, ProductImage, News, Project, Banner, ThemeSettings
+from .models import Product, ProductImage, News, Project, Banner, ThemeSettings, QualityCertificate
 
 
 def convert_image_field_to_webp(field_file):
@@ -33,6 +33,12 @@ def convert_image_field_to_webp(field_file):
         field_file.save(new_name, ContentFile(buf.getvalue()), save=False)
     except Exception:
         pass
+
+
+@receiver(pre_save, sender=QualityCertificate)
+def quality_certificate_webp_converter(sender, instance, **kwargs):
+    if instance.image:
+        convert_image_field_to_webp(instance.image)
 
 
 @receiver(pre_save, sender=Product)
@@ -69,7 +75,8 @@ def banner_webp_converter(sender, instance, **kwargs):
 def theme_settings_webp_converter(sender, instance, **kwargs):
     for f in [
         'logo', 'prod_cat_1_image', 'prod_cat_2_image', 'prod_cat_3_image',
-        'prod_cat_4_image', 'quality_image', 'about_intro_image', 'about_story_image'
+        'prod_cat_4_image', 'quality_image', 'about_intro_image', 'about_story_image',
+        'phong_su_bg_image', 'calculator_bg_image', 'consultation_image'
     ]:
         field_val = getattr(instance, f, None)
         if field_val:
