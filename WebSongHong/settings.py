@@ -53,7 +53,9 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',
     'django.contrib.staticfiles',
+    'cloudinary',
     'main',
 ]
 
@@ -296,6 +298,23 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ── CLOUDINARY STORAGE ───────────────────────────────────────────
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'gesmsoc5',
+    'API_KEY': '425796871861172',
+    'API_SECRET': 'oJF2gLHpILXRiRfW9o2cxoXPHYQ',
+}
+
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # ── EMAIL CONFIGURATION (Gmail SMTP) ──────────────────────────────
 # Hướng dẫn tạo App Password:
