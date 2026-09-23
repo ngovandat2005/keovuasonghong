@@ -88,3 +88,4 @@ class MainConfig(AppConfig):
     def ready(self):
         from django.db.backends.signals import connection_created
         connection_created.connect(setup_sqlite_connection)
+        import main.signals
