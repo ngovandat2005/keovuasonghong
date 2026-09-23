@@ -1078,17 +1078,18 @@ class AboutGalleryImageInline(TabularInline):
     fields = ('image', 'image_url', 'caption', 'ratio')
     extra = 1
 
-class QualityCertificateInline(TabularInline):
-    model = QualityCertificate
-    fields = ('title', 'image', 'order', 'is_active')
-    extra = 1
-
-
 @admin.register(QualityCertificate)
 class QualityCertificateAdmin(ModelAdmin):
-    list_display = ['title', 'order', 'is_active']
+    list_display = ['image_preview', 'title', 'order', 'is_active']
     list_editable = ['order', 'is_active']
     ordering = ['order', 'id']
+    search_fields = ['title']
+
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" style="height: 50px; border-radius: 4px; border: 1px solid #e2e8f0; object-fit: contain;">', obj.image.url)
+        return "-"
+    image_preview.short_description = "Ảnh chứng chỉ"
 
 
 @admin.register(ThemeSettings)
@@ -1096,7 +1097,7 @@ class ThemeSettingsAdmin(ModelAdmin):
     change_list_template = 'admin/main/themesettings/change_list.html'
     change_form_template = 'admin/main/themesettings/change_form.html'
 
-    inlines = [PartnerInline, AboutGalleryImageInline, QualityCertificateInline]
+    inlines = [PartnerInline, AboutGalleryImageInline]
 
     fieldsets = (
         ('Đầu trang & Logo', {

@@ -48,8 +48,8 @@ def home(request):
     # Chia thành các trang 6 video
     phong_su_pages = [all_video_items[i:i + 6] for i in range(0, len(all_video_items), 6)]
 
-    # Lấy toàn bộ dự án thực tế từ DB và chia theo trang (6 dự án / trang)
-    all_projects = list(Project.objects.filter(is_active=True).order_by('-is_featured', '-published_at', '-id'))
+    # Lấy dự án nổi bật hiển thị trên trang chủ (chỉ lấy dự án công nghiệp)
+    all_projects = list(Project.objects.filter(is_active=True, category='cong-nghiep').order_by('-is_featured', '-published_at', '-id'))
     project_pages = [all_projects[i:i + 6] for i in range(0, len(all_projects), 6)]
     if not project_pages:
         project_pages = [[]]
