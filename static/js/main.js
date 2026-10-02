@@ -172,6 +172,20 @@ function setLangCookie(name, value, days) {
     }
 }
 
+// Google Translate ghi cookie googtrans ở nhiều domain (host, .host, domain cha) nên phải xoá hết
+function clearGoogTransCookie() {
+    const expired = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
+    const host = window.location.hostname;
+    const parts = host.split('.');
+    const domains = [host, '.' + host];
+    for (let i = 1; i < parts.length - 1; i++) {
+        const parent = parts.slice(i).join('.');
+        domains.push(parent, '.' + parent);
+    }
+    document.cookie = expired;
+    domains.forEach(d => { document.cookie = expired + '; domain=' + d; });
+}
+
 function updateActiveLangButtons(activeLang) {
     document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.lang === activeLang);
@@ -183,9 +197,7 @@ function applySelectedLanguage(targetLang) {
     updateActiveLangButtons(targetLang);
 
     if (targetLang === 'vi') {
-        setLangCookie('googtrans', '', -1);
-        document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname;
+        clearGoogTransCookie();
         window.location.reload();
         return;
     }
