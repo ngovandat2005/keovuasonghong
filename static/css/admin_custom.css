@@ -1575,3 +1575,15 @@ html.dark .shk-bell-group { background: #3B2A1A; color: #FDBA74; }
 html.dark .shk-bell-item { border-color: #374151; }
 html.dark .shk-bell-item:hover { background: #374151; }
 html.dark .shk-bell-item-title { color: #F9FAFB; }
+
+/* ── BADGE SỐ ĐƠN MỚI TRONG SIDEBAR: tròn, sát mép phải ───────── */
+.sidebar-badge {
+  margin-left: auto !important;
+  min-width: 22px !important;
+  height: 22px !important;
+  line-height: 22px !important;
+  padding: 0 6px !important;
+  border-radius: 9999px !important;
+  font-size: 12px !important;
+  letter-spacing: 0 !important;
+}
