@@ -7,6 +7,7 @@ from main import views
 
 urlpatterns = [
     path('admin/account/profile/', views.admin_account_profile, name='admin_account_profile'),
+    path('admin/notifications/', views.admin_notifications, name='admin_notifications'),
     path('admin/', admin.site.urls),
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     path('', include('main.urls')),

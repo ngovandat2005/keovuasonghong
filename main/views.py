@@ -844,3 +844,33 @@ def policy(request):
 def custom_404_view(request, exception=None):
     return render(request, '404.html', status=404)
 
+
+
+def admin_notifications(request):
+    """Dữ liệu cho chuông thông báo trên header admin: đơn đăng ký đại lý / tư vấn chưa xử lý."""
+    from django.http import JsonResponse, HttpResponseForbidden
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return HttpResponseForbidden()
+
+    def build(model, change_url_name, title_field, sub_fields):
+        qs = model.objects.filter(is_processed=False).order_by('-created_at')
+        items = []
+        for obj in qs[:5]:
+            sub = ' · '.join(filter(None, (getattr(obj, f, '') for f in sub_fields)))
+            items.append({
+                'title': getattr(obj, title_field, '') or getattr(obj, 'phone', ''),
+                'sub': sub,
+                'time': timezone.localtime(obj.created_at).strftime('%d/%m/%Y %H:%M'),
+                'url': reverse(change_url_name, args=[obj.pk]),
+            })
+        return {'count': qs.count(), 'items': items}
+
+    dealer = build(DealerRegistration, 'admin:main_dealerregistration_change', 'company', ('full_name', 'phone'))
+    consult = build(ConsultationRequest, 'admin:main_consultationrequest_change', 'full_name', ('phone', 'interest'))
+    response = JsonResponse({
+        'total': dealer['count'] + consult['count'],
+        'dealer': dealer,
+        'consultation': consult,
+    })
+    response['Cache-Control'] = 'no-store'
+    return response

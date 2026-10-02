@@ -105,7 +105,8 @@ UNFOLD = {
     ],
     "SCRIPTS": [
         "/static/js/admin_custom_delete.js",
-        "/static/js/admin_brand_align.js"
+        "/static/js/admin_brand_align.js",
+        "/static/js/admin_notifications.js"
     ],
     "SHOW_HISTORY": True,
     "SHOW_VIEW_ON_SITE": True,

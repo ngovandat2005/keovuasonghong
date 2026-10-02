@@ -5,6 +5,19 @@
         {% include "unfold/helpers/label.html" with text=environment.0 type=environment.1 %}
     {% endif %}
 
+    <!-- Chuông thông báo: đăng ký đại lý / đăng ký tư vấn chưa xử lý -->
+    <div class="relative flex items-center mr-1" x-data="{ openBell: false }" id="shk-bell" data-url="{% url 'admin_notifications' %}">
+        <button type="button" @click="openBell = !openBell" class="shk-bell-btn" :class="{ 'active': openBell }" title="Thông báo">
+            <span class="material-symbols-outlined">notifications</span>
+            <span class="shk-bell-badge" id="shk-bell-badge" hidden>0</span>
+        </button>
+
+        <div x-show="openBell" @click.outside="openBell = false" x-cloak class="shk-bell-menu">
+            <div class="shk-bell-title">Thông báo mới</div>
+            <div id="shk-bell-body"></div>
+        </div>
+    </div>
+
     <!-- Profile Dropdown: [Logo SHK] Công ty TNHH K... ⌄ -->
     <div class="relative flex items-center" x-data="{ openAdminMenu: false }">
         <button type="button" @click="openAdminMenu = !openAdminMenu" class="header-company-btn" :class="{ 'active': openAdminMenu }">
