@@ -23,14 +23,16 @@ if _env_file.exists():
         _line = _line.strip()
         if _line and not _line.startswith('#') and '=' in _line:
             _key, _value = _line.split('=', 1)
-            os.environ.setdefault(_key.strip(), _value.strip().strip('"').strip("'"))
+            _key = _key.strip()
+            if not os.environ.get(_key):
+                os.environ[_key] = _value.strip().strip('"').strip("'")
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-dev-only-change-me')
+SECRET_KEY = os.environ.get('SECRET_KEY') or 'django-insecure-dev-only-change-me'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
