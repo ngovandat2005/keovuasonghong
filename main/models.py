@@ -717,6 +717,7 @@ Với định hướng đưa các sản phẩm chất lượng đến gần hơn
     phong_su_btn_link = models.CharField(max_length=255, default="/tin-tuc/?category=phong-su-thuc-te", blank=True, verbose_name="Đường dẫn nút phóng sự")
     phong_su_bg_image = models.ImageField(upload_to='theme/backgrounds/', blank=True, null=True, verbose_name="Ảnh nền Banner Phóng sự thực tế")
     calculator_bg_image = models.ImageField(upload_to='theme/backgrounds/', blank=True, null=True, verbose_name="Ảnh nền Banner Ước tính vật liệu")
+    consultation_bg_image = models.ImageField(upload_to='theme/backgrounds/', blank=True, null=True, verbose_name="Ảnh nền Banner Đăng ký tư vấn")
     consultation_image = models.ImageField(upload_to='theme/consultation/', blank=True, null=True, verbose_name="Ảnh minh hoạ Đăng ký tư vấn (phòng Lab)")
 
     # ── 4. TRANG CHỦ - MINH CHỨNG CHẤT LƯỢNG ──
@@ -830,6 +831,53 @@ Với lợi thế về vị trí nhà máy, nguồn nguyên vật liệu dồi d
 
     # Thư viện ảnh
     about_gallery_title = models.CharField(max_length=255, default="Thư viện ảnh SHK", blank=True, verbose_name="Tiêu đề Thư viện ảnh")
+
+    # ── 7. TRANG ĐĂNG KÝ ĐẠI LÝ ──
+    dealer_hero_image = models.ImageField(upload_to='theme/dealer/', blank=True, null=True, verbose_name="Ảnh poster bên trái form đăng ký")
+    dealer_title = models.CharField(max_length=255, default="ĐĂNG KÝ ĐẠI LÝ", blank=True, verbose_name="Tiêu đề trang đăng ký")
+    dealer_subtitle = models.CharField(max_length=500, default="Cơ hội trở thành đối tác chiến lược của SHK Mortar!", blank=True, verbose_name="Phụ đề / Khẩu hiệu trang")
+    dealer_submit_btn_text = models.CharField(max_length=100, default="Đăng ký đại lý", blank=True, verbose_name="Chữ trên nút gửi biểu mẫu")
+    dealer_support_title = models.CharField(max_length=255, default="Yêu cầu hỗ trợ", blank=True, verbose_name="Tiêu đề khối hỗ trợ")
+    dealer_support_subtitle = models.TextField(default="Vui lòng liên hệ với đội ngũ của chúng tôi\nđể nhận được sự hỗ trợ nhanh chóng nhất", blank=True, verbose_name="Phụ đề khối hỗ trợ")
+    dealer_support_phone = models.CharField(max_length=100, default="+84 938 016 788 / +84 386 360 797", blank=True, verbose_name="Số điện thoại hỗ trợ")
+    dealer_support_email = models.CharField(max_length=150, default="admin@keovuasonghong.vn", blank=True, verbose_name="Email nhận hỗ trợ")
+    dealer_support_zalo = models.CharField(max_length=255, default="https://zalo.me/3423135266242009757", blank=True, verbose_name="Đường dẫn Zalo OA hỗ trợ")
+    dealer_support_zalo_name = models.CharField(max_length=255, default="Công ty TNHH Keo Vữa Sông Hồng", blank=True, verbose_name="Tên hiển thị Zalo OA")
+
+    # ── HERO BANNER CÁC TRANG CON ──
+    default_hero_image = models.ImageField(upload_to='theme/banners/', blank=True, null=True, verbose_name="Ảnh Hero Banner mặc định (dùng chung các trang)")
+    about_hero_image = models.ImageField(upload_to='theme/banners/', blank=True, null=True, verbose_name="Ảnh Hero Banner - Trang Giới thiệu")
+    products_hero_image = models.ImageField(upload_to='theme/banners/', blank=True, null=True, verbose_name="Ảnh Hero Banner - Trang Sản phẩm")
+    news_hero_image = models.ImageField(upload_to='theme/banners/', blank=True, null=True, verbose_name="Ảnh Hero Banner - Trang Tin tức")
+    projects_hero_image = models.ImageField(upload_to='theme/banners/', blank=True, null=True, verbose_name="Ảnh Hero Banner - Trang Dự án")
+    catalogue_hero_image = models.ImageField(upload_to='theme/banners/', blank=True, null=True, verbose_name="Ảnh Hero Banner - Trang E-Catalogue")
+    distributors_hero_image = models.ImageField(upload_to='theme/banners/', blank=True, null=True, verbose_name="Ảnh Hero Banner - Trang Đại lý")
+    calculator_hero_image = models.ImageField(upload_to='theme/banners/', blank=True, null=True, verbose_name="Ảnh Hero Banner - Trang Công cụ tính")
+    policy_hero_image = models.ImageField(upload_to='theme/banners/', blank=True, null=True, verbose_name="Ảnh Hero Banner - Trang Chính sách")
+
+    def get_about_hero_url(self):
+        return self.about_hero_image.url if self.about_hero_image else (self.default_hero_image.url if self.default_hero_image else None)
+
+    def get_products_hero_url(self):
+        return self.products_hero_image.url if self.products_hero_image else (self.default_hero_image.url if self.default_hero_image else None)
+
+    def get_news_hero_url(self):
+        return self.news_hero_image.url if self.news_hero_image else (self.default_hero_image.url if self.default_hero_image else None)
+
+    def get_projects_hero_url(self):
+        return self.projects_hero_image.url if self.projects_hero_image else (self.default_hero_image.url if self.default_hero_image else None)
+
+    def get_catalogue_hero_url(self):
+        return self.catalogue_hero_image.url if self.catalogue_hero_image else (self.default_hero_image.url if self.default_hero_image else None)
+
+    def get_distributors_hero_url(self):
+        return self.distributors_hero_image.url if self.distributors_hero_image else (self.default_hero_image.url if self.default_hero_image else None)
+
+    def get_calculator_hero_url(self):
+        return self.calculator_hero_image.url if self.calculator_hero_image else (self.default_hero_image.url if self.default_hero_image else None)
+
+    def get_policy_hero_url(self):
+        return self.policy_hero_image.url if self.policy_hero_image else (self.default_hero_image.url if self.default_hero_image else None)
 
     class Meta:
         verbose_name = "Cài đặt Giao diện & Logo"

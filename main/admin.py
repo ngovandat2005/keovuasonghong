@@ -1131,7 +1131,7 @@ class ThemeSettingsAdmin(ModelAdmin):
             'classes': ('tab-quality',),
         }),
         ('Công cụ tính & Tư vấn', {
-            'fields': ('calculator_bg_image', 'consultation_image'),
+            'fields': ('calculator_bg_image', 'consultation_bg_image', 'consultation_image'),
             'classes': ('tab-calc-consult',),
         }),
         ('Chân trang (Footer)', {
@@ -1147,6 +1147,20 @@ class ThemeSettingsAdmin(ModelAdmin):
             ),
             'classes': ('tab-footer',),
         }),
+        ('Hero Banner các trang con', {
+            'fields': (
+                'default_hero_image',
+                'about_hero_image',
+                'products_hero_image',
+                'news_hero_image',
+                'projects_hero_image',
+                'catalogue_hero_image',
+                'distributors_hero_image',
+                'calculator_hero_image',
+                'policy_hero_image',
+            ),
+            'classes': ('tab-hero-banners',),
+        }),
         ('Trang Giới thiệu (Về chúng tôi)', {
             'fields': (
                 'about_hero_title', 'about_intro_image', 'about_main_heading', 'about_intro_content',
@@ -1158,13 +1172,23 @@ class ThemeSettingsAdmin(ModelAdmin):
             ),
             'classes': ('tab-about',),
         }),
+        ('Trang Đăng ký đại lý', {
+            'fields': (
+                'dealer_hero_image', 'dealer_title', 'dealer_subtitle', 'dealer_submit_btn_text',
+                'dealer_support_title', 'dealer_support_subtitle',
+                'dealer_support_phone', 'dealer_support_email',
+                'dealer_support_zalo', 'dealer_support_zalo_name',
+            ),
+            'classes': ('tab-dealer-register',),
+        }),
     )
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         if db_field.name in [
             'intro_description', 'phong_su_desc', 'quality_description_html', 'footer_map_iframe',
             'about_intro_content', 'about_statement_col1', 'about_statement_col2',
-            'about_story_content', 'about_vision_desc', 'about_commitment_desc'
+            'about_story_content', 'about_vision_desc', 'about_commitment_desc',
+            'dealer_support_subtitle'
         ]:
             kwargs['widget'] = forms.Textarea(attrs={'rows': 5})
         return super().formfield_for_dbfield(db_field, request, **kwargs)

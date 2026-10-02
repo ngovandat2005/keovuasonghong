@@ -76,7 +76,10 @@ def theme_settings_webp_converter(sender, instance, **kwargs):
     for f in [
         'logo', 'prod_cat_1_image', 'prod_cat_2_image', 'prod_cat_3_image',
         'prod_cat_4_image', 'quality_image', 'about_intro_image', 'about_story_image',
-        'phong_su_bg_image', 'calculator_bg_image', 'consultation_image'
+        'phong_su_bg_image', 'calculator_bg_image', 'consultation_bg_image', 'consultation_image',
+        'default_hero_image', 'about_hero_image', 'products_hero_image', 'news_hero_image',
+        'projects_hero_image', 'catalogue_hero_image', 'distributors_hero_image',
+        'calculator_hero_image', 'policy_hero_image'
     ]:
         field_val = getattr(instance, f, None)
         if field_val:

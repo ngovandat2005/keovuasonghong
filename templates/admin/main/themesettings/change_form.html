@@ -110,6 +110,30 @@
                             <svg class="row-arrow" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
                         </div>
 
+                        <!-- 3. HERO BANNER CÁC MỤC -->
+                        <div class="sapo-menu-row" onclick="navGoToHeroBanners()">
+                            <div class="row-left">
+                                <span class="row-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></span>
+                                <div class="row-texts">
+                                    <span class="row-title">Hero Banner các mục</span>
+                                    <span class="row-sub">Banner Sản phẩm, Tin tức, Dự án...</span>
+                                </div>
+                            </div>
+                            <svg class="row-arrow" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </div>
+
+                        <!-- 4. ĐĂNG KÝ ĐẠI LÝ -->
+                        <div class="sapo-menu-row" onclick="navGoToDealerRegister()">
+                            <div class="row-left">
+                                <span class="row-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></span>
+                                <div class="row-texts">
+                                    <span class="row-title">Đăng ký đại lý</span>
+                                    <span class="row-sub">Trang Đăng ký đại lý & Hỗ trợ</span>
+                                </div>
+                            </div>
+                            <svg class="row-arrow" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </div>
+
                     </div>
 
                     <!-- ── LEVEL 2: TRANG CHỦ -> 7 MỤC NHỎ ── -->
@@ -671,7 +695,20 @@
                             </div>
 
                             <div class="sapo-box">
-                                <span class="box-title">2. ẢNH MINH HOẠ ĐĂNG KÝ TƯ VẤN</span>
+                                <span class="box-title">2. ẢNH NỀN BANNER ĐĂNG KÝ TƯ VẤN</span>
+                                <div style="margin-bottom: 12px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                                    <img src="{% if original and original.consultation_bg_image %}{{ original.consultation_bg_image.url }}{% elif adminform.form.instance and adminform.form.instance.consultation_bg_image %}{{ adminform.form.instance.consultation_bg_image.url }}{% else %}{% static 'images/construction_bg_mortar.jpg' %}{% endif %}" alt="Ảnh nền Đăng ký tư vấn" style="max-height: 120px; max-width: 100%; object-fit: cover; border-radius: 4px;">
+                                    <span style="font-size: 11px; color: #64748b;">(Ảnh nền thay thế nền cam của khu vực Đăng ký tư vấn)</span>
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.consultation_bg_image.label }}</label>
+                                    {{ adminform.form.consultation_bg_image }}
+                                    <small class="sapo-help">Ảnh nền bao quát thay thế cho nền màu cam của khối "Đăng ký tư vấn" trên Trang chủ</small>
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">3. ẢNH MINH HOẠ ĐĂNG KÝ TƯ VẤN</span>
                                 <div style="margin-bottom: 12px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
                                     <img src="{% if original and original.consultation_image %}{{ original.consultation_image.url }}{% elif adminform.form.instance and adminform.form.instance.consultation_image %}{{ adminform.form.instance.consultation_image.url }}{% else %}{% static 'images/tv.webp' %}{% endif %}" alt="Ảnh Tư vấn" style="max-height: 140px; max-width: 100%; object-fit: cover; border-radius: 4px;">
                                     <span style="font-size: 11px; color: #64748b;">(Ảnh phòng thí nghiệm / tư vấn hiện tại)</span>
@@ -818,6 +855,182 @@
                                     </div>
                                     {% endif %}
                                 {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- FORM HERO BANNERS CÁC TRANG CON -->
+                        <div id="mod-hero-banners" class="sapo-form-panel" style="display: none;">
+                            <div class="sapo-box">
+                                <span class="box-title">0. ẢNH HERO BANNER DÙNG CHUNG (MẶC ĐỊNH)</span>
+                                <div style="margin-bottom: 12px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                                    <img src="{% if original and original.default_hero_image %}{{ original.default_hero_image.url }}{% elif adminform.form.instance and adminform.form.instance.default_hero_image %}{{ adminform.form.instance.default_hero_image.url }}{% else %}{% static 'images/catalogue_hero_banner.png' %}{% endif %}" alt="Banner mặc định" style="max-height: 120px; max-width: 100%; object-fit: cover; border-radius: 4px;">
+                                    <span style="font-size: 11px; color: #64748b;">(Áp dụng cho các trang chưa chọn ảnh riêng bên dưới)</span>
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.default_hero_image.label }}</label>
+                                    {{ adminform.form.default_hero_image }}
+                                    <small class="sapo-help">Ảnh banner dùng chung cho toàn bộ các trang con khi trang đó chưa có ảnh riêng</small>
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">1. TRANG GIỚI THIỆU (VỀ CHÚNG TÔI)</span>
+                                <div style="margin-bottom: 12px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                                    <img src="{% if original and original.about_hero_image %}{{ original.about_hero_image.url }}{% elif adminform.form.instance and adminform.form.instance.about_hero_image %}{{ adminform.form.instance.about_hero_image.url }}{% else %}{% static 'images/catalogue_hero_banner.png' %}{% endif %}" alt="Banner Giới thiệu" style="max-height: 120px; max-width: 100%; object-fit: cover; border-radius: 4px;">
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.about_hero_image.label }}</label>
+                                    {{ adminform.form.about_hero_image }}
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">2. TRANG SẢN PHẨM & CHI TIẾT SẢN PHẨM</span>
+                                <div style="margin-bottom: 12px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                                    <img src="{% if original and original.products_hero_image %}{{ original.products_hero_image.url }}{% elif adminform.form.instance and adminform.form.instance.products_hero_image %}{{ adminform.form.instance.products_hero_image.url }}{% else %}{% static 'images/catalogue_hero_banner.png' %}{% endif %}" alt="Banner Sản phẩm" style="max-height: 120px; max-width: 100%; object-fit: cover; border-radius: 4px;">
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.products_hero_image.label }}</label>
+                                    {{ adminform.form.products_hero_image }}
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">3. TRANG TIN TỨC & BÀI VIẾT</span>
+                                <div style="margin-bottom: 12px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                                    <img src="{% if original and original.news_hero_image %}{{ original.news_hero_image.url }}{% elif adminform.form.instance and adminform.form.instance.news_hero_image %}{{ adminform.form.instance.news_hero_image.url }}{% else %}{% static 'images/catalogue_hero_banner.png' %}{% endif %}" alt="Banner Tin tức" style="max-height: 120px; max-width: 100%; object-fit: cover; border-radius: 4px;">
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.news_hero_image.label }}</label>
+                                    {{ adminform.form.news_hero_image }}
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">4. TRANG DỰ ÁN CÔNG TRÌNH</span>
+                                <div style="margin-bottom: 12px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                                    <img src="{% if original and original.projects_hero_image %}{{ original.projects_hero_image.url }}{% elif adminform.form.instance and adminform.form.instance.projects_hero_image %}{{ adminform.form.instance.projects_hero_image.url }}{% else %}{% static 'images/catalogue_hero_banner.png' %}{% endif %}" alt="Banner Dự án" style="max-height: 120px; max-width: 100%; object-fit: cover; border-radius: 4px;">
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.projects_hero_image.label }}</label>
+                                    {{ adminform.form.projects_hero_image }}
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">5. TRANG E-CATALOGUE</span>
+                                <div style="margin-bottom: 12px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                                    <img src="{% if original and original.catalogue_hero_image %}{{ original.catalogue_hero_image.url }}{% elif adminform.form.instance and adminform.form.instance.catalogue_hero_image %}{{ adminform.form.instance.catalogue_hero_image.url }}{% else %}{% static 'images/catalogue_hero_banner.png' %}{% endif %}" alt="Banner E-Catalogue" style="max-height: 120px; max-width: 100%; object-fit: cover; border-radius: 4px;">
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.catalogue_hero_image.label }}</label>
+                                    {{ adminform.form.catalogue_hero_image }}
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">6. TRANG ĐẠI LÝ PHÂN PHỐI</span>
+                                <div style="margin-bottom: 12px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                                    <img src="{% if original and original.distributors_hero_image %}{{ original.distributors_hero_image.url }}{% elif adminform.form.instance and adminform.form.instance.distributors_hero_image %}{{ adminform.form.instance.distributors_hero_image.url }}{% else %}{% static 'images/catalogue_hero_banner.png' %}{% endif %}" alt="Banner Đại lý" style="max-height: 120px; max-width: 100%; object-fit: cover; border-radius: 4px;">
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.distributors_hero_image.label }}</label>
+                                    {{ adminform.form.distributors_hero_image }}
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">7. TRANG CÔNG CỤ TÍNH VẬT LIỆU</span>
+                                <div style="margin-bottom: 12px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                                    <img src="{% if original and original.calculator_hero_image %}{{ original.calculator_hero_image.url }}{% elif adminform.form.instance and adminform.form.instance.calculator_hero_image %}{{ adminform.form.instance.calculator_hero_image.url }}{% else %}{% static 'images/catalogue_hero_banner.png' %}{% endif %}" alt="Banner Công cụ tính" style="max-height: 120px; max-width: 100%; object-fit: cover; border-radius: 4px;">
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.calculator_hero_image.label }}</label>
+                                    {{ adminform.form.calculator_hero_image }}
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">8. TRANG CHÍNH SÁCH & ĐIỀU KHOẢN</span>
+                                <div style="margin-bottom: 12px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                                    <img src="{% if original and original.policy_hero_image %}{{ original.policy_hero_image.url }}{% elif adminform.form.instance and adminform.form.instance.policy_hero_image %}{{ adminform.form.instance.policy_hero_image.url }}{% else %}{% static 'images/catalogue_hero_banner.png' %}{% endif %}" alt="Banner Chính sách" style="max-height: 120px; max-width: 100%; object-fit: cover; border-radius: 4px;">
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.policy_hero_image.label }}</label>
+                                    {{ adminform.form.policy_hero_image }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FORM ĐĂNG KÝ ĐẠI LÝ -->
+                        <div id="mod-dealer-register" class="sapo-form-panel" style="display: none;">
+                            <div class="sapo-box">
+                                <span class="box-title">ẢNH POSTER BÊN TRÁI FORM</span>
+                                <div style="margin-bottom: 12px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                                    <img id="adminDealerHeroPreview" src="{% if original and original.dealer_hero_image %}{{ original.dealer_hero_image.url }}{% elif adminform.form.instance and adminform.form.instance.dealer_hero_image %}{{ adminform.form.instance.dealer_hero_image.url }}{% else %}{% static 'images/dealer_hero.jpg' %}{% endif %}" alt="Poster Đăng ký đại lý" style="max-height: 180px; max-width: 100%; object-fit: cover; border-radius: 4px;">
+                                    <span style="font-size: 11px; color: #64748b;">(Ảnh poster dọc hiển thị cạnh form đăng ký)</span>
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.dealer_hero_image.label }}</label>
+                                    {{ adminform.form.dealer_hero_image }}
+                                    <small class="sapo-help">Kích thước khuyên dùng: 460 x 700 px (hoặc tỉ lệ dọc tương đương)</small>
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">TIÊU ĐỀ & NỘI DUNG FORM</span>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.dealer_title.label }}</label>
+                                    {{ adminform.form.dealer_title }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.dealer_subtitle.label }}</label>
+                                    {{ adminform.form.dealer_subtitle }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.dealer_submit_btn_text.label }}</label>
+                                    {{ adminform.form.dealer_submit_btn_text }}
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">NÚT CTA ĐĂNG KÝ TRÊN MENU (HEADER)</span>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.cta_btn_text.label }}</label>
+                                    {{ adminform.form.cta_btn_text }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.cta_btn_link.label }}</label>
+                                    {{ adminform.form.cta_btn_link }}
+                                </div>
+                            </div>
+
+                            <div class="sapo-box">
+                                <span class="box-title">BANNER HỖ TRỢ (CUỐI TRANG)</span>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.dealer_support_title.label }}</label>
+                                    {{ adminform.form.dealer_support_title }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.dealer_support_subtitle.label }}</label>
+                                    {{ adminform.form.dealer_support_subtitle }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.dealer_support_phone.label }}</label>
+                                    {{ adminform.form.dealer_support_phone }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.dealer_support_email.label }}</label>
+                                    {{ adminform.form.dealer_support_email }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.dealer_support_zalo.label }}</label>
+                                    {{ adminform.form.dealer_support_zalo }}
+                                </div>
+                                <div class="sapo-input-group">
+                                    <label class="sapo-label">{{ adminform.form.dealer_support_zalo_name.label }}</label>
+                                    {{ adminform.form.dealer_support_zalo_name }}
+                                </div>
                             </div>
                         </div>
 
@@ -1286,6 +1499,46 @@ function navGoToAbout() {
     }
 }
 
+function navGoToHeroBanners() {
+    currentNavLevel = 3;
+    document.getElementById('view-level-1').style.display = 'none';
+    document.getElementById('view-level-2-home').style.display = 'none';
+    document.getElementById('view-level-forms').style.display = 'block';
+    
+    // Hide all form panels, show hero banners panel
+    document.querySelectorAll('.sapo-form-panel').forEach(p => p.style.display = 'none');
+    document.getElementById('mod-hero-banners').style.display = 'block';
+
+    document.getElementById('sidebar-current-title').innerText = 'HERO BANNER CÁC MỤC';
+    document.getElementById('btn-back').style.display = 'inline-flex';
+
+    // Switch iframe to Products page for preview
+    const iframe = document.getElementById('mainPreviewIframe');
+    if (iframe) {
+        iframe.src = '/san-pham/';
+    }
+}
+
+function navGoToDealerRegister() {
+    currentNavLevel = 3;
+    document.getElementById('view-level-1').style.display = 'none';
+    document.getElementById('view-level-2-home').style.display = 'none';
+    document.getElementById('view-level-forms').style.display = 'block';
+    
+    // Hide all form panels, show dealer register panel
+    document.querySelectorAll('.sapo-form-panel').forEach(p => p.style.display = 'none');
+    document.getElementById('mod-dealer-register').style.display = 'block';
+
+    document.getElementById('sidebar-current-title').innerText = 'ĐĂNG KÝ ĐẠI LÝ';
+    document.getElementById('btn-back').style.display = 'inline-flex';
+
+    // Switch iframe to Dealer Register page for preview
+    const iframe = document.getElementById('mainPreviewIframe');
+    if (iframe) {
+        iframe.src = '/dang-ky-dai-ly/';
+    }
+}
+
 function navOpenModule(modId, modTitle) {
     currentNavLevel = 3;
     document.getElementById('view-level-2-home').style.display = 'none';
@@ -1303,16 +1556,18 @@ function navOpenModule(modId, modTitle) {
 
     // Ensure iframe is on homepage
     const iframe = document.getElementById('mainPreviewIframe');
-    if (iframe && iframe.src.includes('/gioi-thieu/')) {
+    if (iframe && (iframe.src.includes('/gioi-thieu/') || iframe.src.includes('/san-pham/') || iframe.src.includes('/dang-ky-dai-ly/'))) {
         iframe.src = '/';
     }
 }
 
 function navGoBack() {
     if (currentNavLevel === 3) {
-        // Check if we came from About or Home module
-        const aboutVisible = document.getElementById('mod-about-page').style.display === 'block';
-        if (aboutVisible) {
+        // Check if we came from About or Hero Banners or Dealer Register or Home module
+        const aboutVisible = document.getElementById('mod-about-page') && document.getElementById('mod-about-page').style.display === 'block';
+        const bannersVisible = document.getElementById('mod-hero-banners') && document.getElementById('mod-hero-banners').style.display === 'block';
+        const dealerVisible = document.getElementById('mod-dealer-register') && document.getElementById('mod-dealer-register').style.display === 'block';
+        if (aboutVisible || bannersVisible || dealerVisible) {
             // Back to Level 1
             currentNavLevel = 1;
             document.getElementById('view-level-forms').style.display = 'none';
@@ -1383,6 +1638,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 const reader = new FileReader();
                 reader.onload = function(evt) {
                     qualityPreview.src = evt.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    const dealerInput = document.querySelector('input[name="dealer_hero_image"]');
+    const dealerPreview = document.getElementById('adminDealerHeroPreview');
+    if (dealerInput && dealerPreview) {
+        dealerInput.addEventListener('change', function(e) {
+            const file = e.target.files && e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    dealerPreview.src = evt.target.result;
                 };
                 reader.readAsDataURL(file);
             }

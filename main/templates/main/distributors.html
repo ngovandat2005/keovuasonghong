@@ -209,7 +209,7 @@
 
 <!-- ── FULL-WIDTH HERO BANNER ── -->
 <div class="cat-hero-banner-wrap">
-  <div class="cat-hero-bg">
+  <div class="cat-hero-bg" {% if theme and theme.get_distributors_hero_url %}style="background-image: url('{{ theme.get_distributors_hero_url }}');"{% endif %}>
     <div class="cat-hero-overlay">
       <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 0 32px;">
         <div class="cat-hero-content">

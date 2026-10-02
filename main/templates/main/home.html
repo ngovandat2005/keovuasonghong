@@ -231,16 +231,13 @@
               <div class="ps-card-preview{% if item.auto_thumb %} ps-card-preview--auto-thumb{% endif %}" style="background-image: url('{{ item.thumb }}');">
                 <div class="ps-card-topbar">
                   <div class="ps-card-channel">
-                    <div class="ps-channel-avatar" style="background:{{ item.tag_bg|default:'#FF7E2E' }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;border-radius:50%;">{{ item.tag|default:'SHK' }}</div>
+                    <div class="ps-channel-avatar">
+                      <img src="{% if theme and theme.logo %}{{ theme.logo.url }}{% else %}{% static 'images/favicon.png' %}{% endif %}" alt="SHK Mortar" onerror="this.src='{% static 'images/favicon.png' %}'">
+                    </div>
                     <div class="ps-channel-info">
                       <div class="ps-card-title">{{ item.title }}</div>
                       <div class="ps-card-sub">{{ item.channel }}</div>
                     </div>
-                  </div>
-                  <div class="ps-card-icons">
-                    <i class="fa-solid fa-volume-high"></i>
-                    <i class="fa-solid fa-closed-captioning"></i>
-                    <i class="fa-solid fa-gear"></i>
                   </div>
                 </div>
                 <div class="ps-yt-play-btn"><i class="fa-brands fa-youtube"></i></div>
@@ -894,7 +891,7 @@ setInterval(() => {
 </section>
 
 <!-- ── ĐĂNG KÝ TƯ VẤN BANNER ── -->
-<section class="consultation-home-section" id="consultation-section">
+<section class="consultation-home-section" id="consultation-section" {% if theme and theme.consultation_bg_image %}style="background-image: linear-gradient(rgba(15, 23, 42, 0.78), rgba(15, 23, 42, 0.85)), url('{{ theme.consultation_bg_image.url }}'); background-size: cover; background-position: center;"{% endif %}>
   <div class="container">
     <div class="consult-split-layout">
       <!-- Left Column: Title, Subtitle, and Image placeholder -->

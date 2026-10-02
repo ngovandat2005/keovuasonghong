@@ -840,3 +840,7 @@ def admin_account_profile(request):
 def policy(request):
     return render(request, 'main/policy.html')
 
+
+def custom_404_view(request, exception=None):
+    return render(request, '404.html', status=404)
+

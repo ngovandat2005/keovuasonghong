@@ -29,3 +29,10 @@ test_click_btn.py
 Thumbs.db
 .idea/
 .vscode/
+
+# Secrets, database and logs
+.env
+db.sqlite3
+*.log
+passenger_wsgi.py
+/*.pdf

@@ -282,13 +282,13 @@
 <div class="dealer-reg-wrap">
     <div class="dealer-reg-layout">
     <div class="dealer-reg-side">
-        <img src="{% static 'images/dealer_hero.jpg' %}" alt="Đăng ký đại lý SHK Mortar">
+        <img src="{% if theme.dealer_hero_image %}{{ theme.dealer_hero_image.url }}{% else %}{% static 'images/dealer_hero.jpg' %}{% endif %}" alt="{{ theme.dealer_title|default:'Đăng ký đại lý SHK Mortar' }}">
     </div>
     <div class="dealer-reg-container">
 
         <div class="dealer-reg-heading">
-            <h1 class="dealer-reg-title">ĐĂNG KÝ ĐẠI LÝ</h1>
-            <p class="dealer-reg-subtitle">Cơ hội trở thành đối tác chiến lược của SHK Mortar!</p>
+            <h1 class="dealer-reg-title">{{ theme.dealer_title|default:'ĐĂNG KÝ ĐẠI LÝ' }}</h1>
+            <p class="dealer-reg-subtitle">{{ theme.dealer_subtitle|default:'Cơ hội trở thành đối tác chiến lược của SHK Mortar!' }}</p>
         </div>
 
         {% if messages %}
@@ -452,7 +452,7 @@
             </div>
 
 
-            <button type="submit" class="dealer-btn-submit" id="submitBtn">Đăng ký đại lý</button>
+            <button type="submit" class="dealer-btn-submit" id="submitBtn">{{ theme.dealer_submit_btn_text|default:'Đăng ký đại lý' }}</button>
         </form>
     </div>
     </div>
@@ -465,8 +465,8 @@
       
       <!-- Cột Trái: Tiêu đề & phụ đề -->
       <div class="cat-support-left">
-        <h2 class="cat-support-title">Yêu cầu hỗ trợ</h2>
-        <p class="cat-support-subtitle">Vui lòng liên hệ với đội ngũ của chúng tôi<br>để nhận được sự hỗ trợ nhanh chóng nhất</p>
+        <h2 class="cat-support-title">{{ theme.dealer_support_title|default:'Yêu cầu hỗ trợ' }}</h2>
+        <p class="cat-support-subtitle">{{ theme.dealer_support_subtitle|default:'Vui lòng liên hệ với đội ngũ của chúng tôi<br>để nhận được sự hỗ trợ nhanh chóng nhất'|linebreaksbr }}</p>
       </div>
 
       <!-- Cột Phải: Thông tin liên hệ (Zalo OA, Email, Phone) -->
@@ -474,35 +474,35 @@
         <div class="cat-support-items">
           
           <!-- Zalo OA -->
-          <a href="https://zalo.me/3423135266242009757" target="_blank" rel="noopener noreferrer" class="cat-support-item">
+          <a href="{{ theme.dealer_support_zalo|default:'https://zalo.me/3423135266242009757' }}" target="_blank" rel="noopener noreferrer" class="cat-support-item">
             <div class="cat-support-icon cat-zalo-icon-box">
               <img src="{% static 'images/zalo-oa-logo.svg' %}" alt="Zalo Official Account" class="cat-zalo-img">
             </div>
             <div class="cat-support-info">
               <span class="cat-support-label">Zalo OA</span>
-              <span class="cat-support-val">Công ty TNHH Keo Vữa Sông Hồng</span>
+              <span class="cat-support-val">{{ theme.dealer_support_zalo_name|default:'Công ty TNHH Keo Vữa Sông Hồng' }}</span>
             </div>
           </a>
 
           <!-- Email -->
-          <a href="https://mail.google.com/mail/?view=cm&fs=1&to=admin@keovuasonghong.vn" target="_blank" rel="noopener noreferrer" class="cat-support-item" title="Soạn email gửi đến admin@keovuasonghong.vn qua Gmail">
+          <a href="https://mail.google.com/mail/?view=cm&fs=1&to={{ theme.dealer_support_email|default:'admin@keovuasonghong.vn' }}" target="_blank" rel="noopener noreferrer" class="cat-support-item" title="Soạn email gửi đến {{ theme.dealer_support_email|default:'admin@keovuasonghong.vn' }} qua Gmail">
             <div class="cat-support-icon cat-circle-icon">
               <i class="fa-solid fa-envelope"></i>
             </div>
             <div class="cat-support-info">
               <span class="cat-support-label">Email</span>
-              <span class="cat-support-val">admin@keovuasonghong.vn</span>
+              <span class="cat-support-val">{{ theme.dealer_support_email|default:'admin@keovuasonghong.vn' }}</span>
             </div>
           </a>
 
           <!-- Phone -->
-          <a href="tel:+84938016788" class="cat-support-item">
+          <a href="tel:{{ theme.dealer_support_phone|default:'+84938016788' }}" class="cat-support-item">
             <div class="cat-support-icon cat-circle-icon">
               <i class="fa-solid fa-phone"></i>
             </div>
             <div class="cat-support-info">
               <span class="cat-support-label">Phone</span>
-              <span class="cat-support-val">+84 938 016 788 / +84 386 360 797</span>
+              <span class="cat-support-val">{{ theme.dealer_support_phone|default:'+84 938 016 788 / +84 386 360 797' }}</span>
             </div>
           </a>
 

@@ -24,5 +24,6 @@ urlpatterns = [
     path('dang-ky-tu-van/', views.consultation, name='consultation'),
     path('xuat-excel-tu-van/', views.download_consultations_excel, name='export_consultations_excel'),
     path('xuat-word-tu-van/<int:pk>/', views.download_consultation_word, name='export_consultation_word'),
+    path('404/', views.custom_404_view, name='error_404'),
 ]
 
