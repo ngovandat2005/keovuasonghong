@@ -837,6 +837,37 @@ def admin_account_profile(request):
     return render(request, 'admin/account/profile.html', context)
 
 
+def chat_api(request):
+    """Chatbox AI tư vấn sản phẩm (Claude)."""
+    from django.http import JsonResponse
+    from . import chatbot
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    if not settings.ANTHROPIC_API_KEY:
+        return JsonResponse({'error': 'Chatbox chưa được cấu hình.'}, status=503)
+    try:
+        payload = json.loads(request.body.decode('utf-8'))
+    except (ValueError, UnicodeDecodeError):
+        return JsonResponse({'error': 'Dữ liệu không hợp lệ.'}, status=400)
+
+    messages_in = chatbot.clean_history(payload.get('messages') if isinstance(payload, dict) else None)
+    if not messages_in:
+        return JsonResponse({'error': 'Vui lòng nhập câu hỏi.'}, status=400)
+    if chatbot.rate_limited(request):
+        return JsonResponse({'error': 'Bạn gửi quá nhiều tin nhắn, vui lòng thử lại sau ít phút.'}, status=429)
+
+    try:
+        reply = chatbot.ask_claude(messages_in)
+    except Exception:
+        import logging
+        logging.getLogger(__name__).exception('Chatbot error')
+        return JsonResponse({'error': 'Trợ lý đang bận, vui lòng thử lại hoặc gọi hotline.'}, status=502)
+    if not reply:
+        reply = 'Mình chưa thể trả lời câu hỏi này. Bạn vui lòng liên hệ hotline để được hỗ trợ nhé.'
+    return JsonResponse({'reply': reply})
+
+
 def policy(request):
     return render(request, 'main/policy.html')
 

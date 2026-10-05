@@ -356,3 +356,7 @@ DEFAULT_FROM_EMAIL = 'SHK Mortar <admin@keovuasonghong.vn>'
 
 # Email nhận thông báo đăng ký
 NOTIFY_EMAIL = 'admin@keovuasonghong.vn'
+
+# Chatbox AI (Claude)
+ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
+CHATBOT_MODEL = os.environ.get('CHATBOT_MODEL', 'claude-opus-5-5')

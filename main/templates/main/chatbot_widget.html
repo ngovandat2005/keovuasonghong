@@ -1,0 +1,104 @@
+<style>
+    #shk-chat-btn { position: fixed; right: 20px; bottom: 20px; z-index: 9998; display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 18px; background: #8C5A2B; color: #fff; border: 0; border-radius: 0; font: 600 16px 'Bai Jamjuree', sans-serif; cursor: pointer; }
+    #shk-chat-btn:hover { background: #FF7E2E; }
+    #shk-chat-panel { position: fixed; right: 20px; bottom: 80px; z-index: 9999; width: 360px; max-width: calc(100vw - 24px); height: 480px; max-height: calc(100vh - 110px); display: none; flex-direction: column; background: #fff; border: 1px solid #8C5A2B; border-radius: 0; font-family: 'Bai Jamjuree', sans-serif; }
+    #shk-chat-panel.open { display: flex; }
+    .shk-chat-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #8C5A2B; color: #fff; font-weight: 600; font-size: 16px; }
+    .shk-chat-head button { background: none; border: 0; color: #fff; font-size: 22px; line-height: 1; cursor: pointer; }
+    .shk-chat-head button:hover { color: #FF7E2E; }
+    #shk-chat-log { flex: 1; overflow-y: auto; padding: 12px; background: #fff; }
+    .shk-msg { max-width: 85%; margin-bottom: 10px; padding: 8px 12px; font-size: 15px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; border-radius: 0; }
+    .shk-msg.bot { background: #f3f3f3; color: #000; }
+    .shk-msg.user { margin-left: auto; background: #8C5A2B; color: #fff; }
+    .shk-msg.err { background: #fff; color: #7A0000; border: 1px solid #7A0000; }
+    .shk-msg a { color: #8C5A2B; font-weight: 600; text-decoration: underline; }
+    .shk-msg a:hover { color: #FF7E2E; }
+    .shk-chat-form { display: flex; border-top: 3px solid #8C5A2B; }
+    .shk-chat-form input { flex: 1; min-width: 0; padding: 12px; border: 0; border-radius: 0; font: 15px 'Bai Jamjuree', sans-serif; outline: none; }
+    .shk-chat-form button { padding: 0 16px; background: #8C5A2B; color: #fff; border: 0; border-radius: 0; font: 600 15px 'Bai Jamjuree', sans-serif; cursor: pointer; }
+    .shk-chat-form button:hover { background: #FF7E2E; }
+    .shk-chat-form button:disabled { opacity: .6; cursor: default; }
+    @media (max-width: 480px) { #shk-chat-panel { right: 12px; bottom: 76px; } #shk-chat-btn { right: 12px; bottom: 12px; } }
+</style>
+
+<button type="button" id="shk-chat-btn" aria-label="Chat tư vấn">
+    <i class="fa-solid fa-comments"></i><span>Tư vấn AI</span>
+</button>
+
+<div id="shk-chat-panel" role="dialog" aria-label="Chat tư vấn">
+    <div class="shk-chat-head">
+        <span>Trợ lý SHK Mortar</span>
+        <button type="button" id="shk-chat-close" aria-label="Đóng">&times;</button>
+    </div>
+    <div id="shk-chat-log"></div>
+    <form class="shk-chat-form" id="shk-chat-form" autocomplete="off">
+        <input type="text" id="shk-chat-input" maxlength="1000" placeholder="Nhập câu hỏi của bạn..." required>
+        <button type="submit" id="shk-chat-send">Gửi</button>
+    </form>
+</div>
+
+<script>
+(function () {
+    var btn = document.getElementById('shk-chat-btn');
+    var panel = document.getElementById('shk-chat-panel');
+    var log = document.getElementById('shk-chat-log');
+    var form = document.getElementById('shk-chat-form');
+    var input = document.getElementById('shk-chat-input');
+    var send = document.getElementById('shk-chat-send');
+    var history = [];
+    var csrf = '{{ csrf_token }}';
+
+    function linkify(text) {
+        var safe = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return safe.replace(/(\/(?:san-pham|dang-ky-tu-van|dai-ly-phan-phoi|cong-cu-tinh|lien-he|du-an|tin-tuc)[A-Za-z0-9\-\/]*)/g, '<a href="$1">$1</a>');
+    }
+    function add(cls, text, html) {
+        var d = document.createElement('div');
+        d.className = 'shk-msg ' + cls;
+        if (html) d.innerHTML = linkify(text); else d.textContent = text;
+        log.appendChild(d);
+        log.scrollTop = log.scrollHeight;
+        return d;
+    }
+    function toggle(open) {
+        panel.classList.toggle('open', open);
+        if (open) {
+            if (!log.children.length) add('bot', 'Xin chào! Mình là trợ lý của Keo Vữa Sông Hồng. Bạn cần tư vấn vữa, keo dán gạch hay định mức vật liệu?');
+            input.focus();
+        }
+    }
+    btn.addEventListener('click', function () { toggle(!panel.classList.contains('open')); });
+    document.getElementById('shk-chat-close').addEventListener('click', function () { toggle(false); });
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var text = input.value.trim();
+        if (!text) return;
+        input.value = '';
+        add('user', text);
+        history.push({ role: 'user', content: text });
+        send.disabled = true;
+        var wait = add('bot', 'Đang trả lời...');
+        fetch('/api/chat/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
+            body: JSON.stringify({ messages: history.slice(-10) })
+        }).then(function (r) {
+            return r.json().then(function (j) { return { ok: r.ok, j: j }; });
+        }).then(function (res) {
+            wait.remove();
+            if (res.ok && res.j.reply) {
+                history.push({ role: 'assistant', content: res.j.reply });
+                add('bot', res.j.reply, true);
+            } else {
+                history.pop();
+                add('err', res.j.error || 'Có lỗi xảy ra, vui lòng thử lại.');
+            }
+        }).catch(function () {
+            wait.remove();
+            history.pop();
+            add('err', 'Không kết nối được, vui lòng thử lại.');
+        }).finally(function () { send.disabled = false; input.focus(); });
+    });
+})();
+</script>
