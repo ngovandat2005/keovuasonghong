@@ -828,11 +828,11 @@ def admin_account_profile(request):
             messages.success(request, 'Cập nhật thông tin tài khoản thành công!')
             return redirect('/admin/account/profile/')
 
+    from django.contrib import admin
     context = {
+        **admin.site.each_context(request),
         'profile': profile,
         'title': 'Hồ sơ cá nhân',
-        'has_permission': True,
-        'is_nav_sidebar_enabled': True,
     }
     return render(request, 'admin/account/profile.html', context)
 
