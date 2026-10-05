@@ -78,9 +78,4 @@
     </div>
 
     {% include "unfold/helpers/app_list_all.html" %}
-{% else %}
-    <p>
-        {% trans "You don't have permission to view or edit anything." as error_message %}
-        {% include "unfold/helpers/messages/error.html" with error=error_message %}
-    </p>
 {% endif %}

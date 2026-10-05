@@ -1587,3 +1587,38 @@ html.dark .shk-bell-item-title { color: #F9FAFB; }
   font-size: 12px !important;
   letter-spacing: 0 !important;
 }
+
+/* ── NÚT TÌM KIẾM TRONG THANH LỌC ── */
+form button.sp-search-btn.sp-search-btn,
+form#sp-search-form button.sp-search-btn.sp-search-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  height: 42px !important;
+  padding: 0 22px !important;
+  margin: 0 !important;
+  background: #8C5A2B !important;
+  background-color: #8C5A2B !important;
+  color: #FFFFFF !important;
+  border: 1px solid #8C5A2B !important;
+  border-radius: 0 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  letter-spacing: .2px;
+  white-space: nowrap;
+  cursor: pointer !important;
+  transition: background-color .15s, border-color .15s;
+}
+form button.sp-search-btn.sp-search-btn:hover,
+form#sp-search-form button.sp-search-btn.sp-search-btn:hover {
+  background: #FF7E2E !important;
+  background-color: #FF7E2E !important;
+  border-color: #FF7E2E !important;
+  color: #FFFFFF !important;
+}
+form button.sp-search-btn .material-symbols-outlined {
+  font-size: 20px !important;
+  color: #FFFFFF !important;
+}
