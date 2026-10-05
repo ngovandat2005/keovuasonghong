@@ -830,7 +830,7 @@ def admin_account_profile(request):
 
     context = {
         'profile': profile,
-        'title': 'Thông tin tài khoản',
+        'title': 'Hồ sơ cá nhân',
         'has_permission': True,
         'is_nav_sidebar_enabled': True,
     }
