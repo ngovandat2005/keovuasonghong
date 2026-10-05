@@ -53,6 +53,11 @@
                 <span>{% trans "Hồ sơ cá nhân" %}</span>
             </a>
 
+            <a href="{% url 'admin:password_change' %}" class="header-dropdown-item">
+                <span class="material-symbols-outlined">key</span>
+                <span>{% trans "Đổi mật khẩu" %}</span>
+            </a>
+
             <div class="header-dropdown-divider"></div>
 
             <form method="post" action="{% url 'admin:logout' %}" class="m-0">

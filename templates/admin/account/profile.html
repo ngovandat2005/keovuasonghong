@@ -20,36 +20,20 @@
 
     <!-- Khối form nhập liệu màu trắng viền xám theo mẫu -->
     <div class="account-form-card">
-        <form method="post" action="">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="change_password">
-
-            <div class="account-form-grid">
-                <div class="account-form-group" style="grid-column: 1 / -1;">
-                    <label class="account-form-label">Tài khoản</label>
-                    <input type="text" value="{{ request.user.username }}" readonly class="account-input account-input-disabled">
-                </div>
-
-                <div class="account-form-group" style="grid-column: 1 / -1;">
-                    <label class="account-form-label">Mật khẩu hiện tại<span class="required-star">*</span></label>
-                    <input type="password" name="old_password" required autocomplete="current-password" class="account-input">
-                </div>
-
-                <div class="account-form-group">
-                    <label class="account-form-label">Mật khẩu mới<span class="required-star">*</span></label>
-                    <input type="password" name="new_password1" required autocomplete="new-password" class="account-input">
-                </div>
-
-                <div class="account-form-group">
-                    <label class="account-form-label">Nhập lại mật khẩu mới<span class="required-star">*</span></label>
-                    <input type="password" name="new_password2" required autocomplete="new-password" class="account-input">
-                </div>
+        <div class="account-form-grid">
+            <div class="account-form-group" style="grid-column: 1 / -1;">
+                <label class="account-form-label">Tài khoản</label>
+                <input type="text" value="{{ request.user.username }}" readonly class="account-input account-input-disabled">
             </div>
-
-            <div class="account-form-actions">
-                <button type="submit" class="account-save-btn">Đổi mật khẩu</button>
+            <div class="account-form-group" style="grid-column: 1 / -1;">
+                <label class="account-form-label">Mật khẩu</label>
+                <input type="password" value="********" readonly class="account-input account-input-disabled">
             </div>
-        </form>
+        </div>
+
+        <div class="account-form-actions">
+            <a href="{% url 'admin:password_change' %}" class="account-save-btn" style="display:inline-block;text-decoration:none;">Đổi mật khẩu</a>
+        </div>
     </div>
 </div>
 {% endblock %}
