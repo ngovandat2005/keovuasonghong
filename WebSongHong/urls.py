@@ -10,7 +10,33 @@ from main.sitemaps import sitemaps
 
 
 def robots_txt(request):
-    lines = ['User-agent: *', 'Disallow: /admin/', 'Allow: /', '', 'Sitemap: https://keovuasonghong.vn/sitemap.xml']
+    lines = [
+        'User-agent: *',
+        '# Cho phép các trang công khai (kể cả trang con)',
+        'Allow: /',
+        'Allow: /gioi-thieu/',
+        'Allow: /san-pham/',
+        'Allow: /tin-tuc/',
+        'Allow: /du-an/',
+        'Allow: /dai-ly-phan-phoi/',
+        'Allow: /dang-ky-dai-ly/',
+        'Allow: /e-catalog/',
+        'Allow: /cong-cu-tinh/',
+        'Allow: /lien-he/',
+        'Allow: /chinh-sach-va-dieu-khoan/',
+        'Allow: /media/',
+        'Allow: /static/',
+        '',
+        '# Chặn khu vực quản trị, API và các trang xuất dữ liệu',
+        'Disallow: /admin/',
+        'Disallow: /api/',
+        'Disallow: /xuat-excel-tu-van/',
+        'Disallow: /xuat-word-tu-van/',
+        'Disallow: /dang-ky-tu-van/',
+        'Disallow: /404/',
+        '',
+        'Sitemap: ' + request.build_absolute_uri('/sitemap.xml'),
+    ]
     return HttpResponse(chr(10).join(lines), content_type='text/plain')
 
 urlpatterns = [
