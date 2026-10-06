@@ -398,6 +398,42 @@ class Distributor(models.Model):
         return f"{self.name} - {self.province}"
 
 
+class DistributorDetail(models.Model):
+    distributor = models.OneToOneField(Distributor, on_delete=models.CASCADE, related_name='detail', verbose_name="Đại lý")
+    slug = models.SlugField(max_length=300, unique=True, blank=True, verbose_name="Đường dẫn (URL)",
+                            help_text="VD: cong-ty-quang-minh. Để trống sẽ tự tạo từ tên đại lý.")
+    title = models.CharField(max_length=400, blank=True, verbose_name="Tiêu đề trang", help_text="Để trống sẽ dùng tên đại lý.")
+    content = models.TextField(blank=True, verbose_name="Nội dung bài viết")
+    warehouse_address = models.TextField(blank=True, verbose_name="Địa chỉ kho", help_text="Để trống sẽ dùng địa chỉ chính của đại lý.")
+    zalo_link = models.CharField(max_length=300, blank=True, verbose_name="Zalo (số điện thoại hoặc link)",
+                                 help_text="VD: 0938016788 hoặc https://zalo.me/0938016788. Để trống sẽ lấy số hotline đầu tiên.")
+    extra_contacts = models.JSONField(default=list, blank=True, verbose_name="Thông tin liên hệ thêm")
+    is_active = models.BooleanField(default=True, verbose_name="Hiển thị")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Ngày cập nhật")
+
+    class Meta:
+        verbose_name = "Danh mục đại lý"
+        verbose_name_plural = "Danh mục đại lý"
+        ordering = ['distributor__province', 'distributor__name']
+
+    def __str__(self):
+        return self.title or self.distributor.name
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.slug) if self.slug else ''
+        if not self.slug:
+            self.slug = vietnamese_slugify(self.distributor.name) or 'dai-ly'
+        base, counter = self.slug, 1
+        while DistributorDetail.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
+            counter += 1
+            self.slug = f'{base}-{counter}'
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('distributor_detail', args=[self.slug])
+
+
 class DistributorLink(models.Model):
     distributor = models.ForeignKey(Distributor, on_delete=models.CASCADE, related_name='extra_links', verbose_name="Đại lý")
     label = models.CharField(max_length=100, blank=True, verbose_name="Tên nền tảng", help_text="VD: Facebook, Zalo, Instagram...")

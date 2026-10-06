@@ -1,5 +1,6 @@
 import json
 import re
+from urllib.parse import quote
 from datetime import timedelta
 from django.utils import timezone
 from django.shortcuts import render, get_object_or_404, redirect
@@ -8,7 +9,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
-from .models import Product, ProductCategory, News, NewsCategory, Banner, Distributor, DealerRegistration, ContactMessage, Project, ProjectCategory, ConsultationRequest, Catalogue, ThemeSettings
+from .models import Product, ProductCategory, News, NewsCategory, Banner, Distributor, DistributorDetail, DealerRegistration, ContactMessage, Project, ProjectCategory, ConsultationRequest, Catalogue, ThemeSettings
 
 
 def home(request):
@@ -445,6 +446,27 @@ def distributors(request):
         'dist_map_data_json': json.dumps(dist_map_data),
         'provinces': VIETNAM_PROVINCES,
         'selected_province': province,
+    })
+
+
+def distributor_detail(request, slug):
+    detail = get_object_or_404(DistributorDetail.objects.select_related('distributor'), slug=slug, is_active=True, distributor__is_active=True)
+    dist = detail.distributor
+    lat, lng = extract_distributor_coords(dist)
+    zalo = (detail.zalo_link or '').strip()
+    if not zalo:
+        first_phone = re.split(r'[/,;-]', dist.phone or '')[0]
+        zalo = re.sub(r'\D', '', first_phone)
+    if zalo and not zalo.lower().startswith('http'):
+        zalo = 'https://zalo.me/' + re.sub(r'\D', '', zalo)
+    place = f'{lat},{lng}' if lat and lng else (dist.map_address or dist.address)
+    return render(request, 'main/distributor_detail.html', {
+        'dist': dist,
+        'detail': detail,
+        'phones': [p.strip() for p in re.split(r'[/,;]', dist.phone or '') if p.strip()],
+        'zalo_url': zalo,
+        'map_embed_url': 'https://maps.google.com/maps?q=' + quote(str(place)) + '&z=15&output=embed',
+        'maps_url': 'https://www.google.com/maps/dir/?api=1&destination=' + quote(str(place)),
     })
 
 

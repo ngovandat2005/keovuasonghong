@@ -3,7 +3,7 @@ from django.contrib import admin
 from unfold.admin import ModelAdmin, TabularInline
 from .models import (ProductCategory, Product, ProductImage,
                      NewsCategory, News,
-                     Banner, Distributor, DistributorLink, DealerRegistration, ContactMessage,
+                     Banner, Distributor, DistributorDetail, DistributorLink, DealerRegistration, ContactMessage,
                      Project, ProjectCategory, ConsultationRequest, Catalogue, CATALOGUE_GROUP_CHOICES, ThemeSettings,
                      HomeBanner, Partner, AboutGalleryImage, QualityCertificate)
 
@@ -1274,6 +1274,68 @@ class DistributorLinkInline(TabularInline):
     extra = 0
     fields = ['label', 'url']
     show_title = False
+
+
+class DistributorDetailAdminForm(forms.ModelForm):
+    phone = forms.CharField(max_length=300, required=True, label='Số điện thoại / Hotline',
+                            help_text='Sửa ở đây sẽ cập nhật luôn số điện thoại trong Danh sách đại lý và trên bản đồ.',
+                            widget=forms.TextInput(attrs={'placeholder': 'VD: 0982 884 060 / 0866 609 289'}))
+
+    class Meta:
+        model = DistributorDetail
+        fields = '__all__'
+        widgets = {
+            'slug': forms.TextInput(attrs={'placeholder': 'VD: cong-ty-quang-minh'}),
+            'title': forms.TextInput(attrs={'placeholder': 'Để trống sẽ dùng tên đại lý'}),
+            'content': forms.Textarea(attrs={'rows': 14}),
+            'warehouse_address': forms.Textarea(attrs={'rows': 2, 'placeholder': 'VD: Kho số 5, KCN Quế Võ, Bắc Ninh'}),
+            'zalo_link': forms.TextInput(attrs={'placeholder': 'VD: 0938016788'}),
+            'extra_contacts': forms.HiddenInput(),
+        }
+
+    def clean_extra_contacts(self):
+        data = self.cleaned_data.get('extra_contacts') or []
+        if not isinstance(data, list):
+            return []
+        rows = []
+        for item in data:
+            if not isinstance(item, dict):
+                continue
+            label = str(item.get('label', '')).strip()
+            value = str(item.get('value', '')).strip()
+            if label or value:
+                rows.append({'label': label, 'value': value})
+        return rows
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for f in ('slug', 'title', 'content', 'warehouse_address', 'zalo_link', 'extra_contacts'):
+            self.fields[f].required = False
+        if self.instance and self.instance.pk:
+            self.fields['distributor'].disabled = True
+            self.fields['phone'].initial = self.instance.distributor.phone
+        else:
+            self.fields['distributor'].queryset = Distributor.objects.filter(detail__isnull=True)
+
+    def save(self, commit=True):
+        obj = super().save(commit=commit)
+        phone = self.cleaned_data.get('phone', '').strip()
+        if phone and obj.distributor.phone != phone:
+            obj.distributor.phone = phone
+            if commit:
+                obj.distributor.save(update_fields=['phone'])
+        return obj
+
+
+@admin.register(DistributorDetail)
+class DistributorDetailAdmin(ModelAdmin):
+    change_form_template = 'admin/main/distributordetail/change_form.html'
+    form = DistributorDetailAdminForm
+    list_fullwidth = True
+    list_display = ['distributor', 'slug', 'is_active', 'updated_at']
+    list_filter = ['is_active']
+    search_fields = ['distributor__name', 'slug', 'title']
+    fields = ['distributor', 'slug', 'title', 'content', 'phone', 'warehouse_address', 'zalo_link', 'extra_contacts', 'is_active']
 
 
 @admin.register(Distributor)

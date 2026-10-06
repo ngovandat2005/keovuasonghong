@@ -1,0 +1,313 @@
+{% extends 'unfold/layouts/base.html' %}
+{% load i18n admin_urls static admin_modify unfold %}
+
+{% block content %}
+<div class="pd-wrap">
+
+    <!-- Topbar -->
+    <div class="pd-topbar">
+        <div class="flex items-center gap-3">
+            <a href="{% url 'admin:main_distributordetail_changelist' %}" class="w-9 h-9 flex items-center justify-center rounded-default border border-base-300 bg-white hover:bg-base-100 hover:text-primary-600 text-base-700 dark:bg-base-800 dark:border-base-700 dark:text-base-200 transition-colors shadow-xs" title="{% trans 'Quay lại danh sách' %}">
+                <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            </a>
+            <h1 class="pd-h1">
+                {% if original %}{{ original.distributor.name }}{% else %}{% trans "Thêm danh mục đại lý" %}{% endif %}
+            </h1>
+        </div>
+        <div class="pd-topbar-actions">
+            <a href="{% url 'admin:main_distributordetail_changelist' %}" class="pd-btn pd-btn-ghost">{% trans "Hủy bỏ" %}</a>
+            {% if original and original.slug %}
+            <a href="{{ original.get_absolute_url }}" target="_blank" class="pd-btn pd-btn-ghost">{% trans "Xem trên web" %}</a>
+            {% endif %}
+            <button type="button" onclick="handleDetailSave()" class="pd-btn pd-btn-primary">{% trans "Lưu thay đổi" %}</button>
+        </div>
+    </div>
+
+    <form action="{{ form_url }}" method="post" id="distributordetail_form" novalidate>
+        {% csrf_token %}
+        {{ adminform.form.non_field_errors }}
+        {% if adminform.form.errors %}
+        <div class="text-red-600 text-xs mb-3 p-3 border border-red-200 bg-red-50 rounded">
+            <strong>{% trans "Có lỗi khiến form chưa lưu được, vui lòng kiểm tra lại các trường sau:" %}</strong>
+            <ul class="list-disc pl-5 mt-1">
+                {% for field in adminform.form %}{% for error in field.errors %}
+                <li>{{ field.label }}: {{ error }}</li>
+                {% endfor %}{% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div class="pd-top-grid">
+
+            <!-- CỘT TRÁI: tiêu đề + bài viết -->
+            <div>
+                <div class="pd-card">
+                    <h3 class="pd-card-title">
+                        {% trans "Tiêu đề trang" %}
+                    </h3>
+                    <div class="pd-field" style="margin-bottom:0;">
+                        {{ adminform.form.title }}
+                    </div>
+                </div>
+
+                <div class="pd-card pd-editor-card">
+                    <div class="pd-tabs"><span class="pd-tab active">{% trans "Nội dung chi tiết" %}</span></div>
+                    {{ adminform.form.content }}
+                </div>
+            </div>
+
+            <!-- CỘT PHẢI: đại lý, URL, liên hệ, hiển thị -->
+            <div>
+                <div class="pd-card">
+                    <h3 class="pd-card-title">
+                        <span class="material-symbols-outlined md-18">store</span>
+                        {% trans "Đại lý & Đường dẫn" %}
+                    </h3>
+
+                    <div class="pd-field">
+                        <label class="pd-label">{{ adminform.form.distributor.label }} *</label>
+                        {{ adminform.form.distributor }}
+                        {% if adminform.form.distributor.errors %}<div class="text-red-500 text-xs mt-1">{{ adminform.form.distributor.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="pd-field" style="margin-bottom:0;">
+                        <label class="pd-label">{{ adminform.form.slug.label }}</label>
+                        {{ adminform.form.slug }}
+                        <div class="pd-url-preview">/dai-ly-phan-phoi/<b id="slugPreview">{{ adminform.form.slug.value|default:'tu-dong-tao' }}</b>/</div>
+                        {% if adminform.form.slug.errors %}<div class="text-red-500 text-xs mt-1">{{ adminform.form.slug.errors }}</div>{% endif %}
+                    </div>
+                </div>
+
+                <div class="pd-card">
+                    <h3 class="pd-card-title">
+                        <span class="material-symbols-outlined md-18">contact_phone</span>
+                        {% trans "Thông tin liên hệ" %}
+                    </h3>
+
+                    <div class="pd-field">
+                        <label class="pd-label">{{ adminform.form.phone.label }} *</label>
+                        {{ adminform.form.phone }}
+                        {% if adminform.form.phone.errors %}<div class="text-red-500 text-xs mt-1">{{ adminform.form.phone.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="pd-field">
+                        <label class="pd-label">{{ adminform.form.warehouse_address.label }}</label>
+                        {{ adminform.form.warehouse_address }}
+                    </div>
+
+                    <div class="pd-field">
+                        <label class="pd-label">{{ adminform.form.zalo_link.label }}</label>
+                        {{ adminform.form.zalo_link }}
+                    </div>
+
+                    <div class="pd-field" style="margin-bottom:0;">
+                        <label class="pd-label">{% trans "Thông tin khác" %}</label>
+                        <div id="extraRows"></div>
+                        <button type="button" id="btnAddExtra" class="pd-add-btn" title="{% trans 'Thêm thông tin liên hệ' %}">
+                            <span class="material-symbols-outlined" style="font-size:18px;">add</span>
+                            {% trans "Thêm thông tin" %}
+                        </button>
+                        {{ adminform.form.extra_contacts }}
+                    </div>
+                </div>
+
+                <div class="pd-card">
+                    <h3 class="pd-card-title">
+                        <span class="material-symbols-outlined md-18">visibility</span>
+                        {% trans "Trạng thái" %}
+                    </h3>
+                    <label class="pd-checkbox-row">
+                        {{ adminform.form.is_active }}
+                        {% trans "Hiển thị trang chi tiết trên website" %}
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="pd-bottombar">
+            <a href="{% url 'admin:main_distributordetail_changelist' %}" class="pd-btn pd-btn-ghost">{% trans "Hủy bỏ" %}</a>
+            <button type="button" onclick="handleDetailSave()" class="pd-btn pd-btn-primary">{% trans "Lưu thay đổi" %}</button>
+        </div>
+    </form>
+</div>
+
+<style>
+.pd-wrap, .pd-wrap * { box-sizing: border-box; }
+.pd-wrap { max-width: 1180px; margin: 0 auto; font-size: 13.5px !important; }
+.pd-topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 12px; flex-wrap: wrap; }
+.pd-h1 { font-size: 18px !important; font-weight: 700 !important; color: #111827 !important; line-height: 24px !important; margin: 0 !important; }
+html.dark .pd-h1 { color: #F9FAFB !important; }
+.pd-topbar-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.pd-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 15px !important; font-size: 13px !important; font-weight: 600 !important; border-radius: 6px !important; border: 1px solid #8C5A2B; text-decoration: none; cursor: pointer; line-height: 1.4; transition: all .15s ease; }
+.pd-btn-ghost { background: #FFFFFF; color: #8C5A2B !important; }
+.pd-btn-ghost:hover { background: #FDF8F3; color: #70441E !important; border-color: #70441E; }
+.pd-btn-primary { background: #8C5A2B; color: #FFFFFF !important; }
+.pd-btn-primary:hover { background: #70441E; border-color: #70441E; }
+.pd-top-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; align-items: start; }
+@media (max-width: 900px) { .pd-top-grid { grid-template-columns: 1fr; } }
+.pd-card { background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 8px; padding: 16px 18px; margin-bottom: 14px; }
+html.dark .pd-card { background: #1F2937; border-color: #374151; }
+.pd-card-title { font-size: 14px !important; font-weight: 700 !important; color: #111827 !important; margin: 0 0 14px 0 !important; display: flex; align-items: center; gap: 6px; padding-bottom: 8px; border-bottom: 1px solid #F3F4F6; }
+.pd-card-title .material-symbols-outlined { color: #8C5A2B; }
+html.dark .pd-card-title { color: #F9FAFB !important; border-bottom-color: #374151; }
+.pd-field { margin-bottom: 14px; }
+.pd-label { display: block; font-size: 13px !important; font-weight: 600 !important; color: #374151 !important; margin-bottom: 5px; }
+html.dark .pd-label { color: #D1D5DB !important; }
+.pd-hint { font-size: 12px; color: #6B7280; margin-top: 5px; line-height: 1.45; }
+.pd-url-preview { margin-top: 6px; padding: 7px 10px; background: #FDF8F3; border: 1px dashed #D9B98F; border-radius: 6px; font-size: 12.5px; color: #70441E; word-break: break-all; }
+.pd-checkbox-row { display: flex; align-items: center; gap: 8px; font-size: 13px !important; font-weight: 600 !important; color: #374151 !important; cursor: pointer; }
+.pd-checkbox-row input[type="checkbox"] { width: 16px !important; height: 16px !important; accent-color: #8C5A2B; cursor: pointer; }
+.pd-wrap input[type="text"], .pd-wrap select { width: 100% !important; max-width: 100% !important; display: block !important; height: 38px; border: 1px solid #D1D5DB !important; padding: 6px 12px !important; font-size: 13.5px !important; color: #111827 !important; background: #FFFFFF !important; border-radius: 6px !important; }
+.pd-wrap textarea { width: 100% !important; border: 1px solid #D1D5DB !important; padding: 8px 12px !important; font-size: 13.5px !important; color: #111827 !important; background: #FFFFFF !important; border-radius: 6px !important; min-height: 70px; resize: vertical; }
+.pd-wrap input:focus, .pd-wrap textarea:focus, .pd-wrap select:focus { outline: none !important; border-color: #8C5A2B !important; box-shadow: 0 0 0 2px rgba(140, 90, 43, .15) !important; }
+.pd-bottombar { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+.pd-add-btn { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; padding: 6px 12px; font-size: 13px; font-weight: 600; color: #8C5A2B; background: #FFFFFF; border: 1px dashed #8C5A2B; border-radius: 6px; cursor: pointer; }
+.pd-add-btn:hover { background: #FDF8F3; }
+.pd-extra-row { display: grid; grid-template-columns: 1fr 1.4fr 32px; gap: 6px; margin-bottom: 8px; align-items: center; }
+.pd-extra-row button { width: 32px; height: 38px; border: none; background: transparent; color: #9CA3AF; cursor: pointer; font-size: 18px; line-height: 1; }
+.pd-extra-row button:hover { color: #DC2626; }
+.pd-editor-card { padding: 18px 22px 16px; }
+.pd-tabs { display: flex; gap: 22px; border-bottom: 1px solid #E5E7EB; margin-bottom: 14px; }
+.pd-tab { padding: 6px 0 10px; font-size: 15px; font-weight: 700; color: #9CA3AF; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.pd-tab.active { color: #8C5A2B; border-bottom-color: #8C5A2B; }
+.tox-tinymce { border: 1px solid #E5E7EB !important; border-radius: 10px !important; box-shadow: 0 1px 2px rgba(0, 0, 0, .04) !important; overflow: hidden; }
+.tox .tox-editor-header { box-shadow: none !important; }
+.tox .tox-toolbar, .tox .tox-toolbar__primary, .tox .tox-toolbar-overlord { background: #FAFAF9 !important; border-bottom: 1px solid #EDE7DE !important; padding: 4px 6px !important; }
+.tox .tox-toolbar__group { padding: 0 6px !important; border-right: 1px solid #E7E1D8 !important; }
+.tox .tox-toolbar__group:last-child { border-right: none !important; }
+.tox .tox-tbtn { border-radius: 6px !important; margin: 2px !important; transition: background-color .15s ease, color .15s ease; }
+.tox .tox-tbtn svg { fill: #4B5563 !important; }
+.tox .tox-tbtn:hover { background: #F3EAE0 !important; }
+.tox .tox-tbtn:hover svg { fill: #8C5A2B !important; }
+.tox .tox-tbtn--enabled, .tox .tox-tbtn--enabled:hover { background: #8C5A2B !important; }
+.tox .tox-tbtn--enabled svg, .tox .tox-tbtn--enabled:hover svg { fill: #FFFFFF !important; }
+.tox .tox-tbtn__select-label { font-size: 13px !important; color: #374151 !important; }
+.tox .tox-statusbar { border-top: 1px solid #EDE7DE !important; background: #FAFAF9 !important; }
+.tox-tinymce-aux .tox-menu, .tox-tinymce-aux .tox-collection { border-radius: 10px !important; border: 1px solid #E5E7EB !important; box-shadow: 0 10px 25px rgba(0, 0, 0, .12) !important; overflow: hidden; }
+.tox-tinymce-aux .tox-collection__item--active, .tox-tinymce-aux .tox-collection__item:hover { background-color: #F3EAE0 !important; }
+.tox .tox-dialog { border-radius: 12px !important; overflow: hidden; }
+.tox .tox-dialog__header { background: #FAF6F1 !important; border-bottom: 1px solid #EDE7DE !important; }
+.object-tools { display: none !important; }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="{% static 'js/tinymce_vi.js' %}"></script>
+<script>
+(function () {
+    if (window.tinymce) {
+        tinymce.init({
+            selector: '#id_content',
+            height: 520,
+            menubar: false,
+            statusbar: false,
+            language: 'vi',
+            plugins: 'advlist autolink lists link image media table code wordcount',
+            toolbar: 'blocks | fontsize | bold italic underline strikethrough | forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media table',
+            toolbar_mode: 'scrolling',
+            fontsize_formats: '11px 12px 13px 14px 15px 16px 18px 20px 24px 28px 32px',
+            color_map: ['8C5A2B', 'Nâu thương hiệu', '70441E', 'Nâu đậm', '111827', 'Đen', '374151', 'Xám đậm', '6B7280', 'Xám', 'FFFFFF', 'Trắng', 'DC2626', 'Đỏ', 'EA580C', 'Cam', 'F59E0B', 'Vàng', '16A34A', 'Xanh lá', '2563EB', 'Xanh dương', '7C3AED', 'Tím'],
+            branding: false,
+            promotion: false,
+            convert_urls: false,
+            image_description: false,
+            image_dimensions: false,
+            automatic_uploads: true,
+            file_picker_types: 'image',
+            file_picker_callback: function (cb, value, meta) {
+                if (meta.filetype !== 'image') return;
+                var input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.addEventListener('change', function () {
+                    var file = this.files[0];
+                    if (!file) return;
+                    var reader = new FileReader();
+                    reader.addEventListener('load', function () {
+                        var id = 'blobid' + (new Date()).getTime();
+                        var blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                        var blobInfo = blobCache.create(id, file, reader.result.split(',')[1]);
+                        blobCache.add(blobInfo);
+                        cb(blobInfo.blobUri(), { title: file.name });
+                    });
+                    reader.readAsDataURL(file);
+                });
+                input.click();
+            },
+            images_upload_handler: function (blobInfo) {
+                return new Promise(function (resolve, reject) {
+                    var formData = new FormData();
+                    formData.append('file', blobInfo.blob(), blobInfo.filename());
+                    var csrftoken = (document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)') || [])[2];
+                    fetch('{% url "admin:main_news_upload_content_image" %}', {
+                        method: 'POST',
+                        headers: { 'X-CSRFToken': csrftoken },
+                        body: formData
+                    }).then(function (r) { return r.json(); }).then(function (data) {
+                        if (data.location) { resolve(data.location); } else { reject(data.error || 'Tải ảnh lên thất bại.'); }
+                    }).catch(function (err) { reject('Lỗi tải ảnh lên: ' + err); });
+                });
+            },
+            content_style: 'body { font-family: "Bai Jamjuree", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; font-size: 15px; color: #2D3748; line-height: 1.8; padding: 20px 28px; background: #FFFFFF; } p { margin: 0 0 14px 0; } h2 { font-size: 20px; font-weight: 700; color: #111827; margin: 28px 0 14px 0; } h3 { font-size: 17px; font-weight: 700; color: #8C5A2B; margin: 22px 0 10px 0; } ul { list-style-type: disc !important; padding-left: 24px !important; } ol { list-style-type: decimal !important; padding-left: 24px !important; } img { max-width: 100%; height: auto; } table { width: 100%; border-collapse: collapse; } th, td { padding: 10px 14px; border: 1px solid #E5E7EB; }',
+            setup: function (editor) {
+                editor.on('change keyup NodeChange', function () { editor.save(); });
+            }
+        });
+    }
+    var slug = document.getElementById('id_slug');
+    var prev = document.getElementById('slugPreview');
+    if (slug && prev) {
+        slug.addEventListener('input', function () {
+            prev.textContent = slug.value.trim() || 'tu-dong-tao';
+        });
+    }
+    var extraWrap = document.getElementById('extraRows');
+    var extraInput = document.getElementById('id_extra_contacts');
+    function addExtraRow(label, value) {
+        var row = document.createElement('div');
+        row.className = 'pd-extra-row';
+        row.innerHTML = '<input type="text" class="ex-label" placeholder="Tên (VD: Facebook)"><input type="text" class="ex-value" placeholder="Nội dung / đường dẫn"><button type="button" title="Xóa">&times;</button>';
+        row.querySelector('.ex-label').value = label || '';
+        row.querySelector('.ex-value').value = value || '';
+        row.querySelector('button').addEventListener('click', function () { row.remove(); });
+        extraWrap.appendChild(row);
+    }
+    if (extraWrap && extraInput) {
+        try {
+            (JSON.parse(extraInput.value || '[]') || []).forEach(function (it) { addExtraRow(it.label, it.value); });
+        } catch (e) {}
+        document.getElementById('btnAddExtra').addEventListener('click', function () { addExtraRow('', ''); });
+    }
+})();
+
+function handleDetailSave() {
+    var dist = document.getElementById('id_distributor');
+    if (dist && !dist.value) {
+        alert('{% trans "Vui lòng chọn đại lý!" %}');
+        dist.focus();
+        return;
+    }
+    if (window.tinymce) tinymce.triggerSave();
+    var extraInput = document.getElementById('id_extra_contacts');
+    if (extraInput) {
+        var rows = [];
+        document.querySelectorAll('#extraRows .pd-extra-row').forEach(function (r) {
+            var l = r.querySelector('.ex-label').value.trim();
+            var v = r.querySelector('.ex-value').value.trim();
+            if (l || v) rows.push({ label: l, value: v });
+        });
+        extraInput.value = JSON.stringify(rows);
+    }
+    var form = document.getElementById('distributordetail_form');
+    var saveInput = document.getElementById('hidden_save_input');
+    if (!saveInput) {
+        saveInput = document.createElement('input');
+        saveInput.type = 'hidden';
+        saveInput.id = 'hidden_save_input';
+        saveInput.name = '_save';
+        saveInput.value = 'Lưu thay đổi';
+        form.appendChild(saveInput);
+    }
+    form.submit();
+}
+</script>
+{% endblock %}

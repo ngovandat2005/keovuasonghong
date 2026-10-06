@@ -301,6 +301,8 @@
                 <div class="dist-item-val" style="color: #8C5A2B; font-weight: 600;">{{ dist.phone }}</div>
               </div>
               {% endif %}
+
+              {% if dist.detail and dist.detail.is_active %}<a href="{% url 'distributor_detail' dist.detail.slug %}" class="dist-item-more">Xem chi tiết</a>{% endif %}
             </div>
           </div>
           {% endfor %}

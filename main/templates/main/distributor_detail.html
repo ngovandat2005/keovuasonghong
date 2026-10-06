@@ -1,0 +1,97 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}{{ dist.name }} – Đại lý phân phối – Keo Vữa Sông Hồng{% endblock %}
+{% block meta_desc %}Thông tin chi tiết đại lý {{ dist.name }} và hệ thống đại lý con trực thuộc.{% endblock %}
+
+{% block content %}
+<style>
+.dd-wrap { background: #f4f7fc; font-family: 'Bai Jamjuree', sans-serif; }
+.dd-layout { width: 100%; display: grid; grid-template-columns: 1fr 460px; align-items: stretch; background: #fff; overflow: hidden; }
+.dd-main { padding: 50px 55px; min-width: 0; }
+.dd-side { position: relative; align-self: center; }
+.dd-side img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
+@media (max-width: 900px) {
+  .dd-layout { grid-template-columns: 1fr; }
+  .dd-side { display: none; }
+  .dd-main { padding: 32px 20px; }
+}
+.dd-crumb { font-size: 13px; color: #6B7280; margin-bottom: 18px; }
+.dd-crumb a { color: #8C5A2B; text-decoration: none; }
+.dd-crumb .sep { margin: 0 6px; }
+.dd-title { color: rgb(140, 90, 43); font-size: 28px; font-weight: 800; text-transform: uppercase; line-height: 1.3; margin: 0 0 24px; text-align: left; }
+.dd-subtitle { color: rgb(140, 90, 43); font-size: 14px; font-weight: 700; margin: 0 0 22px; }
+.dd-article { font-size: 15px; line-height: 1.75; color: #1f2937; margin-bottom: 30px; }
+.dd-article p { margin: 0 0 14px; }
+.dd-article img { max-width: 100%; height: auto; }
+.dd-article h2, .dd-article h3 { color: #8C5A2B; margin: 22px 0 10px; }
+.dd-article ul { list-style: disc; padding-left: 24px; margin: 0 0 14px; }
+.dd-article ol { list-style: decimal; padding-left: 24px; margin: 0 0 14px; }
+.dd-article iframe { max-width: 100%; }
+.dd-sec-title { font-size: 17px; font-weight: 800; color: #1f2937; margin: 0 0 14px; }
+.dd-contact { display: grid; grid-template-columns: 1fr 200px; gap: 28px; align-items: center; margin-bottom: 30px; border: 1px solid #8C5A2B; background: #fff; padding: 24px 28px; }
+@media (max-width: 700px) { .dd-contact { grid-template-columns: 1fr; } }
+.dd-row { display: flex; gap: 12px; margin-bottom: 14px; font-size: 14.5px; line-height: 1.5; color: #111827; }
+.dd-row i { color: #8C5A2B; width: 18px; margin-top: 3px; text-align: center; flex-shrink: 0; }
+.dd-row b { display: block; font-size: 11px; font-weight: 700; color: #808080; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; }
+.dd-row a { color: #0B7BD6; text-decoration: none; }
+.dd-qr { text-align: center; }
+.dd-qr img { width: 100%; max-width: 172px; height: auto; display: block; margin: 0 auto 8px; }
+.dd-qr span { font-size: 13px; font-weight: 700; color: #8C5A2B; }
+.dd-map { border: 1px solid #8C5A2B; margin-bottom: 14px; }
+.dd-map iframe { width: 100%; height: 340px; border: 0; display: block; }
+.dd-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; background: #8C5A2B; color: #fff !important; font-size: 13.5px; font-weight: 700; text-decoration: none; border: 1px solid #8C5A2B; }
+.dd-btn.alt { background: #fff; color: #8C5A2B !important; }
+</style>
+
+<div class="dd-wrap">
+  <div class="dd-layout">
+
+    <!-- TRÁI: thông tin đại lý + danh sách đại lý con -->
+    <div class="dd-main">
+
+      <h1 class="dd-title">{{ detail.title|default:dist.name }}</h1>
+
+      <div class="dd-article">
+        {% if detail.content %}{{ detail.content|safe }}{% else %}<p>{{ dist.name }} là đại lý phân phối chính thức các sản phẩm Keo Vữa Sông Hồng (SHK Mortar) tại {{ dist.province }}. Quý khách vui lòng liên hệ trực tiếp để được tư vấn sản phẩm, báo giá và giao hàng.</p>{% endif %}
+      </div>
+
+      <h2 class="dd-sec-title">Thông tin liên hệ</h2>
+      <div class="dd-contact">
+        <div>
+          {% if phones %}
+          <div class="dd-row"><i class="fa-solid fa-phone"></i><div><b>Số điện thoại</b>{% for ph in phones %}<a href="tel:{{ ph|cut:' ' }}">{{ ph }}</a>{% if not forloop.last %} · {% endif %}{% endfor %}</div></div>
+          {% endif %}
+          {% if dist.email %}
+          <div class="dd-row"><i class="fa-solid fa-envelope"></i><div><b>Email</b><a href="mailto:{{ dist.email }}">{{ dist.email }}</a></div></div>
+          {% endif %}
+          <div class="dd-row"><i class="fa-solid fa-warehouse"></i><div><b>Địa chỉ kho</b>{{ detail.warehouse_address|default:dist.address }}</div></div>
+          {% for ex in detail.extra_contacts %}
+          <div class="dd-row"><i class="fa-solid fa-circle-info"></i><div>{% if ex.label %}<b>{{ ex.label }}</b>{% endif %}{% if ex.value|slice:":4" == "http" %}<a href="{{ ex.value }}" target="_blank" rel="noopener noreferrer">{{ ex.value }}</a>{% else %}{{ ex.value }}{% endif %}</div></div>
+          {% endfor %}
+          {% if dist.website %}
+          <div class="dd-row"><i class="fa-solid fa-globe"></i><div><b>Website</b><a href="{{ dist.website }}" target="_blank" rel="noopener noreferrer">{{ dist.website }}</a></div></div>
+          {% endif %}
+        </div>
+        {% if zalo_url %}
+        <div class="dd-qr">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&data={{ zalo_url|urlencode:'' }}" alt="Mã QR Zalo">
+          <span>Quét mã QR để chat Zalo</span>
+        </div>
+        {% endif %}
+      </div>
+
+      <h2 class="dd-sec-title">Bản đồ</h2>
+      <div class="dd-map"><iframe src="{{ map_embed_url }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Bản đồ {{ dist.name }}"></iframe></div>
+      <a class="dd-btn" href="{{ maps_url }}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-diamond-turn-right"></i> Chỉ đường Google Maps</a>
+      <a href="{% url 'distributors' %}" class="dd-btn alt" style="margin-left:8px;"><i class="fa-solid fa-arrow-left"></i> Quay lại danh sách</a>
+    </div>
+
+    <!-- PHẢI: ảnh poster -->
+    <div class="dd-side">
+      <img src="{% if theme.dealer_hero_image %}{{ theme.dealer_hero_image.url }}{% else %}{% static 'images/dealer_hero.jpg' %}{% endif %}" alt="SHK Mortar">
+    </div>
+
+  </div>
+</div>
+{% endblock %}

@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'cloudinary_storage',
     'django.contrib.staticfiles',
+    'django.contrib.sitemaps',
     'cloudinary',
     'main',
 ]
@@ -185,6 +186,10 @@ UNFOLD = {
                         "title": "Đại lý phân phối",
                         "icon": "storefront",
                         "link": "/admin/main/distributor/",
+                        "items": [
+                            {"title": "Danh sách đại lý", "link": "/admin/main/distributor/"},
+                            {"title": "Danh mục đại lý", "link": "/admin/main/distributordetail/"},
+                        ],
                     },
                     {
                         "title": "E-catalog",

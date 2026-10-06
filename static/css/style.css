@@ -9592,7 +9592,25 @@ margin-bottom: 10px;
 
 .dist-item.active {
   background: #FFFFFF;
+  border: 1px solid #8C5A2B;
   border-left: 3px solid #8C5A2B;
+}
+
+.dist-item-more {
+  display: none;
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0B7BD6;
+  text-decoration: none;
+}
+
+.dist-item.active .dist-item-more {
+  display: inline-block;
+}
+
+.dist-item-more:hover {
+  text-decoration: underline;
 }
 
 .dist-item-info {

@@ -12,6 +12,7 @@ urlpatterns = [
     path('tin-tuc/<slug:category>/<slug:slug>/', views.news_detail, name='news_detail'),
     path('chinh-sach-va-dieu-khoan/', views.policy, name='policy'),
     path('dai-ly-phan-phoi/', views.distributors, name='distributors'),
+    path('dai-ly-phan-phoi/<slug:slug>/', views.distributor_detail, name='distributor_detail'),
     path('dang-ky-dai-ly/', views.dealer_register, name='dealer_register'),
     path('lien-he/', views.contact, name='contact'),
     path('e-catalog/', views.catalogue, name='catalogue'),
