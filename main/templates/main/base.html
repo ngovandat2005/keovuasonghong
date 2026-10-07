@@ -184,6 +184,10 @@
                         {% if theme.footer_doc_3_title %}<li><a href="{{ theme.footer_doc_3_link|default:'/e-catalog/?doc=ho-so-nang-luc' }}" {% if '.pdf' in theme.footer_doc_3_link %}target="_blank" rel="noopener noreferrer"{% endif %}>{{ theme.footer_doc_3_title }}</a></li>{% endif %}
                         {% if theme.footer_doc_4_title %}<li><a href="{{ theme.footer_doc_4_link|default:'/e-catalog/' }}" {% if '.pdf' in theme.footer_doc_4_link %}target="_blank" rel="noopener noreferrer"{% endif %}>{{ theme.footer_doc_4_title }}</a></li>{% endif %}
                     </ul>
+                    <div class="footer-dmca" style="margin-top: 16px;">
+                        <a href="//www.dmca.com/Protection/Status.aspx?ID=7905ccdc-86c0-4539-bb3a-0754ae2d4b6b" title="DMCA.com Protection Status" class="dmca-badge" target="_blank" rel="noopener"> <img src="https://images.dmca.com/Badges/dmca-badge-w100-2x1-02.png?ID=7905ccdc-86c0-4539-bb3a-0754ae2d4b6b" alt="DMCA.com Protection Status" /></a>
+                        <script src="https://images.dmca.com/Badges/DMCABadgeHelper.min.js"></script>
+                    </div>
                 </div>
             </div>
 
@@ -301,7 +305,8 @@
     </script>
     <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
     <script src="{% static 'js/main.js' %}?v=4"></script>
-    {% include 'main/chatbot_widget.html' %}
+    {# Tạm ẩn chatbot AI: bỏ comment dòng dưới để bật lại #}
+    {# {% include 'main/chatbot_widget.html' %} #}
     {% block extra_js %}{% endblock %}
 </body>
 
