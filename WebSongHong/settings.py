@@ -236,6 +236,7 @@ UNFOLD = {
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'main.middleware.NonWwwRedirectMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'main.middleware.LegacyRedirectMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

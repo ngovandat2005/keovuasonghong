@@ -46,3 +46,18 @@ class LegacyRedirectMiddleware:
                 return HttpResponsePermanentRedirect(target_url)
 
         return self.get_response(request)
+
+
+class NonWwwRedirectMiddleware:
+    """
+    Chuyển hướng 301 từ www.keovuasonghong.vn về keovuasonghong.vn (giữ nguyên đường dẫn và query).
+    """
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        host = request.get_host()
+        if host.lower().startswith('www.'):
+            target = f'https://{host[4:]}{request.get_full_path()}'
+            return HttpResponsePermanentRedirect(target)
+        return self.get_response(request)
