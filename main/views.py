@@ -623,6 +623,17 @@ def project_detail(request, slug):
     """Chi tiết dự án tại URL gọn /<slug>/. Slug không phải dự án -> 404."""
     project = Project.objects.filter(slug=slug, is_active=True).first()
     if project is None:
+        # Route không có dấu "/" ở cuối khớp trước APPEND_SLASH, nên tự thêm "/" cho các trang khác
+        # (vd /admin, /gioi-thieu, /lien-he -> /admin/, /gioi-thieu/, /lien-he/)
+        if not request.path.endswith('/'):
+            from django.urls import resolve, Resolver404
+            try:
+                match = resolve(request.path + '/')
+            except Resolver404:
+                match = None
+            if match and match.url_name not in ('project_detail', 'project_detail_noslash'):
+                query = request.META.get('QUERY_STRING')
+                return redirect(request.path + '/' + ('?' + query if query else ''), permanent=True)
         raise Http404("Không tìm thấy trang")
     if not request.path.endswith('/'):
         return redirect('project_detail', slug=project.slug, permanent=True)
