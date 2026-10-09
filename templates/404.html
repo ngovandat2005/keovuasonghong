@@ -4,139 +4,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
     <title>404 - Không tìm thấy trang | Keo Vữa Sông Hồng</title>
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon-32x32.png' %}?v=2">
     <link rel="icon" type="image/png" sizes="192x192" href="{% static 'images/favicon-192.png' %}?v=2">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --orange: #F56E1A;
+            --orange-dark: #E85D08;
+            --orange-light: #FF7E2E;
+            --ink: #0f172a;
+            --muted: #64748b;
         }
 
         body {
             font-family: 'Bai Jamjuree', sans-serif;
-            background: #ffffff;
-            color: #0f172a;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
+            color: var(--ink);
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 78% 55%, rgba(255,126,46,.16) 0%, rgba(255,126,46,0) 46%),
+                #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow-x: hidden;
+        }
+
+        /* nền caro gạch nhạt */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(to right, rgba(15,23,42,.035) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(15,23,42,.035) 1px, transparent 1px);
+            background-size: 64px 32px;
+            pointer-events: none;
+        }
+
+        .wrap {
             position: relative;
+            width: min(1120px, 100%);
+            padding: 32px 28px;
+            display: grid;
+            grid-template-columns: 1.05fr .95fr;
+            align-items: center;
+            gap: 24px;
         }
 
-        .error-container {
-            text-align: center;
-            max-width: 580px;
-            padding: 24px;
-        }
+        /* ---------- Cột chữ ---------- */
 
-        .error-code {
-            font-size: clamp(110px, 20vw, 190px);
+        .code {
+            font-size: clamp(110px, 17vw, 200px);
             font-weight: 800;
-            line-height: 0.9;
-            letter-spacing: -5px;
-            background: linear-gradient(135deg, #FF7E2E 0%, #F56E1A 50%, #E85D08 100%);
+            line-height: .88;
+            letter-spacing: -6px;
+            background: linear-gradient(135deg, var(--orange-light) 0%, var(--orange) 50%, var(--orange-dark) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
-        .error-title {
-            font-size: clamp(22px, 3.5vw, 30px);
-            font-weight: 700;
-            color: #0f172a;
+        h1 {
+            font-size: clamp(24px, 3.4vw, 34px);
+            font-weight: 800;
+            line-height: 1.25;
             margin-bottom: 12px;
         }
 
-        .error-desc {
+        .desc {
             font-size: 16px;
-            color: #64748b;
-            line-height: 1.6;
-            margin-bottom: 32px;
+            line-height: 1.7;
+            color: var(--muted);
+            max-width: 470px;
+            margin-bottom: 28px;
         }
 
-        .error-btns {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 14px;
-            flex-wrap: wrap;
-        }
+        .btns { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 0; }
 
+        .btn-home, .btn-back {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 13px 28px; border-radius: 8px;
+            font: 600 15px 'Bai Jamjuree', sans-serif;
+            text-decoration: none; cursor: pointer; transition: .2s;
+        }
         .btn-home {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, #FF7E2E 0%, #E85D08 100%);
-            color: #ffffff;
-            padding: 12px 28px;
-            border-radius: 6px;
-            font-size: 15px;
-            font-weight: 600;
-            text-decoration: none;
-            box-shadow: 0 4px 16px rgba(232, 93, 8, 0.28);
-            transition: transform 0.2s, box-shadow 0.2s;
+            color: #fff; border: 0;
+            background: linear-gradient(135deg, var(--orange-light), var(--orange-dark));
+            box-shadow: 0 6px 18px rgba(232,93,8,.3);
+        }
+        .btn-home:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(232,93,8,.42); }
+        .btn-back { color: #475569; background: #f8fafc; border: 1px solid #cbd5e1; font-weight: 500; }
+        .btn-back:hover { background: #f1f5f9; border-color: #94a3b8; color: var(--ink); }
+
+        /* ---------- Cột linh vật ---------- */
+        .stage { position: relative; display: flex; justify-content: center; align-items: flex-end; min-height: 560px; }
+
+        .stage .ghost {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -54%);
+            font-size: clamp(190px, 25vw, 340px);
+            font-weight: 800; letter-spacing: -10px; line-height: 1;
+            color: rgba(245,110,26,.09);
+            user-select: none; pointer-events: none;
         }
 
-        .btn-home:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(232, 93, 8, 0.4);
+        .stage .floor {
+            position: absolute; bottom: 4px; left: 50%;
+            width: 66%; height: 26px; transform: translateX(-50%);
+            background: radial-gradient(ellipse at center, rgba(15,23,42,.22) 0%, rgba(15,23,42,0) 70%);
         }
 
-        .btn-back {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: #f8fafc;
-            color: #475569;
-            padding: 12px 24px;
-            border-radius: 6px;
-            font-size: 15px;
-            font-weight: 500;
-            text-decoration: none;
-            border: 1px solid #cbd5e1;
-            transition: all 0.2s;
-            cursor: pointer;
+        .mascot {
+            position: relative; z-index: 2;
+            height: min(560px, 62vh); width: auto;
+            filter: drop-shadow(0 14px 22px rgba(15,23,42,.18));
+            animation: bob 3.2s ease-in-out infinite;
+            transform-origin: bottom center;
+        }
+        @keyframes bob {
+            0%, 100% { transform: translateY(0) rotate(-.6deg); }
+            50%      { transform: translateY(-9px) rotate(.6deg); }
         }
 
-        .btn-back:hover {
-            background: #f1f5f9;
-            color: #0f172a;
-            border-color: #94a3b8;
+        .bubble {
+            position: absolute; z-index: 3; top: 6%; left: -2%;
+            background: #fff; border: 2px solid var(--ink);
+            border-radius: 16px; padding: 12px 16px;
+            font-size: 15px; font-weight: 700; line-height: 1.35;
+            box-shadow: 4px 4px 0 var(--orange);
+            max-width: 190px;
+            animation: pop .5s .3s both cubic-bezier(.2,1.4,.4,1);
         }
+        .bubble::after {
+            content: ""; position: absolute; bottom: -13px; right: 34px;
+            width: 20px; height: 20px; background: #fff;
+            border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink);
+            transform: rotate(45deg);
+        }
+        .bubble small { display: block; font-weight: 500; color: var(--muted); font-size: 12px; margin-top: 3px; }
+        @keyframes pop { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: scale(1); } }
 
+        /* ---------- Mobile ---------- */
+        @media (max-width: 860px) {
+            body { align-items: flex-start; }
+            .wrap { grid-template-columns: 1fr; text-align: center; padding-top: 20px; gap: 8px; }
+            .desc { margin-left: auto; margin-right: auto; }
+            .btns { justify-content: center; }
+            .stage { min-height: 360px; order: -1; }
+            .mascot { height: min(360px, 48vh); }
+            .bubble { left: 50%; top: -4px; transform: translateX(-130%); max-width: 160px; font-size: 13px; }
+            .bubble::after { right: 24px; }
+            @keyframes pop { from { opacity: 0; } to { opacity: 1; } }
+        }
         @media (max-width: 480px) {
-            .error-btns {
-                flex-direction: column;
-                width: 100%;
-            }
-            .btn-home, .btn-back {
-                width: 100%;
-                justify-content: center;
-            }
+            .btns { flex-direction: column; }
+            .btn-home, .btn-back { justify-content: center; width: 100%; }
         }
+        @media (prefers-reduced-motion: reduce) { .mascot, .bubble { animation: none; } }
     </style>
 </head>
 <body>
-    <div class="error-container">
-        <div class="error-code">404</div>
-        <h1 class="error-title">Không tìm thấy trang</h1>
-        <p class="error-desc">Trang bạn đang tìm kiếm không tồn tại hoặc đã được chuyển sang địa chỉ khác.</p>
-        <div class="error-btns">
-            <a href="{% url 'home' %}" class="btn-home">
-                <i class="fas fa-house"></i> Về Trang Chủ
-            </a>
-            <button onclick="window.history.back()" class="btn-back">
-                <i class="fas fa-arrow-left"></i> Quay lại
-            </button>
-        </div>
-    </div>
+    <main class="wrap">
+        <section class="copy">
+            <div class="code">404</div>
+            <h1>Ối! Trâu SHK trát mãi mà không thấy trang này</h1>
+            <p class="desc">Đường dẫn bạn truy cập không tồn tại hoặc đã được chuyển đi nơi khác. Bạn quay về trang chủ hoặc quay lại trang trước nhé.</p>
+
+            <div class="btns">
+                <a href="{% url 'home' %}" class="btn-home"><i class="fa-solid fa-house"></i> Về trang chủ</a>
+                <a href="javascript:history.back()" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Quay lại</a>
+            </div>
+        </section>
+
+        <section class="stage" aria-hidden="true">
+            <div class="ghost">404</div>
+            <div class="bubble">Trang này “khô” mất rồi!<small>Để Trâu dẫn bạn về nhà nhé</small></div>
+            <div class="floor"></div>
+            <img class="mascot" src="{% static 'images/mascot_trau.png' %}" alt="Linh vật trâu SHK Mortar">
+        </section>
+    </main>
 </body>
 </html>
