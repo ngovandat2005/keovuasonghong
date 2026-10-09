@@ -53,7 +53,7 @@ class ProjectSitemap(Sitemap):
         return Project.objects.filter(is_active=True)
 
     def location(self, obj):
-        return reverse('project_detail', args=[obj.category, obj.slug])
+        return reverse('project_detail', args=[obj.slug])
 
     def lastmod(self, obj):
         return obj.updated_at

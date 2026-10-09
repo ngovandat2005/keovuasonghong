@@ -21,11 +21,14 @@ urlpatterns = [
     path('du-an/', views.project_list, name='project_list'),
     path('du-an/danh-muc/<slug:category>/', views.project_category_redirect, name='project_category_legacy_redirect'),
     path('du-an/<slug:category>/', views.project_list, name='project_list_category'),
-    path('du-an/<slug:category>/<slug:slug>/', views.project_detail, name='project_detail'),
+    path('du-an/<slug:category>/<slug:slug>/', views.project_detail_legacy, name='project_detail_legacy'),
     path('dang-ky-tu-van/', views.consultation, name='consultation'),
     path('xuat-excel-tu-van/', views.download_consultations_excel, name='export_consultations_excel'),
     path('xuat-word-tu-van/<int:pk>/', views.download_consultation_word, name='export_consultation_word'),
     path('api/chat/', views.chat_api, name='chat_api'),
     path('404/', views.custom_404_view, name='error_404'),
+    # Dự án: URL gọn /<slug>/ — phải đặt CUỐI CÙNG vì khớp mọi slug
+    path('<slug:slug>/', views.project_detail, name='project_detail'),
+    path('<slug:slug>', views.project_detail, name='project_detail_noslash'),
 ]
 

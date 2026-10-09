@@ -4,6 +4,7 @@ from urllib.parse import quote
 from datetime import timedelta
 from django.utils import timezone
 from django.shortcuts import render, get_object_or_404, redirect
+from django.http import Http404
 from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -591,7 +592,7 @@ def project_list(request, category=None):
         if category not in VALID_PROJECT_CATEGORIES:
             old_project = Project.objects.filter(slug=category, is_active=True).first()
             if old_project:
-                return redirect('project_detail', category=old_project.category, slug=old_project.slug)
+                return redirect('project_detail', slug=old_project.slug, permanent=True)
 
     cat = category or ''
     projects = Project.objects.filter(is_active=True).order_by('-published_at')
@@ -618,15 +619,24 @@ def project_category_redirect(request, category):
     return redirect(url)
 
 
-def project_detail(request, category, slug):
-    project = get_object_or_404(Project, slug=slug, is_active=True)
-    if project.category and project.category != category:
-        return redirect('project_detail', category=project.category, slug=project.slug)
+def project_detail(request, slug):
+    """Chi tiết dự án tại URL gọn /<slug>/. Slug không phải dự án -> 404."""
+    project = Project.objects.filter(slug=slug, is_active=True).first()
+    if project is None:
+        raise Http404("Không tìm thấy trang")
+    if not request.path.endswith('/'):
+        return redirect('project_detail', slug=project.slug, permanent=True)
     related_catalogues = project.related_catalogues.filter(is_active=True)[:3]
     return render(request, 'main/project_detail.html', {
         'project': project,
         'related_catalogues': related_catalogues,
     })
+
+
+def project_detail_legacy(request, category, slug):
+    """URL cũ /du-an/<danh-muc>/<slug>/ -> 301 sang /<slug>/."""
+    project = get_object_or_404(Project, slug=slug, is_active=True)
+    return redirect('project_detail', slug=project.slug, permanent=True)
 
 
 def consultation(request):
