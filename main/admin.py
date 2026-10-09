@@ -121,6 +121,24 @@ def handle_shared_content_image_upload(request, folder='news/content'):
     return JsonResponse({'location': default_storage.url(saved_path)})
 
 
+VIDEO_UPLOAD_MAX_MB = 150
+VIDEO_UPLOAD_EXTS = ('.mp4', '.webm', '.ogg', '.mov', '.m4v')
+
+
+def handle_shared_content_video_upload(request, folder='videos'):
+    """Tải video từ máy lên (lưu trên ổ đĩa host, không đẩy lên Cloudinary) để chèn vào nội dung bài."""
+    from django.http import JsonResponse
+    from .models import local_file_storage
+    file = request.FILES.get('file')
+    name = (file.name if file else '').lower()
+    if not file or not ((file.content_type or '').startswith('video/') or name.endswith(VIDEO_UPLOAD_EXTS))             or not name.endswith(VIDEO_UPLOAD_EXTS):
+        return JsonResponse({'error': 'Vui lòng chọn file video (MP4, WebM, OGG, MOV).'}, status=400)
+    if file.size > VIDEO_UPLOAD_MAX_MB * 1024 * 1024:
+        return JsonResponse({'error': f'Video quá lớn (tối đa {VIDEO_UPLOAD_MAX_MB} MB). Hãy nén nhỏ lại hoặc dán mã nhúng YouTube.'}, status=400)
+    saved_path = local_file_storage.save(f'{folder}/{file.name}', file)
+    return JsonResponse({'location': local_file_storage.url(saved_path)})
+
+
 @admin.register(ProductCategory)
 class ProductCategoryAdmin(ModelAdmin):
     change_list_template = 'admin/main/productcategory/change_list.html'
@@ -203,6 +221,7 @@ class ProductAdmin(ModelAdmin):
             path('reorder-products/', self.admin_site.admin_view(self.reorder_products), name='main_product_reorder_products'),
             path('reorder-gallery/<int:pk>/', self.admin_site.admin_view(self.reorder_gallery), name='main_product_reorder_gallery'),
             path('upload-content-image/', self.admin_site.admin_view(self.upload_content_image), name='main_product_upload_content_image'),
+            path('upload-content-video/', self.admin_site.admin_view(self.upload_content_video), name='main_product_upload_content_video'),
             path('list-media-images/', self.admin_site.admin_view(self.list_media_images), name='main_product_list_media_images'),
         ]
         return custom_urls + urls
@@ -218,6 +237,12 @@ class ProductAdmin(ModelAdmin):
             from django.http import JsonResponse
             return JsonResponse({'error': 'forbidden'}, status=403)
         return handle_shared_content_image_upload(request, folder='products/content')
+
+    def upload_content_video(self, request):
+        if not (request.user.is_staff or request.user.has_perm('main.change_product') or request.user.has_perm('main.add_product')):
+            from django.http import JsonResponse
+            return JsonResponse({'error': 'forbidden'}, status=403)
+        return handle_shared_content_video_upload(request, folder='products/content/videos')
 
     def reorder_products(self, request):
         import json
@@ -584,6 +609,7 @@ class ProjectAdmin(ModelAdmin):
             path('bulk-edit/', self.admin_site.admin_view(self.bulk_edit_view), name='main_project_bulk_edit'),
             path('toggle-active/<int:pk>/', self.admin_site.admin_view(self.toggle_active), name='main_project_toggle_active'),
             path('upload-content-image/', self.admin_site.admin_view(self.upload_content_image), name='main_project_upload_content_image'),
+            path('upload-content-video/', self.admin_site.admin_view(self.upload_content_video), name='main_project_upload_content_video'),
             path('list-media-images/', self.admin_site.admin_view(self.list_media_images), name='main_project_list_media_images'),
         ]
         return custom_urls + urls
@@ -599,6 +625,12 @@ class ProjectAdmin(ModelAdmin):
             from django.http import JsonResponse
             return JsonResponse({'error': 'forbidden'}, status=403)
         return handle_shared_content_image_upload(request, folder='projects/content')
+
+    def upload_content_video(self, request):
+        if not (request.user.is_staff or request.user.has_perm('main.change_project') or request.user.has_perm('main.add_project')):
+            from django.http import JsonResponse
+            return JsonResponse({'error': 'forbidden'}, status=403)
+        return handle_shared_content_video_upload(request, folder='projects/content/videos')
 
     def bulk_edit_view(self, request):
         from django.shortcuts import render, redirect
