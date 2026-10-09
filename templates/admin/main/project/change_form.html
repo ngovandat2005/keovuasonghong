@@ -652,6 +652,7 @@ html.dark .pd-tabs-nav {
 <!-- Scripts: TinyMCE + Confirm Logic -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js" referrerpolicy="origin"></script>
 <script src="{% static 'js/tinymce_vi.js' %}"></script>
+<script src="{% static 'js/shk_video_link.js' %}"></script>
 <script>
 function initProjectTinyMCE() {
     if (typeof tinymce === 'undefined') return;
@@ -706,7 +707,7 @@ function initProjectTinyMCE() {
             // Nút video: mở dialog dán mã nhúng video
             editor.ui.registry.addButton('insertvideo', {
                 icon: 'embed',
-                tooltip: 'Chèn Video (tải từ máy hoặc dán mã nhúng)',
+                tooltip: 'Chèn Video (tải từ máy hoặc dán link)',
                 onAction: function () {
                     editor.windowManager.open({
                         title: 'Chèn Video',
@@ -720,9 +721,9 @@ function initProjectTinyMCE() {
                                     label: 'Cách 1: Chọn video từ máy (MP4, WebM, tối đa 150 MB)'
                                 },
                                 {
-                                    type: 'textarea',
-                                    name: 'vembed',
-                                    label: 'Cách 2: Dán mã nhúng (iframe/embed code) vào đây'
+                                    type: 'input',
+                                    name: 'vlink',
+                                    label: 'Cách 2: Dán link video (YouTube, Vimeo, Facebook hoặc link file .mp4)'
                                 }
                             ]
                         },
@@ -765,9 +766,14 @@ function initProjectTinyMCE() {
                                 });
                                 return;
                             }
-                            const src = (data.vembed || '').trim();
-                            if (src) {
-                                editor.insertContent(src);
+                            const link = (data.vlink || '').trim();
+                            if (link) {
+                                const html = shkVideoToHtml(link);
+                                if (!html) {
+                                    editor.notificationManager.open({ text: 'Link video không hợp lệ. Hãy dán link YouTube, Vimeo, Facebook hoặc link file .mp4.', type: 'error', timeout: 6000 });
+                                    return;
+                                }
+                                editor.insertContent(html);
                                 saveProjectDraft();
                             }
                             api.close();
