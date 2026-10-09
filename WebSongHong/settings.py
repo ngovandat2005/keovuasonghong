@@ -35,7 +35,7 @@ if _env_file.exists():
 SECRET_KEY = os.environ.get('SECRET_KEY') or 'django-insecure-dev-only-change-me'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'False').lower() in ('1', 'true', 'yes')
 
 ALLOWED_HOSTS = ['*', 'keovuasonghong.vn', 'www.keovuasonghong.vn', '192.168.1.122', '127.0.0.1', 'localhost']
 
