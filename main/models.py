@@ -3,8 +3,13 @@ import os
 import re
 import unicodedata
 from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 from django.db import models
 from django.utils.text import slugify
+
+
+# PDF/tài liệu lưu trên ổ đĩa host (không đẩy lên Cloudinary) để URL có đuôi .pdf và xem được trực tiếp
+local_file_storage = FileSystemStorage()
 
 
 def resolve_media_file_url(file_field):
@@ -120,8 +125,8 @@ class Product(models.Model):
     category = models.ForeignKey(ProductCategory, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Danh mục")
     image = models.ImageField(upload_to='products/', blank=True, null=True, verbose_name="Hình ảnh")
     video_url = models.URLField(blank=True, null=True, verbose_name="Link video YouTube")
-    ecatalog_file = models.FileField(upload_to='products/ecatalog/', blank=True, null=True, verbose_name="File E-catalog (PDF)")
-    certificate_file = models.FileField(upload_to='products/certificates/', blank=True, null=True, verbose_name="Chứng chỉ chất lượng (PDF)")
+    ecatalog_file = models.FileField(upload_to='products/ecatalog/', storage=local_file_storage, blank=True, null=True, verbose_name="File E-catalog (PDF)")
+    certificate_file = models.FileField(upload_to='products/certificates/', storage=local_file_storage, blank=True, null=True, verbose_name="Chứng chỉ chất lượng (PDF)")
     short_description = models.TextField(blank=True, verbose_name="Đoạn giới thiệu tổng quan")
     description = models.TextField(blank=True, verbose_name="Hướng dẫn thi công")
     usage_norms = models.TextField(blank=True, verbose_name="Định mức sử dụng")
@@ -587,7 +592,7 @@ class Catalogue(models.Model):
     group_name = models.CharField(max_length=255, choices=CATALOGUE_GROUP_CHOICES, default='Hồ sơ năng lực', verbose_name="Tên nhóm tài liệu")
     description = models.TextField(blank=True, verbose_name="Mô tả")
     thumbnail = models.ImageField(upload_to='catalogues/', blank=True, null=True, verbose_name="Ảnh bìa")
-    file = models.FileField(upload_to='catalogues/files/', blank=True, null=True, verbose_name="File PDF")
+    file = models.FileField(upload_to='catalogues/files/', storage=local_file_storage, blank=True, null=True, verbose_name="File PDF")
     order = models.IntegerField(default=0, verbose_name="Số thứ tự sắp xếp")
     related_products = models.ManyToManyField('Product', blank=True, verbose_name="Sản phẩm liên quan", related_name='related_catalogues')
     related_projects = models.ManyToManyField('Project', blank=True, verbose_name="Dự án liên quan", related_name='related_catalogues')
