@@ -423,15 +423,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   // Open modal only on [XEM TÀI LIỆU] button click
-  // Bấm XEM TÀI LIỆU: mở file PDF/ảnh ở tab mới; không có file thì mới dùng khung xem trong trang
-  if (btnDocView) btnDocView.addEventListener('click', function() {
-    const url = currentDoc.pdf;
-    if (url && url !== '#') {
-      window.open(url, '_blank', 'noopener');
-    } else {
-      openModal();
-    }
-  });
+  if (btnDocView) btnDocView.addEventListener('click', openModal);
   
   // Close modal events
   if (docModalClose) docModalClose.addEventListener('click', closeModal);
