@@ -248,6 +248,8 @@ MIDDLEWARE = [
 ]
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
+# Mặc định Django là 'same-origin' (không gửi Referer sang trang khác) nên video YouTube nhúng báo lỗi 153
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
 ROOT_URLCONF = 'WebSongHong.urls'
 
