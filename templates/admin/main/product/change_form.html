@@ -22,7 +22,7 @@
         <div class="pd-topbar-actions">
             <a href="{% url 'admin:main_product_changelist' %}" class="pd-btn pd-btn-ghost" onclick="clearProductDraft()">{% trans "Hủy bỏ" %}</a>
             {% if original and original.category %}
-            <a href="{% url 'product_detail' original.category.slug original.slug %}" target="_blank" class="pd-btn pd-btn-ghost">{% trans "Xem trang web" %}</a>
+            <a href="{% url 'product_detail' original.slug %}" target="_blank" class="pd-btn pd-btn-ghost">{% trans "Xem trang web" %}</a>
             {% endif %}
             <button type="submit" form="product_form" name="_save" class="pd-btn pd-btn-primary">{% trans "Lưu thay đổi" %}</button>
         </div>

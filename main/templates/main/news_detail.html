@@ -95,7 +95,7 @@
                     <h3 class="widget-title">Tin tức nổi bật</h3>
                     <div class="widget-news-list">
                         {% for item in featured_news %}
-                        <a href="{% url 'news_detail' item.category.slug item.slug %}" class="widget-news-item">
+                        <a href="{% url 'news_detail' item.slug %}" class="widget-news-item">
                             <div class="widget-news-thumb{% if item.is_auto_video_thumbnail %} widget-news-thumb--video{% endif %}">
                                 {% if item.thumbnail_url %}
                                 <img src="{{ item.thumbnail_url }}" alt="{{ item.title }}">
@@ -110,7 +110,7 @@
                         </a>
                         {% empty %}
                         {% for item in related %}
-                        <a href="{% url 'news_detail' item.category.slug item.slug %}" class="widget-news-item">
+                        <a href="{% url 'news_detail' item.slug %}" class="widget-news-item">
                             <div class="widget-news-thumb{% if item.is_auto_video_thumbnail %} widget-news-thumb--video{% endif %}">
                                 {% if item.thumbnail_url %}
                                 <img src="{{ item.thumbnail_url }}" alt="{{ item.title }}">
@@ -134,7 +134,7 @@
                     <h3 class="widget-title">Sản phẩm liên quan</h3>
                     <div class="widget-news-list">
                         {% for p in related_products %}
-                        <a href="{% url 'product_detail' p.category.slug p.slug %}" class="widget-news-item">
+                        <a href="{% url 'product_detail' p.slug %}" class="widget-news-item">
                             <div class="widget-news-thumb">
                                 {% if p.image %}
                                 <img src="{{ p.image.url }}" alt="{{ p.name }}">

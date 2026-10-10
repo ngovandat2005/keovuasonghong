@@ -6,10 +6,10 @@ urlpatterns = [
     path('gioi-thieu/', views.about, name='about'),
     path('san-pham/', views.product_list, name='product_list'),
     path('san-pham/<slug:category>/', views.product_list, name='product_list_category'),
-    path('san-pham/<slug:category>/<slug:slug>/', views.product_detail, name='product_detail'),
+    path('san-pham/<slug:category>/<slug:slug>/', views.product_detail_legacy, name='product_detail_legacy'),
     path('tin-tuc/', views.news_list, name='news_list'),
     path('tin-tuc/<slug:category>/', views.news_list, name='news_list_category'),
-    path('tin-tuc/<slug:category>/<slug:slug>/', views.news_detail, name='news_detail'),
+    path('tin-tuc/<slug:category>/<slug:slug>/', views.news_detail_legacy, name='news_detail_legacy'),
     path('chinh-sach-va-dieu-khoan/', views.policy, name='policy'),
     path('dai-ly-phan-phoi/', views.distributors, name='distributors'),
     path('dai-ly-phan-phoi/<slug:slug>/', views.distributor_detail, name='distributor_detail'),
@@ -27,8 +27,11 @@ urlpatterns = [
     path('xuat-word-tu-van/<int:pk>/', views.download_consultation_word, name='export_consultation_word'),
     path('api/chat/', views.chat_api, name='chat_api'),
     path('404/', views.custom_404_view, name='error_404'),
-    # Dự án: URL gọn /<slug>/ — phải đặt CUỐI CÙNG vì khớp mọi slug
-    path('<slug:slug>/', views.project_detail, name='project_detail'),
-    path('<slug:slug>', views.project_detail, name='project_detail_noslash'),
+    # Chi tiết Dự án / Sản phẩm / Tin tức: URL gọn /<slug>/ — phải đặt CUỐI CÙNG vì khớp mọi slug.
+    # Cả 3 tên cùng trỏ vào một view; view tự tìm đúng loại nội dung theo slug.
+    path('<slug:slug>/', views.content_detail, name='project_detail'),
+    path('<slug:slug>/', views.content_detail, name='product_detail'),
+    path('<slug:slug>/', views.content_detail, name='news_detail'),
+    path('<slug:slug>', views.content_detail, name='content_detail_noslash'),
 ]
 

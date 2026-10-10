@@ -58,7 +58,7 @@
           {% for item in news_items %}
           <article class="news-item-card">
             <!-- Ảnh tỷ lệ 4:3 -->
-            <a href="{% url 'news_detail' item.category.slug item.slug %}" class="news-item-visual{% if item.is_auto_video_thumbnail %} news-item-visual--video{% endif %}">
+            <a href="{% url 'news_detail' item.slug %}" class="news-item-visual{% if item.is_auto_video_thumbnail %} news-item-visual--video{% endif %}">
               {% if item.thumbnail_url %}
               <img src="{{ item.thumbnail_url }}" alt="{{ item.title }}" loading="lazy">
               {% else %}
@@ -78,7 +78,7 @@
               </div>
     
               <h3 class="news-item-title">
-                <a href="{% url 'news_detail' item.category.slug item.slug %}" title="{{ item.title }}">
+                <a href="{% url 'news_detail' item.slug %}" title="{{ item.title }}">
                   {{ item.title }}
                 </a>
               </h3>
@@ -87,7 +87,7 @@
                 {{ item.display_summary }}
               </p>
     
-              <a href="{% url 'news_detail' item.category.slug item.slug %}" class="news-item-readmore">
+              <a href="{% url 'news_detail' item.slug %}" class="news-item-readmore">
                 Xem chi tiết <i class="fa-solid fa-arrow-right-long"></i>
               </a>
             </div>

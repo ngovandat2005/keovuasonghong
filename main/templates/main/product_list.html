@@ -54,7 +54,7 @@
         {% for p in cat.products %}
         <div class="prod-card-box">
           <!-- Phía trên là Ảnh to nổi bật -->
-          <a href="{% url 'product_detail' cat.slug p.slug %}" class="prod-card-visual" title="{{ p.name }}">
+          <a href="{% url 'product_detail' p.slug %}" class="prod-card-visual" title="{{ p.name }}">
             {% if p.image %}
               <img src="{{ p.image.url }}" alt="{{ p.name }}" loading="lazy">
             {% else %}
@@ -64,13 +64,13 @@
           <!-- Phía dưới là Group Tên + Ghi chú thông tin + Nút xem chi tiết -->
           <div class="prod-card-body">
             <div class="prod-card-main">
-              <a href="{% url 'product_detail' cat.slug p.slug %}" class="prod-card-name" title="{{ p.name }}">{{ p.name }}</a>
+              <a href="{% url 'product_detail' p.slug %}" class="prod-card-name" title="{{ p.name }}">{{ p.name }}</a>
               {% if p.short_description %}
               <p class="prod-card-desc">{{ p.display_short_description }}</p>
               {% endif %}
             </div>
             <div class="prod-card-footer">
-              <a href="{% url 'product_detail' cat.slug p.slug %}" class="btn-prod-detail">
+              <a href="{% url 'product_detail' p.slug %}" class="btn-prod-detail">
                 <span>Xem chi tiết</span> <i class="fa-solid fa-arrow-right"></i>
               </a>
             </div>

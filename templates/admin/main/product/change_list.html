@@ -117,7 +117,7 @@
                         </td>
                         <td class="px-4 py-4 text-right whitespace-nowrap">
                             <div class="flex items-center justify-end gap-1">
-                                <a href="{% url 'product_detail' obj.category.slug obj.slug %}" target="_blank" title="{% trans 'Xem trên web' %}" class="w-8 h-8 flex items-center justify-center rounded-default hover:bg-base-100 dark:hover:bg-base-800 text-base-500 hover:text-primary-600 transition-colors">
+                                <a href="{% url 'product_detail' obj.slug %}" target="_blank" title="{% trans 'Xem trên web' %}" class="w-8 h-8 flex items-center justify-center rounded-default hover:bg-base-100 dark:hover:bg-base-800 text-base-500 hover:text-primary-600 transition-colors">
                                     <span class="material-symbols-outlined md-18 sp-plain-text">visibility</span>
                                 </a>
                                 <a href="/admin/main/product/{{ obj.pk }}/change/" title="{% trans 'Sửa' %}" class="w-8 h-8 flex items-center justify-center rounded-default hover:bg-base-100 dark:hover:bg-base-800 text-base-500 hover:text-[#8C5A2B] transition-colors">

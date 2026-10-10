@@ -28,6 +28,15 @@ def resolve_media_file_url(file_field):
         return f"{settings.MEDIA_URL}{name}"
 
 
+def slug_used_by_other_content(slug, model_cls):
+    """Link chi tiết dùng chung dạng /<slug>/ nên slug không được trùng giữa Dự án, Sản phẩm, Tin tức."""
+    for name in ('Project', 'Product', 'News'):
+        cls = globals().get(name)
+        if cls is not None and cls is not model_cls and cls.objects.filter(slug=slug).exists():
+            return True
+    return False
+
+
 def vietnamese_slugify(text):
     if not text:
         return ""
@@ -157,7 +166,7 @@ class Product(models.Model):
             base_slug = slugify(self.name) or "san-pham"
             slug = base_slug
             counter = 1
-            while Product.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+            while Product.objects.filter(slug=slug).exclude(pk=self.pk).exists() or slug_used_by_other_content(slug, Product):
                 slug = f"{base_slug}-{counter}"
                 counter += 1
             self.slug = slug
@@ -288,7 +297,7 @@ class News(models.Model):
             base_slug = vietnamese_slugify(self.title) or "tin-tuc"
             slug = base_slug
             counter = 1
-            while News.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+            while News.objects.filter(slug=slug).exclude(pk=self.pk).exists() or slug_used_by_other_content(slug, News):
                 slug = f"{base_slug}-{counter}"
                 counter += 1
             self.slug = slug
@@ -525,7 +534,7 @@ class Project(models.Model):
             base_slug = vietnamese_slugify(self.title) or "du-an"
             slug = base_slug
             counter = 1
-            while Project.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+            while Project.objects.filter(slug=slug).exclude(pk=self.pk).exists() or slug_used_by_other_content(slug, Project):
                 slug = f"{base_slug}-{counter}"
                 counter += 1
             self.slug = slug

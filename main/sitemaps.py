@@ -26,7 +26,7 @@ class ProductSitemap(Sitemap):
         return Product.objects.filter(is_active=True, category__isnull=False).select_related('category')
 
     def location(self, obj):
-        return reverse('product_detail', args=[obj.category.slug, obj.slug])
+        return reverse('product_detail', args=[obj.slug])
 
 
 class NewsSitemap(Sitemap):
@@ -38,7 +38,7 @@ class NewsSitemap(Sitemap):
         return News.objects.filter(is_active=True, category__isnull=False).select_related('category')
 
     def location(self, obj):
-        return reverse('news_detail', args=[obj.category.slug, obj.slug])
+        return reverse('news_detail', args=[obj.slug])
 
     def lastmod(self, obj):
         return obj.updated_at

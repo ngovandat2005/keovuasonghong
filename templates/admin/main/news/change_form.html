@@ -20,7 +20,7 @@
         <div class="pd-topbar-actions">
             <a href="{% url 'admin:main_news_changelist' %}" class="pd-btn pd-btn-ghost">{% trans "Hủy bỏ" %}</a>
             {% if original and original.slug and original.category %}
-            <a href="{% url 'news_detail' original.category.slug original.slug %}" target="_blank" class="pd-btn pd-btn-ghost">{% trans "Xem trên web" %}</a>
+            <a href="{% url 'news_detail' original.slug %}" target="_blank" class="pd-btn pd-btn-ghost">{% trans "Xem trên web" %}</a>
             {% endif %}
             <button type="button" onclick="handleNewsSave()" class="pd-btn pd-btn-primary">{% trans "Lưu thay đổi" %}</button>
         </div>
@@ -68,7 +68,7 @@
                     </div>
                     <div class="text-[11.5px] text-gray-500 mt-1 flex items-center gap-1">
                         <span>{% trans "Xem trước URL:" %}</span>
-                        <span class="font-mono text-[#8C5A2B] font-semibold" id="slugPreviewText">/tin-tuc/{{ original.slug|default:"..." }}/</span>
+                        <span class="font-mono text-[#8C5A2B] font-semibold" id="slugPreviewText">/{{ original.slug|default:"..." }}/</span>
                     </div>
                     {% if adminform.form.slug.errors %}
                     <div class="text-red-500 text-xs mt-1">{{ adminform.form.slug.errors }}</div>
@@ -2336,7 +2336,7 @@
             if (data.slug && document.getElementById('id_slug')) {
                 document.getElementById('id_slug').value = data.slug;
                 const previewEl = document.getElementById('slugPreviewText');
-                if (previewEl) previewEl.textContent = '/tin-tuc/' + data.slug + '/';
+                if (previewEl) previewEl.textContent = '/' + data.slug + '/';
                 if (window._seoSync) window._seoSync.updateSlug(data.slug, false);
             }
             if (data.category && document.getElementById('id_category')) document.getElementById('id_category').value = data.category;
@@ -2388,7 +2388,7 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         initNewsTinyMCE();
-        initSlugAutoGenerator('/tin-tuc/');
+        initSlugAutoGenerator('/');
         initSeoPreview();
         
         ['id_title', 'id_slug', 'id_category', 'id_author', 'id_summary'].forEach(function(id) {

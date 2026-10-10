@@ -1,3 +1,4 @@
+import re
 from django.http import HttpResponsePermanentRedirect
 from .legacy_redirects import LEGACY_URL_MAPPING
 
@@ -23,27 +24,19 @@ class LegacyRedirectMiddleware:
             slug = slug[:-5]
 
         if slug:
-            target_url = None
-            
-            # 1. Ưu tiên kiểm tra xem có bài viết News nào trùng slug không
-            try:
-                from main.models import News
-                news_item = News.objects.filter(slug=slug, is_active=True).select_related('category').first()
-                if news_item:
-                    cat_slug = news_item.category.slug if news_item.category else 'tin-tuc'
-                    target_url = f'/tin-tuc/{cat_slug}/{news_item.slug}/'
-            except Exception:
-                pass
-
-            # 2. Nếu chưa có bài viết riêng, lấy URL từ bảng mapping dự phòng
-            if not target_url:
-                target_url = LEGACY_URL_MAPPING.get(slug)
-
+            # Bảng mapping URL cũ (Sapo) -> URL mới. Bài viết/sản phẩm/dự án giờ dùng URL gọn /<slug>/
+            # nên đích dạng /tin-tuc|san-pham|du-an/<danh-muc>/<slug>/ được rút gọn thành /<slug>/.
+            target_url = LEGACY_URL_MAPPING.get(slug)
             if target_url:
-                query_string = request.META.get('QUERY_STRING')
-                if query_string:
-                    target_url = f"{target_url}?{query_string}"
-                return HttpResponsePermanentRedirect(target_url)
+                m = re.match(r'^/(?:tin-tuc|san-pham|du-an)/[^/]+/([^/]+)/$', target_url)
+                if m:
+                    target_url = f'/{m.group(1)}/'
+                # Đích trùng chính đường dẫn đang truy cập thì để view xử lý (tránh vòng lặp chuyển hướng)
+                if target_url.strip('/') != slug:
+                    query_string = request.META.get('QUERY_STRING')
+                    if query_string:
+                        target_url = f"{target_url}?{query_string}"
+                    return HttpResponsePermanentRedirect(target_url)
 
         return self.get_response(request)
 

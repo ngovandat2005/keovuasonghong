@@ -97,7 +97,7 @@ def product_list(request, category=None):
             old_prod = Product.objects.filter(slug=category, is_active=True).first()
             if old_prod:
                 c_slug = old_prod.category.slug if old_prod.category else 'san-pham'
-                return redirect('product_detail', category=c_slug, slug=old_prod.slug)
+                return redirect('product_detail', slug=old_prod.slug, permanent=True)
 
     preferred_order = ['vua-kho-tron-san', 'vua-xay-trat-aac', 'keo-dan-gach-da', 'cat-sach-say-kho']
     all_cats = list(ProductCategory.objects.all())
@@ -132,11 +132,14 @@ def product_list(request, category=None):
     })
 
 
-def product_detail(request, category, slug):
+def product_detail_legacy(request, category, slug):
+    """URL cũ /san-pham/<danh-muc>/<slug>/ -> 301 sang /<slug>/."""
     product = get_object_or_404(Product, slug=slug, is_active=True)
-    correct_cat = product.category.slug if product.category else 'san-pham'
-    if category != correct_cat:
-        return redirect('product_detail', category=correct_cat, slug=product.slug)
+    return redirect('product_detail', slug=product.slug, permanent=True)
+
+
+def product_detail(request, slug):
+    product = get_object_or_404(Product, slug=slug, is_active=True)
 
     category_products = Product.objects.filter(category=product.category, is_active=True) if product.category else [product]
     related = Product.objects.filter(category=product.category, is_active=True).exclude(pk=product.pk)[:4]
@@ -251,7 +254,7 @@ def news_list(request, category=None):
             old_news = News.objects.filter(slug=category, is_active=True).first()
             if old_news:
                 c_slug = old_news.category.slug if old_news.category else 'tin-tuc'
-                return redirect('news_detail', category=c_slug, slug=old_news.slug)
+                return redirect('news_detail', slug=old_news.slug, permanent=True)
 
     preferred_order = ['phong-su-thuc-te', 'kien-thuc-chuyen-mon', 'van-hoa-doanh-nghiep']
     categories = list(NewsCategory.objects.all())
@@ -283,11 +286,14 @@ def news_list(request, category=None):
     })
 
 
-def news_detail(request, category, slug):
+def news_detail_legacy(request, category, slug):
+    """URL cũ /tin-tuc/<danh-muc>/<slug>/ -> 301 sang /<slug>/."""
     news = get_object_or_404(News, slug=slug, is_active=True)
-    correct_cat = news.category.slug if news.category else 'tin-tuc'
-    if category != correct_cat:
-        return redirect('news_detail', category=correct_cat, slug=news.slug)
+    return redirect('news_detail', slug=news.slug, permanent=True)
+
+
+def news_detail(request, slug):
+    news = get_object_or_404(News, slug=slug, is_active=True)
 
     related = news.related_articles.filter(is_active=True)[:4]
     if not related:
@@ -620,9 +626,26 @@ def project_category_redirect(request, category):
 
 
 def project_detail(request, slug):
-    """Chi tiết dự án tại URL gọn /<slug>/. Slug không phải dự án -> 404."""
-    project = Project.objects.filter(slug=slug, is_active=True).first()
-    if project is None:
+    project = get_object_or_404(Project, slug=slug, is_active=True)
+    related_catalogues = project.related_catalogues.filter(is_active=True)[:3]
+    return render(request, 'main/project_detail.html', {
+        'project': project,
+        'related_catalogues': related_catalogues,
+    })
+
+
+def content_detail(request, slug):
+    """
+    Trang chi tiết với URL gọn /<slug>/ cho Dự án, Sản phẩm, Tin tức.
+    Tìm theo thứ tự: Dự án -> Sản phẩm -> Tin tức. Không có -> 404.
+    """
+    handler = None
+    for model, view in ((Project, project_detail), (Product, product_detail), (News, news_detail)):
+        if model.objects.filter(slug=slug, is_active=True).exists():
+            handler = view
+            break
+
+    if handler is None:
         # Route không có dấu "/" ở cuối khớp trước APPEND_SLASH, nên tự thêm "/" cho các trang khác
         # (vd /admin, /gioi-thieu, /lien-he -> /admin/, /gioi-thieu/, /lien-he/)
         if not request.path.endswith('/'):
@@ -631,17 +654,15 @@ def project_detail(request, slug):
                 match = resolve(request.path + '/')
             except Resolver404:
                 match = None
-            if match and match.url_name not in ('project_detail', 'project_detail_noslash'):
+            if match and match.url_name not in ('project_detail', 'product_detail', 'news_detail', 'content_detail_noslash'):
                 query = request.META.get('QUERY_STRING')
                 return redirect(request.path + '/' + ('?' + query if query else ''), permanent=True)
         raise Http404("Không tìm thấy trang")
+
     if not request.path.endswith('/'):
-        return redirect('project_detail', slug=project.slug, permanent=True)
-    related_catalogues = project.related_catalogues.filter(is_active=True)[:3]
-    return render(request, 'main/project_detail.html', {
-        'project': project,
-        'related_catalogues': related_catalogues,
-    })
+        query = request.META.get('QUERY_STRING')
+        return redirect(request.path + '/' + ('?' + query if query else ''), permanent=True)
+    return handler(request, slug)
 
 
 def project_detail_legacy(request, category, slug):
