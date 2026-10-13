@@ -251,6 +251,21 @@ class ProductSpec(models.Model):
         return f"{self.label}: {self.value}"
 
 
+class ProductFAQ(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='faqs')
+    question = models.CharField(max_length=500, verbose_name="Câu hỏi")
+    answer = models.TextField(verbose_name="Câu trả lời")
+    order = models.PositiveIntegerField(default=0, blank=True, verbose_name="Thứ tự")
+
+    class Meta:
+        verbose_name = "Câu hỏi thường gặp"
+        verbose_name_plural = "Câu hỏi thường gặp"
+        ordering = ['order', 'id']
+
+    def __str__(self):
+        return self.question
+
+
 class NewsCategory(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True, blank=True)

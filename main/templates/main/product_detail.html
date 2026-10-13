@@ -247,6 +247,32 @@
       </div>
     </div>
 
+    <!-- ── CÂU HỎI THƯỜNG GẶP (CÓ THU GỌN / ĐÓNG MỞ) ── -->
+    {% if product.faqs.all %}
+    <div class="pd-single-accordion-section">
+      <div class="pd-acc-item active">
+        <button type="button" class="pd-acc-btn">
+          <span class="pd-acc-tag">CÂU HỎI THƯỜNG GẶP</span>
+          <span class="pd-acc-line"></span>
+          <span class="pd-acc-icon"><i class="fa-solid fa-play"></i></span>
+        </button>
+        <div class="pd-acc-content" style="display: block;">
+          <div class="pd-acc-inner">
+            {% for faq in product.faqs.all %}
+            <div class="pd-faq-item">
+              <button type="button" class="pd-faq-q">
+                <span>{{ faq.question }}</span>
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+              <div class="pd-faq-a">{{ faq.answer|linebreaks }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
     <!-- SẢN PHẨM LIÊN QUAN -->
     {% if related %}
     <div class="pd-related-section">
@@ -525,6 +551,13 @@
     if (pdDocModalBackdrop) pdDocModalBackdrop.addEventListener('click', closeDocModal);
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && pdDocModal.classList.contains('active')) closeDocModal();
+    });
+
+    // Đóng / mở từng câu hỏi thường gặp
+    document.querySelectorAll('.pd-faq-q').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        this.closest('.pd-faq-item').classList.toggle('open');
+      });
     });
 
     // 3. Xử lý đóng / mở Accordion Thông số & Đặc tính kỹ thuật

@@ -3,8 +3,8 @@
 <html lang="vi">
 
 <head>
-    <meta name='dmca-site-verification' content='KzVEM3hjMFVycVFwcGZuUGFKeTJ3WkVtb00yT1k1ME8yRmpkSVEzdzJnST01' />
     <meta name='dmca-site-verification' content='aDhsc1Rhams3Z0JzSEwvNmJkUmZobm0xcTZsNWF1VUoySW1RME5OblVOaz01' />
+    <meta name='dmca-site-verification' content='KzVEM3hjMFVycVFwcGZuUGFKeTJ3WkVtb00yT1k1ME8yRmpkSVEzdzJnST01' />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Keo Vữa Sông Hồng - SHK Mortar{% endblock %}</title>
@@ -55,7 +55,7 @@
                         Thiệu</a>
                     <div class="nav-drop">
                         <a href="{% url 'product_list' %}"
-                            class="nav-link {% if 'product' in request.resolver_match.url_name %}active{% endif %}">
+                            class="nav-link {% if nav_section == 'product' or not nav_section and 'product' in request.resolver_match.url_name %}active{% endif %}">
                             SẢN PHẨM <i class="fas fa-chevron-down" style="font-size:9px;margin-left:4px;"></i>
                         </a>
                         <div class="drop-menu">
@@ -67,7 +67,7 @@
                     </div>
                     <div class="nav-drop">
                         <a href="{% url 'project_list' %}"
-                            class="nav-link {% if 'project' in request.resolver_match.url_name %}active{% endif %}">
+                            class="nav-link {% if nav_section == 'project' or not nav_section and 'project' in request.resolver_match.url_name %}active{% endif %}">
                             DỰ ÁN <i class="fas fa-chevron-down" style="font-size:9px;margin-left:4px;"></i>
                         </a>
                         <div class="drop-menu">
@@ -85,7 +85,7 @@
                         CỤ TÍNH</a>
                     <div class="nav-drop">
                         <a href="{% url 'news_list' %}"
-                            class="nav-link {% if 'news' in request.resolver_match.url_name %}active{% endif %}">
+                            class="nav-link {% if nav_section == 'news' or not nav_section and 'news' in request.resolver_match.url_name %}active{% endif %}">
                             TIN TỨC <i class="fas fa-chevron-down" style="font-size:9px;margin-left:4px;"></i>
                         </a>
                         <div class="drop-menu">
@@ -307,8 +307,7 @@
     </script>
     <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
     <script src="{% static 'js/main.js' %}?v=4"></script>
-    {# Tạm ẩn chatbot AI: bỏ comment dòng dưới để bật lại #}
-    {# {% include 'main/chatbot_widget.html' %} #}
+    {% include 'main/chatbot_widget.html' %}
     {% block extra_js %}{% endblock %}
 </body>
 

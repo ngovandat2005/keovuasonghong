@@ -223,6 +223,7 @@ def product_detail(request, slug):
     first_media = media_list[0] if media_list else None
 
     return render(request, 'main/product_detail.html', {
+        'nav_section': 'product',
         'product': product,
         'category_products': category_products,
         'related': related,
@@ -301,6 +302,7 @@ def news_detail(request, slug):
     featured_news = News.objects.filter(is_active=True).exclude(pk=news.pk).order_by('-published_at')[:5]
     categories = NewsCategory.objects.all()
     return render(request, 'main/news_detail.html', {
+        'nav_section': 'news',
         'news': news,
         'related': related,
         'featured_news': featured_news,
@@ -629,6 +631,7 @@ def project_detail(request, slug):
     project = get_object_or_404(Project, slug=slug, is_active=True)
     related_catalogues = project.related_catalogues.filter(is_active=True)[:3]
     return render(request, 'main/project_detail.html', {
+        'nav_section': 'project',
         'project': project,
         'related_catalogues': related_catalogues,
     })

@@ -3670,6 +3670,59 @@ margin-bottom: 10px;
   width: 100%;
 }
 
+/* Câu hỏi thường gặp */
+.pd-faq-item {
+  border-bottom: 1px solid rgba(128, 128, 128, 0.3);
+}
+
+.pd-faq-q {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  background: transparent;
+  border: none;
+  padding: 18px 0;
+  cursor: pointer;
+  text-align: left;
+  font-family: 'Bai Jamjuree', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #000000;
+}
+
+.pd-faq-q:hover {
+  color: #FF7E2E;
+}
+
+.pd-faq-q i {
+  color: #8C5A2B;
+  font-size: 14px;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.pd-faq-item.open .pd-faq-q i {
+  transform: rotate(180deg);
+}
+
+.pd-faq-a {
+  display: none;
+  padding: 0 0 18px 0;
+  font-size: 17px;
+  line-height: 27px;
+  color: #000000;
+}
+
+.pd-faq-item.open .pd-faq-a {
+  display: block;
+}
+
+.pd-faq-a p {
+  margin: 0 0 8px 0;
+}
+
 .pd-specs-table {
   width: 100% !important;
   border-collapse: collapse !important;

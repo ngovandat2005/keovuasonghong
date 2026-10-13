@@ -302,6 +302,70 @@
             </div>
         </div>
 
+        <!-- 4. Câu hỏi thường gặp (tạo từng câu hỏi) -->
+        {% for inline_admin_formset in inline_admin_formsets %}
+        {% if inline_admin_formset.opts.opts.model_name == 'productfaq' %}
+        <div class="pd-card pd-mt-lg">
+            <div class="pd-faq-card-head">
+                <h3 class="pd-card-title" style="margin: 0;">
+                    <span class="material-symbols-outlined md-18">help</span>
+                    {% trans "Câu hỏi thường gặp" %}
+                </h3>
+            </div>
+            {{ inline_admin_formset.formset.management_form }}
+            <div class="pd-faq-cols">
+                <span></span><span>{% trans "Câu hỏi" %}</span><span>{% trans "Câu trả lời" %}</span>
+            </div>
+            <div id="pdFaqList">
+                {% for inline_admin_form in inline_admin_formset %}
+                <div class="pd-faq-row">
+                    {{ inline_admin_form.form.id }}
+                    <span class="pd-faq-num"></span>
+                    <div>{{ inline_admin_form.form.question }}</div>
+                    <div>{{ inline_admin_form.form.answer }}</div>
+                    <div class="pd-faq-hidden">{{ inline_admin_form.form.order }}{% if inline_admin_form.original %}{{ inline_admin_form.form.DELETE }}{% endif %}</div>
+                </div>
+                {% endfor %}
+            </div>
+            <template id="pdFaqEmptyForm">
+                <div class="pd-faq-row">
+                    {{ inline_admin_formset.formset.empty_form.id }}
+                    <span class="pd-faq-num"></span>
+                    <div>{{ inline_admin_formset.formset.empty_form.question }}</div>
+                    <div>{{ inline_admin_formset.formset.empty_form.answer }}</div>
+                    <div class="pd-faq-hidden">{{ inline_admin_formset.formset.empty_form.order }}</div>
+                </div>
+            </template>
+            <button type="button" class="pd-faq-add" id="pdFaqAddBtn">
+                <span class="material-symbols-outlined md-18">add</span> {% trans "Thêm câu hỏi" %}
+            </button>
+        </div>
+        <script>
+        document.getElementById('pdFaqAddBtn').addEventListener('click', function () {
+            const total = document.getElementById('id_{{ inline_admin_formset.formset.prefix }}-TOTAL_FORMS');
+            const idx = parseInt(total.value, 10);
+            const html = document.getElementById('pdFaqEmptyForm').innerHTML.replace(/__prefix__/g, idx);
+            const list = document.getElementById('pdFaqList');
+            list.insertAdjacentHTML('beforeend', html);
+            total.value = idx + 1;
+            const last = list.lastElementChild;
+            const q = last.querySelector('input[type="text"]');
+            if (q) q.focus();
+        });
+        document.getElementById('product_form').addEventListener('submit', function () {
+            document.querySelectorAll('#pdFaqList .pd-faq-row').forEach(function (row, i) {
+                const q = row.querySelector('input[name$="-question"]');
+                const order = row.querySelector('input[name$="-order"]');
+                const del = row.querySelector('input[name$="-DELETE"]');
+                const empty = !q || !q.value.trim();
+                if (order) order.value = empty ? 0 : i;
+                if (del) del.checked = empty;
+            });
+        });
+        </script>
+        {% endif %}
+        {% endfor %}
+
         <div class="pd-bottombar">
             <a href="{% url 'admin:main_product_changelist' %}" class="pd-btn pd-btn-ghost">{% trans "Hủy bỏ" %}</a>
             <button type="submit" name="_save" class="pd-btn pd-btn-primary">{% trans "Lưu thay đổi" %}</button>
@@ -972,6 +1036,20 @@ html.dark .pd-btn-draft-clear:hover {
 .pd-tab-btn { padding: 8px 0; font-size: 13.5px !important; font-weight: 600; color: #6B7280 !important; background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.15s ease; }
 .pd-tab-btn:hover { color: #8C5A2B !important; }
 .pd-tab-active { color: #8C5A2B !important; border-bottom-color: #8C5A2B !important; }
+
+/* ── Câu hỏi thường gặp ── */
+.pd-faq-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
+.pd-faq-cols, .pd-faq-row { display: grid; grid-template-columns: 28px minmax(0, 1fr) minmax(0, 1.5fr); gap: 10px; align-items: center; }
+.pd-faq-cols { font-size: 12.5px; font-weight: 600; color: #808080; padding: 0 0 6px 0; border-bottom: 1px solid #E5E7EB; margin-bottom: 8px; }
+#pdFaqList { counter-reset: faq; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.pd-faq-row { counter-increment: faq; }
+.pd-faq-hidden { display: none; }
+.pd-faq-num::before { content: counter(faq) "."; font-weight: 700; font-size: 14px; color: #8C5A2B; }
+.pd-faq-del { display: inline-flex; align-items: center; justify-content: center; color: #7A0000; cursor: pointer; background: transparent; border: none; padding: 0; }
+.pd-faq-del input { margin-right: 2px; }
+.pd-faq-row input[type="text"], .pd-faq-row input[type="number"], .pd-faq-row textarea { width: 100% !important; max-width: none !important; height: 38px; min-height: 0 !important; padding: 6px 10px !important; resize: none; }
+.pd-faq-add { display: inline-flex; align-items: center; gap: 4px; padding: 6px 14px; border: 1.5px dashed #8C5A2B; background: transparent; color: #8C5A2B; font-size: 13px; font-weight: 600; cursor: pointer; }
+.pd-faq-add:hover { background: #FAF5EF; }
 
 /* ── TinyMCE customization ── */
 .tox-tinymce {

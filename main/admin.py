@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib import admin
 from unfold.admin import ModelAdmin, TabularInline
-from .models import (ProductCategory, Product, ProductImage,
+from .models import (ProductCategory, Product, ProductImage, ProductFAQ,
                      NewsCategory, News,
                      Banner, Distributor, DistributorDetail, DistributorLink, DealerRegistration, ContactMessage,
                      Project, ProjectCategory, ConsultationRequest, Catalogue, CATALOGUE_GROUP_CHOICES, ThemeSettings,
@@ -179,6 +179,25 @@ class ProductImageInline(TabularInline):
         return formfield
 
 
+class ProductFAQInline(TabularInline):
+    model = ProductFAQ
+    extra = 0
+    fields = ['question', 'answer', 'order']
+
+    def get_extra(self, request, obj=None, **kwargs):
+        # Luôn hiện sẵn đủ 4 ô câu hỏi (kể cả đã có câu hỏi lưu); muốn thêm nữa thì bấm nút
+        existing = obj.faqs.count() if obj else 0
+        return max(0, 4 - existing)
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        formfield = super().formfield_for_dbfield(db_field, request, **kwargs)
+        if db_field.name == 'question':
+            formfield.widget.attrs['placeholder'] = 'Nhập câu hỏi'
+        elif db_field.name == 'answer':
+            formfield.widget.attrs.update({'rows': 1, 'placeholder': 'Nhập câu trả lời'})
+        return formfield
+
+
 @admin.register(Product)
 class ProductAdmin(ModelAdmin):
     change_list_template = 'admin/main/product/change_list.html'
@@ -189,7 +208,7 @@ class ProductAdmin(ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ['name', 'sku', 'slug', 'category__name', 'short_description', 'description', 'usage_norms', 'specifications']
     ordering = ['order', 'id']
-    inlines = [ProductImageInline]
+    inlines = [ProductImageInline, ProductFAQInline]
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         formfield = super().formfield_for_dbfield(db_field, request, **kwargs)
