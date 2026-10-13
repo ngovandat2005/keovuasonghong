@@ -318,6 +318,7 @@
             </div>
             <div id="pdFaqList">
                 {% for inline_admin_form in inline_admin_formset %}
+                {% if '__prefix__' not in inline_admin_form.form.prefix %}
                 <div class="pd-faq-row">
                     {{ inline_admin_form.form.id }}
                     <span class="pd-faq-num"></span>
@@ -325,6 +326,7 @@
                     <div>{{ inline_admin_form.form.answer }}</div>
                     <div class="pd-faq-hidden">{{ inline_admin_form.form.order }}{% if inline_admin_form.original %}{{ inline_admin_form.form.DELETE }}{% endif %}</div>
                 </div>
+                {% endif %}
                 {% endfor %}
             </div>
             <template id="pdFaqEmptyForm">
