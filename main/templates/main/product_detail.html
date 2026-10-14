@@ -1,6 +1,10 @@
 {% extends 'main/base.html' %}
-{% load static %}
+{% load static main_tags %}
 {% block title %}{{ product.name }} – Keo Vữa Sông Hồng{% endblock %}
+{% block meta_desc %}{{ product.display_short_description }}{% endblock %}
+{% block og_title %}{{ product.name }}{% endblock %}
+{% block og_desc %}{{ product.display_short_description }}{% endblock %}
+{% block og_image %}{% if product.image %}{% absolute_url product.image.url %}{% else %}{{ block.super }}{% endif %}{% endblock %}
 {% block extra_css %}
 <style>
   .pd-visual-box {

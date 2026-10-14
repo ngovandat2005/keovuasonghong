@@ -23,6 +23,27 @@ def clean_text(value):
     return ' '.join(text.split())
 
 
+@register.simple_tag(takes_context=True)
+def absolute_url(context, url):
+    """
+    Trả về URL tuyệt đối (https://domain/...) cho thẻ Open Graph — Facebook/Zalo
+    không nhận đường dẫn tương đối như /media/... khi lấy ảnh xem trước.
+    """
+    if not url:
+        return ""
+    url = str(url)
+    if url.startswith('//'):
+        return 'https:' + url
+    if url.startswith(('http://', 'https://')):
+        return url
+    request = context.get('request')
+    if request is None:
+        return url
+    if not url.startswith('/'):
+        url = '/' + url
+    return f"https://{request.get_host()}{url}"
+
+
 @register.filter(name='clean_excerpt')
 def clean_excerpt(value, max_words=28):
     """
