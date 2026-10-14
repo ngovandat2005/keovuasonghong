@@ -1,0 +1,48 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Sơ đồ trang – Keo Vữa Sông Hồng{% endblock %}
+{% block meta_desc %}Sơ đồ trang website Keo Vữa Sông Hồng (SHK Mortar): toàn bộ danh mục sản phẩm, dự án, tin tức, đại lý và các trang thông tin theo đúng phân cấp.{% endblock %}
+
+{% block content %}
+
+<div class="cat-hero-banner-wrap">
+  <div class="cat-hero-bg">
+    <div class="cat-hero-overlay">
+      <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 0 32px;">
+        <div class="cat-hero-content">
+          <h1 class="cat-hero-title">Sơ đồ trang</h1>
+          <p class="cat-hero-subtitle">Toàn bộ {{ total_pages }} trang của website, sắp xếp theo đúng phân cấp danh mục.</p>
+          <nav class="cat-hero-breadcrumb">
+            <a href="{% url 'home' %}">Trang chủ</a>
+            <span class="sep">&gt;</span>
+            <span class="curr">Sơ đồ trang</span>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="sm-section">
+  <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 0 24px;">
+    <ul class="sm-root">
+      <li class="sm-block">
+        <h2 class="sm-block-title">Trang chính</h2>
+        <ul class="sm-list">
+          {% for n in tree %}{% if not n.children %}
+          <li class="sm-item"><a href="{{ n.url }}">{{ n.title }}</a></li>
+          {% endif %}{% endfor %}
+        </ul>
+      </li>
+      {% for n in tree %}{% if n.children %}
+      <li class="sm-block">
+        <h2 class="sm-block-title">{% if n.url %}<a href="{{ n.url }}">{{ n.title }}</a>{% else %}{{ n.title }}{% endif %}</h2>
+        {% include 'main/_sitemap_node.html' with nodes=n.children %}
+      </li>
+      {% endif %}{% endfor %}
+    </ul>
+  </div>
+</section>
+
+{% endblock %}

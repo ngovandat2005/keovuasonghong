@@ -11,7 +11,7 @@ class StaticViewSitemap(Sitemap):
 
     def items(self):
         return ['home', 'about', 'product_list', 'news_list', 'project_list', 'distributors',
-                'dealer_register', 'contact', 'catalogue', 'calculator', 'policy']
+                'dealer_register', 'contact', 'catalogue', 'calculator', 'policy', 'site_map']
 
     def location(self, item):
         return reverse(item)

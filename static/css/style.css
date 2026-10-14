@@ -10368,3 +10368,21 @@ margin-bottom: 10px;
     grid-template-columns: 1fr;
   }
 }
+/* ── Sơ đồ trang (HTML sitemap) ── */
+.sm-section { padding: 56px 0 72px; background: #FFFFFF; }
+.sm-root { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px 56px; align-items: start; }
+.sm-block { min-width: 0; }
+.sm-block-title { font-family: 'Bai Jamjuree', sans-serif; font-size: 20px; font-weight: 600; margin: 0 0 14px; padding-bottom: 10px; border-bottom: 3px solid #8C5A2B; color: #000000; }
+.sm-block-title a { color: #000000; text-decoration: none; }
+.sm-block-title a:hover { color: #FF7E2E; }
+.sm-list { list-style: none; margin: 0; padding: 0; }
+.sm-list .sm-list { margin: 6px 0 4px 18px; padding-left: 16px; border-left: 1px solid rgba(128, 128, 128, 0.35); }
+.sm-item { margin: 0; padding: 4px 0; font-family: 'Bai Jamjuree', sans-serif; font-size: 17px; line-height: 27px; color: #000000; }
+.sm-item > a, .sm-item > .sm-label { font-weight: 600; }
+.sm-item .sm-item > a, .sm-item .sm-item > .sm-label { font-weight: 600; font-size: 17px; }
+.sm-item .sm-item .sm-item > a { font-weight: 400; font-size: 16px; }
+.sm-item a { color: #000000; text-decoration: none; }
+.sm-item a:hover { color: #FF7E2E; }
+.sm-label { color: #808080; }
+.footer-sitemap-link { color: inherit; text-decoration: none; }
+.footer-sitemap-link:hover { color: #FF7E2E; }

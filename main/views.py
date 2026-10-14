@@ -939,6 +939,12 @@ def policy(request):
     return render(request, 'main/policy.html')
 
 
+def site_map(request):
+    from .site_tree import build_site_tree, count_pages
+    tree = build_site_tree()
+    return render(request, 'main/sitemap.html', {'tree': tree, 'total_pages': count_pages(tree)})
+
+
 def custom_404_view(request, exception=None):
     return render(request, '404.html', status=404)
 

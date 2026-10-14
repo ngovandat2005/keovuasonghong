@@ -1,0 +1,8 @@
+<ul class="sm-list">
+  {% for n in nodes %}
+  <li class="sm-item">
+    {% if n.url %}<a href="{{ n.url }}">{{ n.title }}</a>{% else %}<span class="sm-label">{{ n.title }}</span>{% endif %}
+    {% if n.children %}{% include 'main/_sitemap_node.html' with nodes=n.children %}{% endif %}
+  </li>
+  {% endfor %}
+</ul>

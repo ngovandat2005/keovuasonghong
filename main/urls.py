@@ -22,6 +22,7 @@ urlpatterns = [
     path('du-an/danh-muc/<slug:category>/', views.project_category_redirect, name='project_category_legacy_redirect'),
     path('du-an/<slug:category>/', views.project_list, name='project_list_category'),
     path('du-an/<slug:category>/<slug:slug>/', views.project_detail_legacy, name='project_detail_legacy'),
+    path('so-do-trang/', views.site_map, name='site_map'),
     path('dang-ky-tu-van/', views.consultation, name='consultation'),
     path('xuat-excel-tu-van/', views.download_consultations_excel, name='export_consultations_excel'),
     path('xuat-word-tu-van/<int:pk>/', views.download_consultation_word, name='export_consultation_word'),
