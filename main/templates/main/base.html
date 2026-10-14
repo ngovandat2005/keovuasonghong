@@ -307,8 +307,8 @@
     </script>
     <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
     <script src="{% static 'js/main.js' %}?v=4"></script>
-    {# Đang ẩn nút "Tư vấn AI". Muốn bật lại: bỏ dấu {# #} ở dòng dưới #}
-    {# {% include 'main/chatbot_widget.html' %} #}
+    {% comment %} Đang ẩn nút "Tư vấn AI". Muốn bật lại: xóa 2 dòng comment và endcomment bao quanh dòng include bên dưới. {% endcomment %}
+    {% comment %}{% include 'main/chatbot_widget.html' %}{% endcomment %}
     {% block extra_js %}{% endblock %}
 </body>
 
