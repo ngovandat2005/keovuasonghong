@@ -22,7 +22,6 @@ def robots_txt(request):
         'Allow: /dang-ky-dai-ly/',
         'Allow: /e-catalog/',
         'Allow: /cong-cu-tinh/',
-        'Allow: /lien-he/',
         'Allow: /chinh-sach-va-dieu-khoan/',
         'Allow: /media/',
         'Allow: /static/',

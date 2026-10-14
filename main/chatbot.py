@@ -56,7 +56,7 @@ def build_context():
     if contact:
         lines.append('LIÊN HỆ: ' + '; '.join(contact))
 
-    lines.append('TRANG HỮU ÍCH: /dang-ky-tu-van/ (đăng ký tư vấn), /dai-ly-phan-phoi/ (đại lý), /cong-cu-tinh/ (tính định mức vật liệu), /lien-he/ (liên hệ)')
+    lines.append('TRANG HỮU ÍCH: /dang-ky-tu-van/ (đăng ký tư vấn), /dai-ly-phan-phoi/ (đại lý), /cong-cu-tinh/ (tính định mức vật liệu)')
 
     cats = ProductCategory.objects.all()
     lines.append('DANH MỤC: ' + ', '.join(c.name for c in cats))

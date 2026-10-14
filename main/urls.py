@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic import RedirectView
 from . import views
 
 urlpatterns = [
@@ -14,7 +15,8 @@ urlpatterns = [
     path('dai-ly-phan-phoi/', views.distributors, name='distributors'),
     path('dai-ly-phan-phoi/<slug:slug>/', views.distributor_detail, name='distributor_detail'),
     path('dang-ky-dai-ly/', views.dealer_register, name='dealer_register'),
-    path('lien-he/', views.contact, name='contact'),
+    # Trang liên hệ đã bỏ: chuyển hướng vĩnh viễn sang trang đăng ký tư vấn
+    path('lien-he/', RedirectView.as_view(pattern_name='consultation', permanent=True)),
     path('e-catalog/', views.catalogue, name='catalogue'),
     path('catalogue/', views.catalogue, name='catalogue_alias'),
     path('cong-cu-tinh/', views.calculator, name='calculator'),

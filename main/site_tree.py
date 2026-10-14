@@ -73,7 +73,6 @@ def build_site_tree():
         _node('Công cụ tính', reverse('calculator')),
         _news_branch(),
         _node('Đăng ký đại lý', reverse('dealer_register')),
-        _node('Liên hệ', reverse('contact')),
         _node('Chính sách và điều khoản', reverse('policy')),
     ]
 

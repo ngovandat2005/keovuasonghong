@@ -10,7 +10,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
-from .models import Product, ProductCategory, News, NewsCategory, Banner, Distributor, DistributorDetail, DealerRegistration, ContactMessage, Project, ProjectCategory, ConsultationRequest, Catalogue, ThemeSettings
+from .models import Product, ProductCategory, News, NewsCategory, Banner, Distributor, DistributorDetail, DealerRegistration, Project, ProjectCategory, ConsultationRequest, Catalogue, ThemeSettings
 
 
 def home(request):
@@ -554,21 +554,6 @@ def dealer_register(request):
     return render(request, 'main/dealer_register.html', {'all_products': all_products})
 
 
-def contact(request):
-    if request.method == 'POST':
-        full_name = request.POST.get('full_name', '').strip()
-        phone = request.POST.get('phone', '').strip()
-        email = request.POST.get('email', '').strip()
-        message_text = request.POST.get('message', '').strip()
-        if full_name and phone and message_text:
-            ContactMessage.objects.create(full_name=full_name, phone=phone, email=email, message=message_text)
-            messages.success(request, 'Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất.')
-            return redirect('contact')
-        else:
-            messages.error(request, 'Vui lòng điền đầy đủ thông tin.')
-    return render(request, 'main/contact.html')
-
-
 def catalogue(request):
     group = request.GET.get('group', '')
     catalogues = Catalogue.objects.filter(is_active=True).order_by('group_name', 'order', 'title')
@@ -650,7 +635,7 @@ def content_detail(request, slug):
 
     if handler is None:
         # Route không có dấu "/" ở cuối khớp trước APPEND_SLASH, nên tự thêm "/" cho các trang khác
-        # (vd /admin, /gioi-thieu, /lien-he -> /admin/, /gioi-thieu/, /lien-he/)
+        # (vd /admin, /gioi-thieu -> /admin/, /gioi-thieu/)
         if not request.path.endswith('/'):
             from django.urls import resolve, Resolver404
             try:
