@@ -61,8 +61,11 @@ def get_shared_media_library_response(request):
     else:  # 'uploaded'
         # 1. Ảnh vừa tải lên từ trình soạn thảo (mới nhất trước)
         from .models import MediaUpload
-        for mu in MediaUpload.objects.all()[:500]:
-            items.append({'url': mu.url, 'name': mu.name})
+        try:
+            for mu in MediaUpload.objects.all()[:500]:
+                items.append({'url': mu.url, 'name': mu.name})
+        except Exception:  # bảng chưa được migrate: bỏ qua, vẫn hiện ảnh trên ổ đĩa
+            pass
 
         # 2. Ảnh có sẵn trên ổ đĩa, sắp xếp mới nhất trước trên toàn bộ thư mục
         disk_files = []
@@ -123,7 +126,10 @@ def handle_shared_content_image_upload(request, folder='news/content'):
     saved_path = default_storage.save(f'{folder}/{file.name}', file)
     location = default_storage.url(saved_path)
     from .models import MediaUpload
-    MediaUpload.objects.create(url=location, name=file.name[:300])
+    try:
+        MediaUpload.objects.create(url=location, name=file.name[:300])
+    except Exception:
+        pass
     return JsonResponse({'location': location})
 
 
