@@ -59,20 +59,23 @@ def get_shared_media_library_response(request):
             except Exception:
                 pass
     else:  # 'uploaded'
-        # 1. Scan folders
-        for sub in ['news/content', 'products/content', 'products/gallery', 'products']:
+        # 1. Ảnh vừa tải lên từ trình soạn thảo (mới nhất trước)
+        from .models import MediaUpload
+        for mu in MediaUpload.objects.all()[:500]:
+            items.append({'url': mu.url, 'name': mu.name})
+
+        # 2. Ảnh có sẵn trên ổ đĩa, sắp xếp mới nhất trước trên toàn bộ thư mục
+        disk_files = []
+        for sub in ['news/content', 'products/content', 'projects/content', 'products/gallery', 'products']:
             content_dir = os.path.join(settings.MEDIA_ROOT, *sub.split('/'))
             if os.path.exists(content_dir):
-                files = sorted(
-                    [f for f in os.listdir(content_dir) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg'))],
-                    key=lambda x: os.path.getmtime(os.path.join(content_dir, x)),
-                    reverse=True
-                )
-                for f in files:
-                    url = f"{settings.MEDIA_URL}{sub}/{f}"
-                    items.append({'url': url, 'name': f})
+                for f in os.listdir(content_dir):
+                    if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg')):
+                        disk_files.append((os.path.getmtime(os.path.join(content_dir, f)), f"{settings.MEDIA_URL}{sub}/{f}", f))
+        for _, url, f in sorted(disk_files, reverse=True):
+            items.append({'url': url, 'name': f})
 
-        # 2. News avatar images
+        # 3. News avatar images
         for n in News.objects.exclude(image='').exclude(image__isnull=True).order_by('-id'):
             try:
                 if n.image and n.image.url:
@@ -80,7 +83,7 @@ def get_shared_media_library_response(request):
             except Exception:
                 pass
 
-        # 3. Project images
+        # 4. Project images
         for pr in Project.objects.exclude(image='').exclude(image__isnull=True).order_by('-id'):
             try:
                 if pr.image and pr.image.url:
@@ -118,7 +121,10 @@ def handle_shared_content_image_upload(request, folder='news/content'):
         return JsonResponse({'error': 'Vui lòng chọn một file ảnh hợp lệ.'}, status=400)
     from django.core.files.storage import default_storage
     saved_path = default_storage.save(f'{folder}/{file.name}', file)
-    return JsonResponse({'location': default_storage.url(saved_path)})
+    location = default_storage.url(saved_path)
+    from .models import MediaUpload
+    MediaUpload.objects.create(url=location, name=file.name[:300])
+    return JsonResponse({'location': location})
 
 
 VIDEO_UPLOAD_MAX_MB = 150

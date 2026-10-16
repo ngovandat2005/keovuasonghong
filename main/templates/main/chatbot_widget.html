@@ -50,7 +50,7 @@
 
     function linkify(text) {
         var safe = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        return safe.replace(/(\/(?:san-pham|dang-ky-tu-van|dai-ly-phan-phoi|cong-cu-tinh|du-an|tin-tuc)[A-Za-z0-9\-\/]*)/g, '<a href="$1">$1</a>');
+        return safe.replace(/(\/(?:san-pham|dai-ly-phan-phoi|cong-cu-tinh|du-an|tin-tuc)[A-Za-z0-9\-\/]*)/g, '<a href="$1">$1</a>');
     }
     function add(cls, text, html) {
         var d = document.createElement('div');

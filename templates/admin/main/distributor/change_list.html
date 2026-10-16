@@ -145,6 +145,9 @@
                                     <a href="{% url 'admin:main_distributor_change' obj.pk %}" class="p-1.5 text-base-500 hover:text-[#8C5A2B] hover:bg-base-100 dark:hover:bg-base-800 rounded transition-colors" title="{% trans 'Chỉnh sửa' %}">
                                         <span class="material-symbols-outlined text-[18px]">edit</span>
                                     </a>
+                                    {% if obj.detail %}<a href="{% url 'admin:main_distributordetail_change' obj.detail.pk %}" class="p-1.5 text-base-500 hover:text-[#8C5A2B] hover:bg-base-100 dark:hover:bg-base-800 rounded transition-colors" title="{% trans 'Chỉnh sửa trang riêng' %}">
+                                        <span class="material-symbols-outlined text-[18px]">article</span>
+                                    </a>{% endif %}
                                     <button type="button" onclick="openCustomDeleteModal('{% url 'admin:main_distributor_delete' obj.pk %}', '{{ obj.name|escapejs }}', this)" title="{% trans 'Xóa' %}" class="p-1.5 text-base-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded transition-colors border-none bg-transparent cursor-pointer">
                                         <span class="material-symbols-outlined text-[18px]">delete</span>
                                     </button>

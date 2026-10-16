@@ -16,6 +16,7 @@
         </div>
         <div class="pd-topbar-actions">
             <a href="{% url 'admin:main_distributor_changelist' %}" class="pd-btn pd-btn-ghost">{% trans "Hủy bỏ" %}</a>
+            {% if original and original.detail %}<a href="{% url 'admin:main_distributordetail_change' original.detail.pk %}" class="pd-btn pd-btn-ghost">{% trans "Chỉnh sửa trang riêng" %}</a>{% endif %}
             <a href="{% url 'distributors' %}" target="_blank" class="pd-btn pd-btn-ghost">{% trans "Xem trên web" %}</a>
             <button type="button" onclick="handleDistributorSave()" class="pd-btn pd-btn-primary">{% trans "Lưu thay đổi" %}</button>
         </div>

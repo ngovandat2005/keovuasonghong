@@ -744,8 +744,8 @@ def consultation(request):
         messages.success(request, 'Đăng ký tư vấn thành công! Chuyên viên của SHK Mortar sẽ liên hệ với bạn trong thời gian sớm nhất.')
         return redirect(referer)
 
-    products = Product.objects.filter(is_active=True).values('name')
-    return render(request, 'main/consultation.html', {'products': products})
+    # Không còn trang đăng ký tư vấn riêng: endpoint này chỉ nhận POST từ form ở trang chủ/catalogue
+    raise Http404
 
 
 def download_consultations_excel(request):

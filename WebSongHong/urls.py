@@ -31,7 +31,6 @@ def robots_txt(request):
         'Disallow: /api/',
         'Disallow: /xuat-excel-tu-van/',
         'Disallow: /xuat-word-tu-van/',
-        'Disallow: /dang-ky-tu-van/',
         'Disallow: /404/',
         '',
         'Sitemap: ' + request.build_absolute_uri('/sitemap.xml'),

@@ -1163,3 +1163,18 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"Hồ sơ {self.user.username}"
 
+
+
+class MediaUpload(models.Model):
+    """Ảnh tải lên từ trình soạn thảo (lưu ở Cloudinary) để hiện trong thư viện ảnh, mới nhất trước."""
+    url = models.TextField(verbose_name="Đường dẫn ảnh")
+    name = models.CharField(max_length=300, blank=True, verbose_name="Tên file")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Ảnh đã tải lên"
+        verbose_name_plural = "Ảnh đã tải lên"
+        ordering = ['-id']
+
+    def __str__(self):
+        return self.name or self.url

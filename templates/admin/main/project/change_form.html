@@ -998,7 +998,7 @@ function sipLoadImages(targetSelectUrl) {
     if (gridEl) { gridEl.style.display = 'none'; gridEl.innerHTML = ''; }
 
     const url = "{% url 'admin:main_project_list_media_images' %}?type=" + _sipActiveTab + "&page=" + _sipCurrentPage;
-    fetch(url)
+    fetch(url + (url.indexOf('?') > -1 ? '&' : '?') + '_=' + Date.now(), { cache: 'no-store' })
         .then(r => r.json())
         .then(data => {
             if (loadingEl) loadingEl.style.display = 'none';

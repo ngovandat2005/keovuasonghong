@@ -2,9 +2,9 @@ import io
 import os
 from PIL import Image
 from django.core.files.base import ContentFile
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
-from .models import Product, ProductImage, News, Project, Banner, ThemeSettings, QualityCertificate
+from .models import Product, ProductImage, News, Project, Banner, ThemeSettings, QualityCertificate, Distributor, DistributorDetail
 
 
 def convert_image_field_to_webp(field_file):
@@ -84,3 +84,9 @@ def theme_settings_webp_converter(sender, instance, **kwargs):
         field_val = getattr(instance, f, None)
         if field_val:
             convert_image_field_to_webp(field_val)
+
+
+@receiver(post_save, sender=Distributor)
+def ensure_distributor_detail(sender, instance, **kwargs):
+    """Mỗi đại lý luôn có sẵn một trang riêng (có thể chỉnh nội dung trong admin)."""
+    DistributorDetail.objects.get_or_create(distributor=instance)

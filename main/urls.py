@@ -15,8 +15,8 @@ urlpatterns = [
     path('dai-ly-phan-phoi/', views.distributors, name='distributors'),
     path('dai-ly-phan-phoi/<slug:slug>/', views.distributor_detail, name='distributor_detail'),
     path('dang-ky-dai-ly/', views.dealer_register, name='dealer_register'),
-    # Trang liên hệ đã bỏ: chuyển hướng vĩnh viễn sang trang đăng ký tư vấn
-    path('lien-he/', RedirectView.as_view(pattern_name='consultation', permanent=True)),
+    # Trang liên hệ đã bỏ: chuyển hướng vĩnh viễn về trang chủ
+    path('lien-he/', RedirectView.as_view(pattern_name='home', permanent=True)),
     path('e-catalog/', views.catalogue, name='catalogue'),
     path('catalogue/', views.catalogue, name='catalogue_alias'),
     path('cong-cu-tinh/', views.calculator, name='calculator'),
@@ -25,7 +25,7 @@ urlpatterns = [
     path('du-an/<slug:category>/', views.project_list, name='project_list_category'),
     path('du-an/<slug:category>/<slug:slug>/', views.project_detail_legacy, name='project_detail_legacy'),
     path('so-do-trang/', views.site_map, name='site_map'),
-    path('dang-ky-tu-van/', views.consultation, name='consultation'),
+    path('gui-tu-van/', views.consultation, name='consultation'),
     path('xuat-excel-tu-van/', views.download_consultations_excel, name='export_consultations_excel'),
     path('xuat-word-tu-van/<int:pk>/', views.download_consultation_word, name='export_consultation_word'),
     path('api/chat/', views.chat_api, name='chat_api'),
