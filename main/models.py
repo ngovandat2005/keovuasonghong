@@ -1169,6 +1169,7 @@ class MediaUpload(models.Model):
     """Ảnh tải lên từ trình soạn thảo (lưu ở Cloudinary) để hiện trong thư viện ảnh, mới nhất trước."""
     url = models.TextField(verbose_name="Đường dẫn ảnh")
     name = models.CharField(max_length=300, blank=True, verbose_name="Tên file")
+    sha256 = models.CharField(max_length=64, blank=True, db_index=True, verbose_name="Mã băm nội dung")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

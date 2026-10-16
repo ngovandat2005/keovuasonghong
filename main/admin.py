@@ -123,8 +123,25 @@ def handle_shared_content_image_upload(request, folder='news/content'):
     if not file or not (file.content_type or '').startswith('image/'):
         return JsonResponse({'error': 'Vui lòng chọn một file ảnh hợp lệ.'}, status=400)
     from django.core.files.storage import default_storage
-    from .models import local_file_storage
+    from .models import local_file_storage, MediaUpload
+    import hashlib
     import logging
+
+    # Ảnh trùng nội dung với ảnh đã tải trước đó: dùng lại, không tải thêm lên Cloudinary
+    digest = hashlib.sha256()
+    for chunk in file.chunks():
+        digest.update(chunk)
+    sha = digest.hexdigest()
+    file.seek(0)
+    try:
+        existing = MediaUpload.objects.filter(sha256=sha).first()
+        if existing:
+            location = existing.url
+            existing.delete()  # tạo lại để ảnh nổi lên đầu danh sách
+            MediaUpload.objects.create(url=location, name=existing.name, sha256=sha)
+            return JsonResponse({'location': location})
+    except Exception:
+        pass
     try:
         saved_path = default_storage.save(f'{folder}/{file.name}', file)
         location = default_storage.url(saved_path)
@@ -137,9 +154,8 @@ def handle_shared_content_image_upload(request, folder='news/content'):
             location = local_file_storage.url(saved_path)
         except Exception as e:
             return JsonResponse({'error': f'Không lưu được ảnh: {e}'}, status=500)
-    from .models import MediaUpload
     try:
-        MediaUpload.objects.create(url=location, name=file.name[:300])
+        MediaUpload.objects.create(url=location, name=file.name[:300], sha256=sha)
     except Exception:
         pass
     return JsonResponse({'location': location})
