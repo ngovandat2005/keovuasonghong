@@ -2025,6 +2025,10 @@
                 }
 
                 const items = data.items || [];
+
+                // Ảnh vừa tải lên luôn hiện đầu danh sách (kể cả khi server chưa trả về)
+
+                if (targetSelectUrl && !items.some(i => i.url === targetSelectUrl)) items.unshift({ url: targetSelectUrl, name: 'Ảnh vừa tải lên' });
                 if (items.length === 0) {
                     if (emptyEl) emptyEl.style.display = 'flex';
                     if (gridEl) gridEl.style.display = 'none';
