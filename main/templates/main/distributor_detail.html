@@ -78,9 +78,9 @@
           <div class="dd-row"><i class="fa-solid fa-globe"></i><div><b>Website</b><a href="{{ dist.website }}" target="_blank" rel="noopener noreferrer">{{ dist.website }}</a></div></div>
           {% endif %}
         </div>
-        {% if zalo_url and zalo_qr %}
+        {% if zalo_url %}
         <div class="dd-qr">
-          <img src="{{ zalo_qr }}" alt="Mã QR Zalo" width="240" height="240">
+          <img src="{% if zalo_qr %}{{ zalo_qr }}{% else %}https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&data={{ zalo_url|urlencode:'' }}{% endif %}" alt="Mã QR Zalo" width="240" height="240">
           <span>Quét mã QR để chat Zalo</span>
         </div>
         {% endif %}
