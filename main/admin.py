@@ -123,8 +123,20 @@ def handle_shared_content_image_upload(request, folder='news/content'):
     if not file or not (file.content_type or '').startswith('image/'):
         return JsonResponse({'error': 'Vui lòng chọn một file ảnh hợp lệ.'}, status=400)
     from django.core.files.storage import default_storage
-    saved_path = default_storage.save(f'{folder}/{file.name}', file)
-    location = default_storage.url(saved_path)
+    from .models import local_file_storage
+    import logging
+    try:
+        saved_path = default_storage.save(f'{folder}/{file.name}', file)
+        location = default_storage.url(saved_path)
+    except Exception:
+        # Cloudinary lỗi (thiếu khoá API, mạng...): lưu tạm trên ổ đĩa host để vẫn tải được ảnh
+        logging.getLogger(__name__).exception('Tải ảnh lên Cloudinary thất bại, chuyển sang lưu cục bộ')
+        try:
+            file.seek(0)
+            saved_path = local_file_storage.save(f'{folder}/{file.name}', file)
+            location = local_file_storage.url(saved_path)
+        except Exception as e:
+            return JsonResponse({'error': f'Không lưu được ảnh: {e}'}, status=500)
     from .models import MediaUpload
     try:
         MediaUpload.objects.create(url=location, name=file.name[:300])
