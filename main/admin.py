@@ -1372,6 +1372,15 @@ class DistributorDetailAdminForm(forms.ModelForm):
                             help_text='Sửa ở đây sẽ cập nhật luôn số điện thoại trong Danh sách đại lý và trên bản đồ.',
                             widget=forms.TextInput(attrs={'placeholder': 'VD: 0982 884 060 / 0866 609 289'}))
 
+    email = forms.EmailField(required=False, label='Email',
+                             help_text='Sửa ở đây sẽ cập nhật luôn email của đại lý trong Danh sách đại lý.',
+                             widget=forms.EmailInput(attrs={'placeholder': 'VD: daily@gmail.com'}))
+    address = forms.CharField(required=False, label='Khu vực phân phối / Địa chỉ',
+                              help_text='Sửa ở đây sẽ cập nhật luôn địa chỉ của đại lý trong Danh sách đại lý.',
+                              widget=forms.Textarea(attrs={'rows': 2}))
+    website = forms.URLField(required=False, label='Website',
+                             widget=forms.URLInput(attrs={'placeholder': 'VD: https://daily.vn'}))
+
     class Meta:
         model = DistributorDetail
         fields = '__all__'
@@ -1404,17 +1413,40 @@ class DistributorDetailAdminForm(forms.ModelForm):
             self.fields[f].required = False
         if self.instance and self.instance.pk:
             self.fields['distributor'].disabled = True
-            self.fields['phone'].initial = self.instance.distributor.phone
+            dist = self.instance.distributor
+            self.fields['phone'].initial = dist.phone
+            self.fields['email'].initial = dist.email
+            self.fields['website'].initial = dist.website
+            self.fields['address'].initial = dist.address
+            if dist.address_type == 'distribution_area':
+                self.fields['address'].label = 'Khu vực phân phối'
+            else:
+                self.fields['address'].label = 'Địa chỉ trụ sở'
         else:
             self.fields['distributor'].queryset = Distributor.objects.filter(detail__isnull=True)
 
     def save(self, commit=True):
         obj = super().save(commit=commit)
+        dist = obj.distributor
+        changed = []
         phone = self.cleaned_data.get('phone', '').strip()
-        if phone and obj.distributor.phone != phone:
-            obj.distributor.phone = phone
-            if commit:
-                obj.distributor.save(update_fields=['phone'])
+        if phone and dist.phone != phone:
+            dist.phone = phone
+            changed.append('phone')
+        address = self.cleaned_data.get('address', '').strip()
+        if address and dist.address != address:
+            dist.address = address
+            changed.append('address')
+        email = self.cleaned_data.get('email', '').strip() or None
+        if (dist.email or None) != email:
+            dist.email = email
+            changed.append('email')
+        website = self.cleaned_data.get('website', '').strip() or None
+        if (dist.website or None) != website:
+            dist.website = website
+            changed.append('website')
+        if changed and commit:
+            dist.save(update_fields=changed)
         return obj
 
 
@@ -1426,7 +1458,7 @@ class DistributorDetailAdmin(ModelAdmin):
     list_display = ['distributor', 'slug', 'is_active', 'updated_at']
     list_filter = ['is_active']
     search_fields = ['distributor__name', 'slug', 'title']
-    fields = ['distributor', 'slug', 'title', 'content', 'phone', 'warehouse_address', 'zalo_link', 'extra_contacts', 'is_active']
+    fields = ['distributor', 'slug', 'title', 'content', 'phone', 'address', 'email', 'website', 'warehouse_address', 'zalo_link', 'extra_contacts', 'is_active']
 
 
 @admin.register(Distributor)

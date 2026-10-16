@@ -65,7 +65,12 @@
           {% if dist.email %}
           <div class="dd-row"><i class="fa-solid fa-envelope"></i><div><b>Email</b><a href="mailto:{{ dist.email }}">{{ dist.email }}</a></div></div>
           {% endif %}
-          <div class="dd-row"><i class="fa-solid fa-warehouse"></i><div><b>Địa chỉ kho</b>{{ detail.warehouse_address|default:dist.address }}</div></div>
+          {% if dist.address %}
+          <div class="dd-row"><i class="fa-solid fa-location-dot"></i><div><b>{% if dist.address_type == 'distribution_area' %}Khu vực phân phối{% else %}Địa chỉ trụ sở{% endif %}</b>{{ dist.address }}</div></div>
+          {% endif %}
+          {% if detail.warehouse_address %}
+          <div class="dd-row"><i class="fa-solid fa-warehouse"></i><div><b>Địa chỉ kho</b>{{ detail.warehouse_address }}</div></div>
+          {% endif %}
           {% for ex in detail.extra_contacts %}
           <div class="dd-row"><i class="fa-solid fa-circle-info"></i><div>{% if ex.label %}<b>{{ ex.label }}</b>{% endif %}{% if ex.value|slice:":4" == "http" %}<a href="{{ ex.value }}" target="_blank" rel="noopener noreferrer">{{ ex.value }}</a>{% else %}{{ ex.value }}{% endif %}</div></div>
           {% endfor %}
@@ -73,9 +78,9 @@
           <div class="dd-row"><i class="fa-solid fa-globe"></i><div><b>Website</b><a href="{{ dist.website }}" target="_blank" rel="noopener noreferrer">{{ dist.website }}</a></div></div>
           {% endif %}
         </div>
-        {% if zalo_url %}
+        {% if zalo_url and zalo_qr %}
         <div class="dd-qr">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&data={{ zalo_url|urlencode:'' }}" alt="Mã QR Zalo">
+          <img src="{{ zalo_qr }}" alt="Mã QR Zalo" width="240" height="240">
           <span>Quét mã QR để chat Zalo</span>
         </div>
         {% endif %}

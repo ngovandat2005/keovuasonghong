@@ -469,11 +469,19 @@ def distributor_detail(request, slug):
     if zalo and not zalo.lower().startswith('http'):
         zalo = 'https://zalo.me/' + re.sub(r'\D', '', zalo)
     place = f'{lat},{lng}' if lat and lng else (dist.map_address or dist.address)
+    zalo_qr = ''
+    if zalo:
+        try:
+            import segno
+            zalo_qr = segno.make(zalo, error='m').svg_data_uri(scale=8, border=0, dark='#000000', light='#FFFFFF')
+        except Exception:
+            zalo_qr = ''
     return render(request, 'main/distributor_detail.html', {
         'dist': dist,
         'detail': detail,
         'phones': [p.strip() for p in re.split(r'[/,;]', dist.phone or '') if p.strip()],
         'zalo_url': zalo,
+        'zalo_qr': zalo_qr,
         'map_embed_url': 'https://maps.google.com/maps?q=' + quote(str(place)) + '&z=15&output=embed',
         'maps_url': 'https://www.google.com/maps/dir/?api=1&destination=' + quote(str(place)),
     })
