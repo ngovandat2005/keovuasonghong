@@ -1467,7 +1467,7 @@
             branding: false,
             promotion: false,
             // Ảnh: kéo thả hoặc chọn từ máy tính, không hỏi thêm
-            image_description: false,
+            image_description: true,
             image_dimensions: false,
             image_advtab: false,
             image_caption: false,
@@ -2112,6 +2112,9 @@
         const file = input.files[0];
         const formData = new FormData();
         formData.append('file', file);
+        // Marketing đặt tên ảnh: dùng làm tên file (không dấu) và alt text cho Google; để trống = giữ tên gốc
+        const sipTitle = window.prompt('Đặt tên cho ảnh (dùng làm tên file và alt text khi báo cáo Google).\nVí dụ: Xi măng Sông Hồng PCB40 bao 50kg\nĐể trống để giữ tên gốc:', file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' '));
+        if (sipTitle && sipTitle.trim()) formData.append('title', sipTitle.trim());
         const csrftoken = (document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)') || [])[2];
 
         const uploadBtn = document.querySelector('.sip-btn-upload');

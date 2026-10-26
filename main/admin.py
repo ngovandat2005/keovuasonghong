@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib import admin
+from django.utils.html import format_html
 from unfold.admin import ModelAdmin, TabularInline
 from .models import (ProductCategory, Product, ProductImage, ProductFAQ,
                      NewsCategory, News,
@@ -63,7 +64,8 @@ def get_shared_media_library_response(request):
         from .models import MediaUpload
         try:
             for mu in MediaUpload.objects.all()[:500]:
-                items.append({'url': mu.url, 'name': mu.name})
+                # name hiển thị trong thư viện và được chèn làm alt khi dán vào bài: ưu tiên alt marketing đã đặt
+                items.append({'url': mu.url, 'name': mu.alt or mu.name})
         except Exception:  # bảng chưa được migrate: bỏ qua, vẫn hiện ảnh trên ổ đĩa
             pass
 
@@ -117,11 +119,30 @@ def get_shared_media_library_response(request):
     })
 
 
+def seo_slug(text):
+    """'Xi măng Sông Hồng PCB40' -> 'xi-mang-song-hong-pcb40' (tên file chuẩn SEO, không dấu)."""
+    from django.utils.text import slugify
+    return slugify((text or '').replace('đ', 'd').replace('Đ', 'D'))[:80]
+
+
+def clean_image_label(text):
+    """Bỏ ký tự làm hỏng thuộc tính HTML (alt="...") và gọn khoảng trắng."""
+    for ch in ('"', "'", '<', '>'):
+        text = (text or '').replace(ch, '')
+    return ' '.join(text.split())[:300]
+
+
 def handle_shared_content_image_upload(request, folder='news/content'):
+    import os
     from django.http import JsonResponse
     file = request.FILES.get('file')
     if not file or not (file.content_type or '').startswith('image/'):
         return JsonResponse({'error': 'Vui lòng chọn một file ảnh hợp lệ.'}, status=400)
+    # Marketing đặt tên ảnh: dùng làm tên file (slug không dấu) và alt text; không đặt thì giữ tên file gốc
+    title = clean_image_label(request.POST.get('title', ''))
+    alt = clean_image_label(request.POST.get('alt', '')) or title
+    if title and seo_slug(title):
+        file.name = seo_slug(title) + (os.path.splitext(file.name)[1].lower() or '.jpg')
     from django.core.files.storage import default_storage
     from .models import local_file_storage, MediaUpload
     import hashlib
@@ -138,7 +159,7 @@ def handle_shared_content_image_upload(request, folder='news/content'):
         if existing:
             location = existing.url
             existing.delete()  # tạo lại để ảnh nổi lên đầu danh sách
-            MediaUpload.objects.create(url=location, name=existing.name, sha256=sha)
+            MediaUpload.objects.create(url=location, name=title or existing.name, alt=alt or existing.alt, sha256=sha)
             return JsonResponse({'location': location})
     except Exception:
         pass
@@ -155,7 +176,7 @@ def handle_shared_content_image_upload(request, folder='news/content'):
         except Exception as e:
             return JsonResponse({'error': f'Không lưu được ảnh: {e}'}, status=500)
     try:
-        MediaUpload.objects.create(url=location, name=file.name[:300], sha256=sha)
+        MediaUpload.objects.create(url=location, name=(title or file.name)[:300], alt=alt, sha256=sha)
     except Exception:
         pass
     return JsonResponse({'location': location})

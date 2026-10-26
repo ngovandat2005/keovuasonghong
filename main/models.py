@@ -432,6 +432,8 @@ class DistributorDetail(models.Model):
     slug = models.SlugField(max_length=300, unique=True, blank=True, verbose_name="Đường dẫn (URL)",
                             help_text="VD: cong-ty-quang-minh. Để trống sẽ tự tạo từ tên đại lý.")
     title = models.CharField(max_length=400, blank=True, verbose_name="Tiêu đề trang", help_text="Để trống sẽ dùng tên đại lý.")
+    image = models.ImageField(upload_to='distributors/', blank=True, null=True, verbose_name="Ảnh đại lý",
+                              help_text="Hiện bên trái bài viết ở trang chi tiết. Để trống sẽ dùng ảnh mặc định.")
     content = models.TextField(blank=True, verbose_name="Nội dung bài viết")
     warehouse_address = models.TextField(blank=True, verbose_name="Địa chỉ kho", help_text="Để trống sẽ dùng địa chỉ chính của đại lý.")
     zalo_link = models.CharField(max_length=300, blank=True, verbose_name="Zalo (số điện thoại hoặc link)",
@@ -1168,7 +1170,8 @@ class UserProfile(models.Model):
 class MediaUpload(models.Model):
     """Ảnh tải lên từ trình soạn thảo (lưu ở Cloudinary) để hiện trong thư viện ảnh, mới nhất trước."""
     url = models.TextField(verbose_name="Đường dẫn ảnh")
-    name = models.CharField(max_length=300, blank=True, verbose_name="Tên file")
+    name = models.CharField(max_length=300, blank=True, verbose_name="Tên ảnh")
+    alt = models.CharField(max_length=300, blank=True, verbose_name="Alt text (mô tả cho Google)")
     sha256 = models.CharField(max_length=64, blank=True, db_index=True, verbose_name="Mã băm nội dung")
     created_at = models.DateTimeField(auto_now_add=True)
 

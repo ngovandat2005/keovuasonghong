@@ -42,7 +42,7 @@ urlpatterns = [
     path('admin/notifications/', views.admin_notifications, name='admin_notifications'),
     path('dmca-validation.html', serve, {'document_root': settings.BASE_DIR, 'path': 'dmca-validation.html'}),
     path('admin/', admin.site.urls),
-    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps, 'template_name': 'main/sitemap_images.xml'}, name='django.contrib.sitemaps.views.sitemap'),
     path('robots.txt', robots_txt, name='robots_txt'),
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     path('', include('main.urls')),
