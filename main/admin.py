@@ -1248,7 +1248,7 @@ class ThemeSettingsAdmin(ModelAdmin):
         }),
         ('Chân trang (Footer)', {
             'fields': (
-                'footer_company_name', 'footer_address', 'footer_office_address', 'footer_phone', 'footer_phone_2',
+                'footer_company_name', 'footer_address', 'footer_office_address', 'footer_phone',
                 'footer_email', 'footer_media_email',
                 'footer_doc_1_title', 'footer_doc_1_link',
                 'footer_doc_2_title', 'footer_doc_2_link',

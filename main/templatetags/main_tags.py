@@ -60,3 +60,24 @@ def clean_excerpt(value, max_words=28):
     if len(words) > max_words:
         return ' '.join(words[:max_words]) + '...'
     return cleaned
+
+
+@register.filter(name='tach_sdt')
+def tach_sdt(value):
+    """Tách ô nhiều số điện thoại ("0938016788 - 0386360797") thành list từng số.
+    Phân cách: dấu - (chuẩn), và vẫn nhận dấu phẩy / chấm phẩy / xuống dòng cho dữ liệu nhập kiểu cũ.
+    Dấu - chỉ tách khi MỌI mảnh đều đủ dài như một số điện thoại (>= 8 chữ số) — số viết 0938-016-788 giữ nguyên.
+    Bỏ mục rỗng và số trùng, giữ thứ tự nhập."""
+    ra = []
+    for manh in re.split(r'[,;\n]+', str(value or '')):
+        manh = manh.strip()
+        con = [c for c in re.split(r'\s*[-\u2013\u2014]\s*', manh) if c]
+        if len(con) > 1 and all(len(re.sub(r'\D', '', c)) >= 8 for c in con):
+            ds = con
+        else:
+            ds = [manh]
+        for so in ds:
+            so = so.strip()
+            if so and so not in ra:
+                ra.append(so)
+    return ra
