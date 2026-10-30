@@ -174,7 +174,9 @@
                     <p><span class="info-label">Nhà Máy:</span> <span class="info-val">{{ theme.footer_address|default:'Thôn Ninh Tập, xã Châu Ninh, Hưng Yên' }}</span></p>
                     <p><span class="info-label">Văn Phòng:</span> <span class="info-val">{{ theme.footer_office_address|default:'Vinhomes Ocean Park 2, Văn Giang, Hưng Yên' }}</span></p>
                     {% if theme.footer_phone %}
-                    <p><span class="info-label">Hotline:</span> <a href="tel:{{ theme.footer_phone }}" class="info-val">{{ theme.footer_phone }}</a></p>
+                    <p><span class="info-label">Hotline:</span> <a href="tel:{{ theme.footer_phone }}" class="info-val">{{ theme.footer_phone }}</a>{% if theme.footer_phone_2 %} - <a href="tel:{{ theme.footer_phone_2 }}" class="info-val">{{ theme.footer_phone_2 }}</a>{% endif %}</p>
+                    {% elif theme.footer_phone_2 %}
+                    <p><span class="info-label">Hotline:</span> <a href="tel:{{ theme.footer_phone_2 }}" class="info-val">{{ theme.footer_phone_2 }}</a></p>
                     {% endif %}
                     <p><span class="info-label">Email Phòng Kinh Doanh:</span><br><a
                             href="mailto:{{ theme.footer_email|default:'kinhdoanh@keovuasonghong.vn' }}"
