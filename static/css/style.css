@@ -15,7 +15,7 @@ html {
 }
 
 body {
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
   background: #FFFFFF;
   /* Màu kem sang trọng, dịu mắt */
   color: #000000;
@@ -96,14 +96,14 @@ button,
 .btn,
 input[type="submit"],
 input[type="button"] {
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
   font-size: 16px;
   border-radius: 0px;
   cursor: pointer;
 }
 
 h1 {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 36px;
   font-weight: 600;
   line-height: 54px;
@@ -111,7 +111,7 @@ h1 {
 }
 
 h2 {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 24px;
   font-weight: 600;
   line-height: 31px;
@@ -119,13 +119,13 @@ h2 {
 }
 
 h3 {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 20px;
   font-weight: 600;
 }
 
 h4 {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 18px;
   font-weight: 600;
 }
@@ -387,7 +387,7 @@ h4 {
   justify-content: center;
   background: #FF7E2E;
   color: #ffffff !important;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 14.5px;
   font-weight: 700;
   text-transform: uppercase;
@@ -1170,7 +1170,7 @@ main.main-home {
 }
 
 .prod-view-all-text {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 15px;
   font-weight: 700;
   color: #000000;
@@ -1211,7 +1211,7 @@ main.main-home {
   padding: 9px 24px;
   background: #8C5A2B;
   color: #FFFFFF;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 14px;
   font-weight: 600;
   border-radius: 999px !important;
@@ -1233,7 +1233,7 @@ main.main-home {
 
 .prod-grid-4 {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 24px;
   width: 100%;
 }
@@ -1296,7 +1296,7 @@ main.main-home {
 }
 
 .prod-unit-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 13.5px;
   font-weight: 600;
   line-height: 1.45;
@@ -1383,7 +1383,7 @@ main.main-home {
 }
 
 .prod-card-name {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 15px;
   font-weight: 700;
   color: #1A1A1A;
@@ -1427,7 +1427,7 @@ main.main-home {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 13px;
   font-weight: 700;
   color: #8C5A2B;
@@ -1457,14 +1457,14 @@ main.main-home {
 
 @media (max-width: 1024px) {
   .prod-grid-4 {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
   }
 }
 
 @media (max-width: 580px) {
   .prod-grid-4 {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 16px;
   }
 }
@@ -1769,7 +1769,7 @@ margin-bottom: 10px;
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -1850,7 +1850,7 @@ margin-bottom: 10px;
 
 .news-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -2166,7 +2166,7 @@ margin-bottom: 10px;
 
 .featured-proj-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 32px 28px;
 }
 
@@ -2218,14 +2218,14 @@ margin-bottom: 10px;
 
 @media (max-width: 900px) {
   .featured-proj-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
   }
 }
 
 @media (max-width: 580px) {
   .featured-proj-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 18px;
   }
 }
@@ -2476,44 +2476,44 @@ margin-bottom: 10px;
 
 .p-logo-brand.coteccons {
   color: #B31B1B;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-weight: 900;
 }
 
 .p-logo-brand.vinhomes {
   color: #0F3A66;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-weight: 700;
   font-size: 28px;
 }
 
 .p-logo-brand.hoabinh {
   color: #0070BA;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-weight: 900;
 }
 
 .p-logo-brand.sungroup {
   color: #E25E00;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-weight: 900;
 }
 
 .p-logo-brand.delta {
   color: #008852;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-weight: 900;
 }
 
 .p-logo-brand.ricons {
   color: #D32F2F;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-weight: 900;
 }
 
 .p-logo-brand.anphong {
   color: #E57300;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-weight: 900;
 }
 
@@ -2616,7 +2616,7 @@ margin-bottom: 10px;
 }
 
 .pl-cat-heading {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 22px;
   font-weight: 700;
   color: #1A1A1A;
@@ -2659,7 +2659,7 @@ margin-bottom: 10px;
 .pl-nav-tab {
   padding: 8px 20px;
   border-radius: 999px;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 13.5px;
   font-weight: 600;
   color: #4A4A4A;
@@ -2716,7 +2716,7 @@ margin-bottom: 10px;
 }
 
 .pd-visual-label {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 20px;
   font-weight: 700;
   color: #1A1A1A;
@@ -2766,7 +2766,7 @@ margin-bottom: 10px;
 }
 
 .pd-thumb-video-box span {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 9.5px;
   font-weight: 700;
   letter-spacing: 0.6px;
@@ -2927,7 +2927,7 @@ margin-bottom: 10px;
 }
 
 .pd-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 26px;
   font-weight: 800;
   color: #1A1A1A;
@@ -2959,7 +2959,7 @@ margin-bottom: 10px;
   background: #8C5A2B;
   border: 2px solid #8C5A2B;
   color: #FFFFFF;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 13.5px;
   font-weight: 700;
   padding: 10px 18px;
@@ -2983,7 +2983,7 @@ margin-bottom: 10px;
   background: #FFFFFF;
   border: 2px solid #0068FF;
   color: #0068FF;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 13.5px;
   font-weight: 700;
   padding: 10px 16px;
@@ -3011,7 +3011,7 @@ margin-bottom: 10px;
   background: #FFFFFF;
   border: 2px solid rgba(140, 90, 43, 0.3);
   color: #4A4A4A;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 13.5px;
   font-weight: 700;
   padding: 10px 16px;
@@ -3034,7 +3034,7 @@ margin-bottom: 10px;
   gap: 8px;
   background: #8C5A2B;
   color: #FFFFFF;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 14px;
   font-weight: 700;
   padding: 10px 22px;
@@ -3060,7 +3060,7 @@ margin-bottom: 10px;
   gap: 8px;
   background: #FFFFFF;
   color: #8C5A2B;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 14px;
   font-weight: 700;
   padding: 10px 22px;
@@ -3133,7 +3133,7 @@ margin-bottom: 10px;
 }
 
 .pd-consult-left-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 28px;
   font-weight: 900;
   color: #FFFFFF;
@@ -3197,7 +3197,7 @@ margin-bottom: 10px;
 
 @media (max-width: 900px) {
   .pd-consult-modal-split {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .pd-consult-left {
@@ -3265,7 +3265,7 @@ margin-bottom: 10px;
 
 .pd-doc-modal-title {
   color: #FFFFFF;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-weight: 700;
   font-size: 15px;
   overflow: hidden;
@@ -3357,7 +3357,7 @@ margin-bottom: 10px;
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
@@ -3424,7 +3424,7 @@ margin-bottom: 10px;
   padding: 16px 28px;
   border: none;
   background: transparent;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 14.5px;
   font-weight: 700;
   color: #666666;
@@ -3461,7 +3461,7 @@ margin-bottom: 10px;
 }
 
 .pd-desc-subhead {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 15px;
   font-weight: 700;
   color: #1A1A1A;
@@ -3552,7 +3552,7 @@ margin-bottom: 10px;
 }
 
 .pd-cross-card-header h3 {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 18px;
   font-weight: 700;
   color: #1A1A1A;
@@ -3570,7 +3570,7 @@ margin-bottom: 10px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 13px;
   font-weight: 700;
   color: #8C5A2B;
@@ -3616,7 +3616,7 @@ margin-bottom: 10px;
 .pd-acc-tag {
   background: #8C5A2B;
   color: #FFFFFF;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 14.5px;
   font-weight: 700;
   text-transform: uppercase;
@@ -3686,7 +3686,7 @@ margin-bottom: 10px;
   padding: 18px 0;
   cursor: pointer;
   text-align: left;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 20px;
   font-weight: 600;
   color: #000000;
@@ -3875,7 +3875,7 @@ margin-bottom: 10px;
   gap: 8px;
   background: #8C5A2B;
   color: #FFFFFF;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 13.5px;
   font-weight: 700;
   letter-spacing: 1px;
@@ -3886,7 +3886,7 @@ margin-bottom: 10px;
 }
 
 .pl-coming-soon-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 28px;
   font-weight: 700;
   color: #1A1A1A;
@@ -3916,7 +3916,7 @@ margin-bottom: 10px;
   gap: 10px;
   background: #8C5A2B;
   color: #FFFFFF !important;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 14.5px;
   font-weight: 700;
   padding: 13px 28px;
@@ -3940,7 +3940,7 @@ margin-bottom: 10px;
   background: #FFFFFF;
   color: #8C5A2B !important;
   border: 1.5px solid #8C5A2B;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 14.5px;
   font-weight: 700;
   padding: 12px 28px;
@@ -3968,7 +3968,7 @@ margin-bottom: 10px;
 }
 
 .pd-section-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 22px;
   font-weight: 700;
   color: #1A1A1A;
@@ -3977,7 +3977,7 @@ margin-bottom: 10px;
 
 @media (max-width: 992px) {
   .pd-showcase-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 32px;
   }
 
@@ -3986,7 +3986,7 @@ margin-bottom: 10px;
   }
 
   .pd-cross-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -3996,7 +3996,7 @@ margin-bottom: 10px;
   }
 
   .pd-trust-badges {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .pd-cta-group {
@@ -4199,7 +4199,7 @@ margin-bottom: 10px;
 
 .about-stats-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 3px;
   margin-top: 3px;
 }
@@ -4231,7 +4231,7 @@ margin-bottom: 10px;
 
 .mvv-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -4361,7 +4361,7 @@ margin-bottom: 10px;
 
 .distributor-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
 }
 
@@ -4609,7 +4609,7 @@ margin-bottom: 10px;
 }
 
 .ps-main-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 36px;
   font-weight: 700;
   color: #000000;
@@ -4665,7 +4665,7 @@ margin-bottom: 10px;
 }
 
 .ps-banner-subtitle {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 20px;
   font-weight: 700;
   color: #FF7E2E;
@@ -4677,7 +4677,7 @@ margin-bottom: 10px;
 }
 
 .ps-banner-heading {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 28px;
   font-weight: 800;
   color: #000000;
@@ -4689,7 +4689,7 @@ margin-bottom: 10px;
 }
 
 .ps-banner-desc {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 14.5px;
   font-weight: 400;
   color: #444444;
@@ -4705,7 +4705,7 @@ margin-bottom: 10px;
   padding: 9px 26px;
   background: #FF7E2E;
   color: #FFFFFF;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 13.5px;
   font-weight: 700;
   text-transform: uppercase;
@@ -4768,7 +4768,7 @@ margin-bottom: 10px;
 
 .ps-right-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1px;
   background: rgba(255, 255, 255, .08);
   border-radius: 0 !important;
@@ -4975,7 +4975,7 @@ margin-bottom: 10px;
 
 @media (max-width: 1024px) {
   .ps-split-box {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .ps-left-banner {
@@ -4986,20 +4986,20 @@ margin-bottom: 10px;
   }
 
   .ps-right-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 640px) {
   .ps-right-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
 /* â”€â”€ CATALOGUE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .catalogue-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -5184,7 +5184,7 @@ margin-bottom: 10px;
   background: #FFFFFF;
   border-top: 1px solid rgba(0, 0, 0, 0.06);
   color: #333333;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   position: relative;
 }
 
@@ -5205,7 +5205,7 @@ margin-bottom: 10px;
 }
 
 .footer-company-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 18.5px;
   font-weight: 700;
   color: #111111;
@@ -5214,7 +5214,7 @@ margin-bottom: 10px;
 }
 
 .footer-company-info p {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 14px;
   line-height: 1.65;
   margin: 0 0 8px 0;
@@ -5262,7 +5262,7 @@ margin-bottom: 10px;
 
 /* Headings Col 2 & Col 3 */
 .footer-section-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 16.5px;
   font-weight: 700;
   color: #E65A1E;
@@ -5281,7 +5281,7 @@ margin-bottom: 10px;
 }
 
 .footer-link-list a {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 14px;
   line-height: 1.4;
   color: #333333;
@@ -5302,7 +5302,7 @@ margin-bottom: 10px;
 }
 
 .footer-group-item a {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 14px;
   line-height: 1.4;
   font-weight: 700;
@@ -5330,7 +5330,7 @@ margin-bottom: 10px;
 }
 
 .footer-social-col a {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 14px;
   line-height: 1.4;
   color: #333333;
@@ -5397,7 +5397,7 @@ margin-bottom: 10px;
 }
 
 .footer-bottom p {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 12px;
   font-weight: 500;
   color: #555555;
@@ -5414,7 +5414,7 @@ margin-bottom: 10px;
 
 @media (max-width: 640px) {
   .footer-inner {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 28px;
     padding: 32px 20px 24px;
   }
@@ -5422,7 +5422,7 @@ margin-bottom: 10px;
 
 @media (max-width: 640px) {
   .footer-inner {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 32px;
   }
 }
@@ -5595,7 +5595,7 @@ margin-bottom: 10px;
   }
 
   .products-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
     grid-auto-rows: 420px;
   }
@@ -5609,7 +5609,7 @@ margin-bottom: 10px;
   .contact-grid,
   .product-detail-grid,
   .news-detail-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -5773,17 +5773,17 @@ margin-bottom: 10px;
   .features-grid,
   .news-grid,
   .mvv-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .news-2col {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 36px;
   }
 
   .distributor-grid,
   .catalogue-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .cta-band {
@@ -5806,7 +5806,7 @@ margin-bottom: 10px;
   }
 
   .footer-inner {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     padding: 40px 20px 24px;
   }
 
@@ -5815,7 +5815,7 @@ margin-bottom: 10px;
   }
 
   .form-grid-2 {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .msg-wrap {
@@ -5839,7 +5839,7 @@ margin-bottom: 10px;
 
 @media (max-width: 480px) {
   .products-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 12px;
     grid-auto-rows: auto;
   }
@@ -5856,7 +5856,7 @@ margin-bottom: 10px;
 /* â”€â”€ PROJECT LIST â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .project-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
 }
 
@@ -5984,13 +5984,13 @@ margin-bottom: 10px;
 
 @media (max-width: 1100px) {
   .project-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 600px) {
   .project-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -6040,7 +6040,7 @@ margin-bottom: 10px;
 
 .about-pre-title {
   display: block;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 18px;
   font-weight: 600;
   line-height: 1.3;
@@ -6049,7 +6049,7 @@ margin-bottom: 10px;
 }
 
 .about-main-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 34px;
   font-weight: 700;
   line-height: 1.2;
@@ -6074,7 +6074,7 @@ margin-bottom: 10px;
 
 @media (max-width: 900px) {
   .about-home-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 40px;
   }
 
@@ -6284,7 +6284,7 @@ margin-bottom: 10px;
 
 @media (max-width: 900px) {
   .phong-su-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -6432,7 +6432,7 @@ margin-bottom: 10px;
 }
 
 .proof-title-text {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 24px;
   font-weight: 700;
   color: #000000;
@@ -6448,7 +6448,7 @@ margin-bottom: 10px;
 }
 
 .quality-bullet-list li {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 18px;
   font-weight: 600;
   line-height: 1.65;
@@ -6463,7 +6463,7 @@ margin-bottom: 10px;
   padding: 9px 24px;
   background: #8C5A2B;
   color: #FFFFFF;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 15px;
   font-weight: 700;
   border-radius: 0 !important;
@@ -6497,7 +6497,7 @@ margin-bottom: 10px;
   }
 
   .proof-split-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 32px;
   }
 
@@ -6612,7 +6612,7 @@ margin-bottom: 10px;
 
 @media (max-width: 900px) {
   .calc-cta-inner {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 36px;
   }
 }
@@ -7228,7 +7228,7 @@ margin-bottom: 10px;
 }
 
 .calc-banner-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: clamp(26px, 2.6vw, 38px);
   font-weight: 800;
   color: #000000;
@@ -7291,7 +7291,7 @@ margin-bottom: 10px;
   }
 
   .calc-banner-wrapper {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 32px;
   }
 }
@@ -7325,7 +7325,7 @@ margin-bottom: 10px;
 }
 
 .partner-side-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 42px;
   font-weight: 700;
   color: #000000;
@@ -7338,7 +7338,7 @@ margin-bottom: 10px;
 }
 
 .partner-side-desc {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 15.5px;
   font-weight: 400;
   color: #444444;
@@ -7473,7 +7473,7 @@ margin-bottom: 10px;
 
 @media (max-width: 1100px) {
   .partners-split-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 36px;
   }
 
@@ -7545,7 +7545,7 @@ margin-bottom: 10px;
 }
 
 .consult-home-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: clamp(26px, 2.6vw, 38px);
   font-weight: 800;
   color: #FFFFFF;
@@ -7556,7 +7556,7 @@ margin-bottom: 10px;
 }
 
 .consult-home-desc {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 15px;
   font-weight: 400;
   color: rgba(255, 255, 255, 0.95);
@@ -7610,7 +7610,7 @@ margin-bottom: 10px;
 
 @media (max-width: 540px) {
   .consult-form-row-2 {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -7621,7 +7621,7 @@ margin-bottom: 10px;
 }
 
 .consult-form-field label {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 11.5px;
   font-weight: 700;
   color: #222222;
@@ -7649,7 +7649,7 @@ margin-bottom: 10px;
   background: #F9F9F9;
   border: 1.2px solid #E0E0E0;
   border-radius: 0 !important;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 12.5px;
   color: #1a1a1a;
   outline: none;
@@ -7712,7 +7712,7 @@ margin-bottom: 10px;
   color: #FFFFFF;
   border: none;
   border-radius: 0 !important;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 13.5px;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -7741,7 +7741,7 @@ margin-bottom: 10px;
   }
 
   .consult-split-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 28px;
   }
 
@@ -7797,7 +7797,7 @@ margin-bottom: 10px;
 }
 
 .cat-hero-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: clamp(32px, 3.6vw, 46px);
   font-weight: 800;
   color: #FFFFFF;
@@ -7959,7 +7959,7 @@ margin-bottom: 10px;
 /* Dòng text hiển thị tên sản phẩm / tài liệu tương ứng bên dưới ảnh (song song ngang hàng với 2 nút bấm bên phải) */
 .doc-cover-caption {
   transform: translateY(128px);
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 16px;
   font-weight: 700;
   color: #1E293B;
@@ -7995,7 +7995,7 @@ margin-bottom: 10px;
 }
 
 .cat-main-heading-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 28px;
   font-weight: 700;
   color: #8C5A2B;
@@ -8026,7 +8026,7 @@ margin-bottom: 10px;
 }
 
 .doc-main-label {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 20px;
   font-weight: 800;
   color: #1E293B;
@@ -8051,7 +8051,7 @@ margin-bottom: 10px;
 }
 
 .doc-sub-item {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 18px;
   font-weight: 400;
   color: #484a4d;
@@ -8082,7 +8082,7 @@ margin-bottom: 10px;
   padding: 12px 18px;
   background: #484a4d;
   color: #FFFFFF;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 13.5px;
   font-weight: 800;
   text-align: center;
@@ -8107,7 +8107,7 @@ margin-bottom: 10px;
   padding: 12px 18px;
   background: #FF7E2E;
   color: #FFFFFF;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 13.5px;
   font-weight: 800;
   text-align: center;
@@ -8132,7 +8132,7 @@ margin-bottom: 10px;
   }
 
   .cat-full-split-grid {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: minmax(0, 1fr) !important;
     gap: 20px !important;
   }
 
@@ -8314,7 +8314,7 @@ margin-bottom: 10px;
   color: #FFFFFF;
   padding: 6px 20px;
   border-radius: 20px;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 13.5px;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -8376,7 +8376,7 @@ margin-bottom: 10px;
 }
 
 .cat-support-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 32px;
   font-weight: 700;
   color: #FFFFFF !important;
@@ -8386,7 +8386,7 @@ margin-bottom: 10px;
 }
 
 .cat-support-subtitle {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 15px;
   font-weight: 400;
   color: rgba(255, 255, 255, 0.9);
@@ -8467,7 +8467,7 @@ margin-bottom: 10px;
 }
 
 .cat-support-label {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 14px;
   font-weight: 700;
   color: #FFFFFF;
@@ -8475,7 +8475,7 @@ margin-bottom: 10px;
 }
 
 .cat-support-val {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 13px;
   font-weight: 400;
   color: rgba(255, 255, 255, 0.88);
@@ -8596,7 +8596,7 @@ margin-bottom: 10px;
 }
 
 .support-email-header-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 20px;
   font-weight: 700;
   color: #1E293B;
@@ -8638,7 +8638,7 @@ margin-bottom: 10px;
 }
 
 .support-form-group label {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 14px;
   font-weight: 600;
   color: #334155;
@@ -8646,7 +8646,7 @@ margin-bottom: 10px;
 
 .support-form-group input,
 .support-form-group textarea {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 14.5px;
   padding: 11px 14px;
   border: 1.5px solid #E2E8F0;
@@ -8678,7 +8678,7 @@ margin-bottom: 10px;
   padding: 14px 20px;
   background: #8C5A2B;
   color: #FFFFFF;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 15.5px;
   font-weight: 700;
   text-align: center;
@@ -8704,7 +8704,7 @@ margin-bottom: 10px;
   }
 
   .support-form-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -8749,7 +8749,7 @@ margin-bottom: 10px;
 }
 
 .about-hero-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 32px;
   font-weight: 800;
   color: #FFFFFF;
@@ -8758,7 +8758,7 @@ margin-bottom: 10px;
 }
 
 .about-hero-sub {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 15px;
   color: rgba(255, 255, 255, 0.9);
   margin: 0;
@@ -8769,7 +8769,7 @@ margin-bottom: 10px;
 /* â”€â”€ Chung cho cĂ¡c Section â”€â”€ */
 .about-tag {
   display: inline-block;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 12px;
   font-weight: 800;
   color: #FF7E2E;
@@ -8779,7 +8779,7 @@ margin-bottom: 10px;
 }
 
 .about-main-heading {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 28px;
   font-weight: 700;
   color: #1E293B;
@@ -8829,7 +8829,7 @@ margin-bottom: 10px;
 }
 
 .about-lead-para {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 14.5px;
   line-height: 1.7;
   color: #475569;
@@ -8851,7 +8851,7 @@ margin-bottom: 10px;
 }
 
 .about-tab-btn {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 14px;
   font-weight: 700;
   padding: 10px 22px;
@@ -8902,7 +8902,7 @@ margin-bottom: 10px;
 }
 
 .tab-panel-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 16px;
   font-weight: 700;
   color: #1E293B;
@@ -8910,7 +8910,7 @@ margin-bottom: 10px;
 }
 
 .tab-panel-desc {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 14.5px;
   line-height: 1.65;
   color: #475569;
@@ -8933,7 +8933,7 @@ margin-bottom: 10px;
 }
 
 .about-statement-heading {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: clamp(22px, 2.4vw, 28px);
   font-weight: 800;
   color: #1E293B;
@@ -8953,7 +8953,7 @@ margin-bottom: 10px;
 }
 
 .about-statement-col p {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 14px;
   line-height: 1.65;
   color: #475569;
@@ -9003,7 +9003,7 @@ margin-bottom: 10px;
   background: #8C5A2B;
   color: #FFFFFF;
   padding: 10px 24px;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -9011,7 +9011,7 @@ margin-bottom: 10px;
 }
 
 .about-story-text p {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 15px;
   line-height: 1.7;
   color: #475569;
@@ -9033,7 +9033,7 @@ margin-bottom: 10px;
 }
 
 .about-vision-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 26px;
   font-weight: 800;
   color: #FFFFFF;
@@ -9043,7 +9043,7 @@ margin-bottom: 10px;
 }
 
 .about-vision-desc {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 15.5px;
   line-height: 1.75;
   color: rgba(255, 255, 255, 0.95);
@@ -9069,7 +9069,7 @@ margin-bottom: 10px;
 }
 
 .about-commitment-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 26px;
   font-weight: 800;
   color: #8C5A2B;
@@ -9079,7 +9079,7 @@ margin-bottom: 10px;
 }
 
 .about-commitment-desc {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 15.5px;
   line-height: 1.75;
   color: #8C5A2B;
@@ -9094,7 +9094,7 @@ margin-bottom: 10px;
 }
 
 .gallery-memories-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 28px;
   font-weight: 800;
   color: #1E293B;
@@ -9105,7 +9105,7 @@ margin-bottom: 10px;
 
 .everyhalf-gallery-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
   align-items: start;
 }
@@ -9207,7 +9207,7 @@ margin-bottom: 10px;
 }
 
 .eh-caption {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 14px;
   font-weight: 700;
   color: #FFFFFF;
@@ -9218,13 +9218,13 @@ margin-bottom: 10px;
 
 @media (max-width: 900px) {
   .everyhalf-gallery-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 600px) {
   .everyhalf-gallery-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -9275,7 +9275,7 @@ margin-bottom: 10px;
 
 .gallery-lightbox-caption {
   margin-top: 14px;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 16px;
   font-weight: 600;
   color: #FFFFFF;
@@ -9333,7 +9333,7 @@ margin-bottom: 10px;
 }
 
 .about-c-item .c-text h4 {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 15px;
   font-weight: 700;
   color: #1E293B;
@@ -9341,7 +9341,7 @@ margin-bottom: 10px;
 }
 
 .about-c-item .c-text p {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 14px;
   color: #64748B;
   margin: 0;
@@ -9391,7 +9391,7 @@ margin-bottom: 10px;
   padding: 8px 18px;
   background: #8C5A2B;
   color: #FFFFFF;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 12.5px;
   font-weight: 700;
   text-decoration: none;
@@ -9410,12 +9410,12 @@ margin-bottom: 10px;
   .about-s1-grid,
   .about-s3-grid,
   .about-contact-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 36px;
   }
 
   .about-s2-wrap {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 32px;
   }
 
@@ -9424,7 +9424,7 @@ margin-bottom: 10px;
   }
 
   .shk-gallery-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -9445,7 +9445,7 @@ margin-bottom: 10px;
   }
 
   .shk-gallery-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .about-vision-block,
@@ -9467,7 +9467,7 @@ margin-bottom: 10px;
 }
 
 .dist-main-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 32px;
   font-weight: 700;
   color: #8C5A2B;
@@ -9522,9 +9522,9 @@ margin-bottom: 10px;
   height: 46px;
   padding: 0 20px;
   border: 1.5px solid #808080;
-  border-radius: 0px !important;
+  border-radius: 5px !important;
   background: #FFFFFF;
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
   font-size: 15px;
   font-weight: 400;
   color: #000000;
@@ -9534,7 +9534,7 @@ margin-bottom: 10px;
 
 .dist-pill-input::placeholder {
   color: #808080;
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
 }
 
 .dist-pill-input:focus,
@@ -9545,41 +9545,49 @@ margin-bottom: 10px;
 .dist-pill-btn {
   height: 46px;
   padding: 0 32px;
-  background: #8C5A2B;
+  background: #FF7E2E;
   color: #FFFFFF !important;
-  border: none;
-  border-radius: 0px !important;
-  font-family: 'Bai Jamjuree', sans-serif !important;
-  font-size: 16px;
-  font-weight: 600;
+  border: 1.5px solid #FF7E2E;
+  border-radius: 5px !important;
+  font-family: 'Barlow', sans-serif !important;
+  font-size: 14.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .02em;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   white-space: nowrap;
-  transition: all 0.25s ease;
+  text-decoration: none;
+  box-shadow: 0 3px 10px rgba(255, 126, 46, .25);
+  transition: all var(--tr);
 }
 
 .dist-pill-btn:hover {
-  background: #73431B;
-  color: #FF7E2E !important;
+  background: #8C5A2B;
+  color: #FFFFFF !important;
+  border-color: #8C5A2B;
+  box-shadow: 0 4px 14px rgba(140, 90, 43, .35);
+  transform: translateY(-1px);
 }
 
 /* â”€â”€ KHUNG HIá»‚N THá» Báº¢N Äá»’ & DANH SĂCH 2 Cá»˜T â”€â”€ */
 .dist-boxshadow-card {
-  background: #FFFFFF;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: transparent;
+  border: none;
   border-radius: 0px !important;
-  overflow: hidden;
   display: grid;
   grid-template-columns: 390px 1fr;
+  gap: 20px;
   min-height: 560px;
   margin-bottom: 0px;
 }
 
-/* Cột Trái: Danh sách cửa hàng */
+/* Cột Trái: Danh sách cửa hàng (khối riêng, có viền riêng) */
 .dist-sidebar-col {
-  border-right: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   background: #FFFFFF;
@@ -9591,7 +9599,7 @@ margin-bottom: 10px;
   padding: 12px 18px;
   background: #FFFFFF;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
   font-size: 14px;
   font-weight: 600;
   color: #808080;
@@ -9606,10 +9614,56 @@ margin-bottom: 10px;
 }
 
 .dist-list-scroll {
-  flex: 1 1 0;
+  flex: 1 1 auto;
   min-height: 0;
   max-height: none;
-  overflow-y: auto;
+  overflow: hidden;
+}
+
+/* Hiệu ứng trượt khi chuyển trang danh sách đại lý */
+.dist-list-scroll.dist-page-anim {
+  animation: distPageSlideIn 0.35s ease;
+}
+
+@keyframes distPageSlideIn {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Thanh phân trang danh sách đại lý */
+.dist-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 12px 18px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  background: #FFFFFF;
+  flex-shrink: 0;
+  font-family: 'Barlow', sans-serif !important;
+}
+
+.dist-pager-dot {
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: none;
+  border-radius: 2px !important;
+  background: #8C5A2B;
+  opacity: 0.45;
+  cursor: pointer;
+  transition: width 0.3s ease, background 0.3s ease, opacity 0.3s ease;
+}
+
+.dist-pager-dot:hover {
+  opacity: 0.8;
+}
+
+.dist-pager-dot.active {
+  width: 44px;
+  background: #FF7E2E;
+  opacity: 1;
+  cursor: default;
 }
 
 .dist-list-scroll::-webkit-scrollbar {
@@ -9632,7 +9686,7 @@ margin-bottom: 10px;
   display: flex;
   flex-direction: column;
   text-align: left;
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
 }
 
 .dist-item:last-child {
@@ -9649,30 +9703,55 @@ margin-bottom: 10px;
   border-left: 3px solid #8C5A2B;
 }
 
+/* Nút "Xem chi tiết": hiện ở mọi đại lý để người dùng dễ thấy */
 .dist-item-more {
-  display: none;
-  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 6px 14px;
   font-size: 13px;
-  font-weight: 600;
-  color: #0B7BD6;
+  font-weight: 700;
+  color: #FF7E2E;
+  background: #FFFFFF;
+  border: 1.5px solid #FF7E2E;
+  border-radius: 5px;
   text-decoration: none;
+  transition: all 0.2s ease;
 }
 
-.dist-item.active .dist-item-more {
-  display: inline-block;
+.dist-item-more::after {
+  content: '\2192';
+  transition: transform 0.2s ease;
 }
 
 .dist-item-more:hover {
+  background: #FF7E2E;
+  color: #FFFFFF;
+}
+
+.dist-item-more:hover::after {
+  transform: translateX(3px);
+}
+
+/* Tên đại lý bấm được để vào trang chi tiết */
+.dist-item-name-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.dist-item-name-link:hover {
+  color: #FF7E2E;
   text-decoration: underline;
 }
 
 .dist-item-info {
   flex-grow: 1;
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
 }
 
 .dist-item-name {
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
   font-size: 13.5px;
   font-weight: 600;
   color: #8C5A2B;
@@ -9691,7 +9770,7 @@ margin-bottom: 10px;
 }
 
 .dist-item-lbl {
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
   font-size: 11px;
   font-weight: 600;
   color: #808080;
@@ -9701,7 +9780,7 @@ margin-bottom: 10px;
 }
 
 .dist-item-val {
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
   font-size: 13px;
   font-weight: 400;
   color: #000000;
@@ -9709,7 +9788,7 @@ margin-bottom: 10px;
 }
 
 .dist-item-addr {
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
   font-size: 13px;
   font-weight: 400;
   color: #000000;
@@ -9718,7 +9797,7 @@ margin-bottom: 10px;
 }
 
 .dist-item-phone {
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
   font-size: 13px;
   font-weight: 600;
   color: #8C5A2B;
@@ -9730,11 +9809,11 @@ margin-bottom: 10px;
   padding: 36px 20px;
   text-align: center;
   color: #808080;
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
 }
 
 .dist-empty-title {
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
   font-size: 16px;
   font-weight: 600;
   color: #8C5A2B;
@@ -9747,9 +9826,15 @@ margin-bottom: 10px;
 .dist-map-col {
   display: flex;
   flex-direction: column;
+  gap: 20px;
   position: relative;
-  background: #FFFFFF;
+  background: transparent;
   min-height: 560px;
+}
+
+/* Bản đồ và thanh chi tiết đại lý: mỗi khối một viền riêng */
+.dist-map-col .dist-map-container {
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 /* Giao diá»‡n máº·c Ä‘á»‹nh áº£nh cĂ´ng ty khi chÆ°a chá»n Ä‘áº¡i lĂ½ */
@@ -9799,7 +9884,7 @@ margin-bottom: 10px;
   display: inline-block;
   background: #8C5A2B;
   color: #FFFFFF;
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
   font-size: 11px;
   font-weight: 600;
   padding: 4px 12px;
@@ -9809,7 +9894,7 @@ margin-bottom: 10px;
 }
 
 .dist-company-title {
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
   font-size: 22px;
   font-weight: 600;
   color: #FFFFFF;
@@ -9819,7 +9904,7 @@ margin-bottom: 10px;
 }
 
 .dist-company-desc {
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
   font-size: 14px;
   font-weight: 400;
   color: rgba(255, 255, 255, 0.85);
@@ -9835,7 +9920,7 @@ margin-bottom: 10px;
   backdrop-filter: blur(4px);
   border: 1px solid rgba(255, 255, 255, 0.25);
   padding: 8px 16px;
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
   font-size: 13px;
   font-weight: 500;
   color: #FF7E2E;
@@ -9850,7 +9935,7 @@ margin-bottom: 10px;
   justify-content: space-between;
   gap: 16px;
   z-index: 2;
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
 }
 
 .dist-adb-left {
@@ -9861,7 +9946,7 @@ margin-bottom: 10px;
 }
 
 .dist-adb-title {
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
   font-size: 15px;
   font-weight: 600;
   color: #8C5A2B;
@@ -9875,7 +9960,7 @@ margin-bottom: 10px;
 }
 
 .dist-adb-lbl {
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
   font-size: 11px;
   font-weight: 600;
   color: #808080;
@@ -9885,7 +9970,7 @@ margin-bottom: 10px;
 }
 
 .dist-adb-address {
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
   font-size: 13.5px;
   font-weight: 400;
   color: #000000;
@@ -9907,7 +9992,7 @@ margin-bottom: 10px;
   background: #8C5A2B;
   border: 1.5px solid #8C5A2B;
   border-radius: 0px !important;
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
   font-size: 13.5px;
   font-weight: 700 !important;
   color: #FFFFFF !important;
@@ -9935,7 +10020,7 @@ margin-bottom: 10px;
   background: #FFFFFF;
   border: 1.5px solid #808080;
   border-radius: 0px !important;
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
   font-size: 13px;
   font-weight: 700 !important;
   color: #000000 !important;
@@ -9956,7 +10041,7 @@ margin-bottom: 10px;
   background: #8C5A2B;
   color: #FFFFFF !important;
   border-radius: 0px !important;
-  font-family: 'Bai Jamjuree', sans-serif !important;
+  font-family: 'Barlow', sans-serif !important;
   font-size: 14px;
   font-weight: 600;
   white-space: nowrap;
@@ -10018,16 +10103,7 @@ margin-bottom: 10px;
   }
 
   .dist-boxshadow-card {
-    grid-template-columns: 1fr;
-  }
-
-  .dist-sidebar-col {
-    border-right: none;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  }
-
-  .dist-list-scroll {
-    max-height: 360px;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .dist-active-detail-bar {
@@ -10058,7 +10134,7 @@ margin-bottom: 10px;
 }
 
 .news-sidebar-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 18px;
   font-weight: 700;
   color: #1A1A1A;
@@ -10097,7 +10173,7 @@ margin-bottom: 10px;
   justify-content: flex-start;
   padding: 8px 0;
   width: 100%;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 15px;
   font-weight: 700;
   text-transform: uppercase;
@@ -10146,7 +10222,7 @@ margin-bottom: 10px;
 /* LÆ°á»›i tin tá»©c 3 cá»™t */
 .news-custom-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 32px 28px;
 }
 
@@ -10244,7 +10320,7 @@ margin-bottom: 10px;
 }
 
 .news-item-title {
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 16px;
   font-weight: 700;
   color: #1A1A1A;
@@ -10283,7 +10359,7 @@ margin-bottom: 10px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 13.5px;
   font-weight: 700;
   color: #8C5A2B;
@@ -10318,7 +10394,7 @@ margin-bottom: 10px;
   border: 1.5px solid #8C5A2B;
   border-radius: 2px;
   background: #FFFFFF;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 15px;
   font-weight: 700;
   color: #8C5A2B;
@@ -10358,26 +10434,26 @@ margin-bottom: 10px;
 
 @media (max-width: 992px) {
   .news-custom-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 24px;
   }
 }
 
 @media (max-width: 600px) {
   .news-custom-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 /* ── Sơ đồ trang (HTML sitemap) ── */
-.sm-section { padding: 56px 0 72px; background: #FFFFFF; }
-.sm-root { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px 56px; align-items: start; }
+.sm-section { padding: 56px 0 72px; overflow-x: hidden; background: #FFFFFF; }
+.sm-root { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 40px 56px; align-items: start; }
 .sm-block { min-width: 0; }
-.sm-block-title { font-family: 'Bai Jamjuree', sans-serif; font-size: 20px; font-weight: 600; margin: 0 0 14px; padding-bottom: 10px; border-bottom: 3px solid #8C5A2B; color: #000000; }
+.sm-block-title { font-family: 'Barlow', sans-serif; font-size: 20px; font-weight: 600; margin: 0 0 14px; padding-bottom: 10px; border-bottom: 3px solid #8C5A2B; color: #000000; }
 .sm-block-title a { color: #000000; text-decoration: none; }
 .sm-block-title a:hover { color: #FF7E2E; }
 .sm-list { list-style: none; margin: 0; padding: 0; }
 .sm-list .sm-list { margin: 6px 0 4px 18px; padding-left: 16px; border-left: 1px solid rgba(128, 128, 128, 0.35); }
-.sm-item { margin: 0; padding: 4px 0; font-family: 'Bai Jamjuree', sans-serif; font-size: 17px; line-height: 27px; color: #000000; }
+.sm-item { margin: 0; padding: 4px 0; font-family: 'Barlow', sans-serif; font-size: 17px; line-height: 27px; color: #000000; }
 .sm-item > a, .sm-item > .sm-label { font-weight: 600; }
 .sm-item .sm-item > a, .sm-item .sm-item > .sm-label { font-weight: 600; font-size: 17px; }
 .sm-item .sm-item .sm-item > a { font-weight: 400; font-size: 16px; }
@@ -10386,3 +10462,44 @@ margin-bottom: 10px;
 .sm-label { color: #808080; }
 .footer-sitemap-link { color: inherit; text-decoration: none; }
 .footer-sitemap-link:hover { color: #FF7E2E; }
+
+/* ── Tối ưu điện thoại (rà soát toàn site) ── */
+img, video, iframe, canvas { max-width: 100%; }
+@media (max-width: 768px) {
+  .container { padding-left: 16px !important; padding-right: 16px !important; }
+  .pd-page-container .container { padding: 0 16px !important; }
+  table { max-width: 100%; }
+  .dd-content table, .news-detail-content table, .policy-doc-paper table { display: block; overflow-x: auto; }
+  pre { overflow-x: auto; max-width: 100%; }
+}
+@media (max-width: 400px) {
+  .btn-prod-all { white-space: normal; text-align: center; padding: 9px 18px; max-width: 100%; }
+}
+@media (max-width: 768px) {
+  /* Dải tab sản phẩm: cuộn ngang thay vì bị cắt; bảng trong tab cuộn trong khung */
+  .pd-tabs-nav { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .pd-tabs-nav::-webkit-scrollbar { display: none; }
+  .pd-tab-btn { flex: 0 0 auto; padding: 14px 18px; }
+  .pd-tab-content, .pd-tab-pane { overflow-x: auto; max-width: 100%; }
+  .pd-tab-content table { font-size: 13px !important; }
+}
+@media (max-width: 768px) {
+  .pd-acc-inner, .pd-specs-text-body { overflow-x: auto; max-width: 100%; }
+  .pd-acc-inner table { font-size: 13px !important; }
+}
+@media (max-width: 768px) {
+  /* Nút nổi gọn hơn để không che nội dung */
+  .floating-actions { bottom: 14px; right: 10px; gap: 8px; }
+  .float-btn { width: 40px; height: 40px; }
+  .float-top { width: 34px; height: 34px; }
+  /* Canh đều hai bên làm chữ giãn xấu trên màn hình hẹp → canh trái */
+  .dd-content--article, .pd-tab-content, .pd-desc-lead, .news-detail-content, .policy-doc-paper,
+  .pd-tab-pane p, .dd-content p, .about-desc-content p, .article-content p,
+  .about-para, .about-lead-para, .tab-panel-desc, .about-statement-col p, .about-story-text p,
+  [style*="text-align: justify"], [style*="text-align:justify"] { text-align: left !important; }
+}
+@media (max-width: 768px) {
+  /* Điện thoại: chỉ giữ Zalo + gọi điện + lên đầu trang để không che chữ */
+  .float-facebook, .float-youtube { display: none !important; }
+  .floating-actions { gap: 10px; opacity: .95; }
+}

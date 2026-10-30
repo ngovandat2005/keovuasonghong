@@ -426,6 +426,16 @@ class Distributor(models.Model):
     def __str__(self):
         return f"{self.name} - {self.province}"
 
+    def get_absolute_url(self):
+        try:
+            if hasattr(self, 'detail') and self.detail and self.detail.slug:
+                from django.urls import reverse
+                return reverse('distributor_detail', args=[self.detail.slug])
+        except Exception:
+            pass
+        from django.urls import reverse
+        return reverse('distributors')
+
 
 class DistributorDetail(models.Model):
     distributor = models.OneToOneField(Distributor, on_delete=models.CASCADE, related_name='detail', verbose_name="Đại lý")

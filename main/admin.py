@@ -1430,7 +1430,7 @@ class DistributorDetailAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for f in ('slug', 'title', 'content', 'warehouse_address', 'zalo_link', 'extra_contacts'):
+        for f in ('slug', 'title', 'image', 'content', 'warehouse_address', 'zalo_link', 'extra_contacts'):
             self.fields[f].required = False
         if self.instance and self.instance.pk:
             self.fields['distributor'].disabled = True
@@ -1479,7 +1479,7 @@ class DistributorDetailAdmin(ModelAdmin):
     list_display = ['distributor', 'slug', 'is_active', 'updated_at']
     list_filter = ['is_active']
     search_fields = ['distributor__name', 'slug', 'title']
-    fields = ['distributor', 'slug', 'title', 'content', 'phone', 'address', 'email', 'website', 'warehouse_address', 'zalo_link', 'extra_contacts', 'is_active']
+    fields = ['distributor', 'slug', 'title', 'image', 'content', 'phone', 'address', 'email', 'website', 'warehouse_address', 'zalo_link', 'extra_contacts', 'is_active']
 
 
 @admin.register(Distributor)

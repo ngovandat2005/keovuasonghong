@@ -441,7 +441,7 @@
   .policy-section {
     background-color: #F8F9FA;
     padding: 40px 0 80px;
-    font-family: 'Bai Jamjuree', sans-serif;
+    font-family: 'Barlow', sans-serif;
   }
 
   .policy-layout-grid {
@@ -453,7 +453,7 @@
 
   @media (max-width: 992px) {
     .policy-layout-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       gap: 28px;
     }
   }
@@ -463,6 +463,13 @@
     position: sticky;
     top: 96px;
     z-index: 10;
+  }
+
+  /* Mobile: mục lục nằm trên nội dung, không dính theo khi cuộn */
+  @media (max-width: 992px) {
+    .policy-sidebar-col {
+      position: static;
+    }
   }
 
   .policy-toc-card {

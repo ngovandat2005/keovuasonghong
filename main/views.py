@@ -476,14 +476,34 @@ def distributor_detail(request, slug):
             zalo_qr = segno.make(zalo, error='m').svg_data_uri(scale=8, border=0, dark='#000000', light='#FFFFFF')
         except Exception:
             zalo_qr = ''
+
+    # Danh sách đại lý khác (ưu tiên cùng tỉnh/thành phố)
+    related_distributors = list(
+        Distributor.objects.filter(
+            is_active=True,
+            detail__isnull=False,
+            detail__is_active=True
+        ).exclude(pk=dist.pk).select_related('detail')
+    )
+    related_distributors.sort(key=lambda d: 0 if (d.province and dist.province and d.province.strip().lower() == dist.province.strip().lower()) else 1)
+    related_distributors = related_distributors[:5]
+
+    extra_links = list(dist.extra_links.all())
+    phone_list = [p.strip() for p in re.split(r'[/,;]', dist.phone or '') if p.strip()]
+    primary_phone = phone_list[0] if phone_list else ''
+
     return render(request, 'main/distributor_detail.html', {
+        'nav_section': 'distributors',
         'dist': dist,
         'detail': detail,
-        'phones': [p.strip() for p in re.split(r'[/,;]', dist.phone or '') if p.strip()],
+        'phones': phone_list,
+        'primary_phone': primary_phone,
         'zalo_url': zalo,
         'zalo_qr': zalo_qr,
         'map_embed_url': 'https://maps.google.com/maps?q=' + quote(str(place)) + '&z=15&output=embed',
         'maps_url': 'https://www.google.com/maps/dir/?api=1&destination=' + quote(str(place)),
+        'related_distributors': related_distributors,
+        'extra_links': extra_links,
     })
 
 

@@ -57,7 +57,7 @@
     cursor: pointer;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     transition: all 0.2s ease;
-    font-family: 'Bai Jamjuree', sans-serif;
+    font-family: 'Barlow', sans-serif;
   }
   .dist-map-ctrl-btn:hover {
     background: #8C5A2B;
@@ -149,7 +149,7 @@
     padding: 0;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
     overflow: hidden;
-    font-family: 'Bai Jamjuree', sans-serif;
+    font-family: 'Barlow', sans-serif;
     border: none;
   }
   .dist-leaflet-popup .leaflet-popup-close-button {
@@ -174,34 +174,69 @@
     line-height: 1.4;
   }
 
-  /* Kéo dài danh sách đại lý khớp 100% chiều cao bản đồ + chi tiết, xóa khoảng trắng */
+  /* Danh sách đại lý không cuộn: 4 đại lý/trang tự dàn đều cho khớp chiều cao cột bản đồ + chi tiết */
   .dist-boxshadow-card {
     align-items: stretch;
   }
   .dist-sidebar-col {
     display: flex !important;
     flex-direction: column !important;
-    height: 100% !important;
+    height: auto !important;
     min-height: 0 !important;
-    border-right: 1px solid rgba(0, 0, 0, 0.08);
   }
   .dist-count-header {
     flex-shrink: 0 !important;
   }
   .dist-list-scroll {
-    flex: 1 1 0 !important;
+    flex: 1 1 auto !important;
     min-height: 0 !important;
     max-height: none !important;
-    overflow-y: auto !important;
+    overflow: hidden !important;
+    display: flex;
+    flex-direction: column;
   }
+  /* Mỗi đại lý giãn đều theo chiều cao còn lại, nội dung căn giữa theo chiều dọc */
+  .dist-list-scroll .dist-item {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  /* Thu gọn cả khối cho vừa một khung hình */
+  .dist-boxshadow-card { min-height: 0 !important; gap: 16px !important; }
+  .dist-map-col { min-height: 0 !important; gap: 16px !important; }
+  .dist-map-container { isolation: isolate; } /* giữ nút "Toàn cảnh" không đè lên menu khi cuộn */
+  /* Lưới 3 cột dùng chung cho thanh tìm kiếm và khung bên dưới:
+     danh sách đại lý nằm dưới ô nhập; bản đồ bắt đầu từ mép trái ô "Tất cả tỉnh thành" tới hết nút Tìm kiếm */
+  .dist-filter-bar-pill,
+  .dist-boxshadow-card {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 190px !important;
+    gap: 16px !important;
+  }
+  .dist-pill-btn { width: 100%; }
+  .dist-sidebar-col { grid-column: 1; }
+  .dist-map-col { grid-column: 2 / 4; }
+  /* Bản đồ hình vuông */
+  .dist-map-container { flex: none !important; height: auto !important; aspect-ratio: 1 / 1; min-height: 0 !important; }
+  #distVietnamMap { height: 100% !important; min-height: 0 !important; }
   @media (max-width: 991px) {
-    .dist-sidebar-col {
-      height: auto !important;
-    }
-    .dist-list-scroll {
-      max-height: 380px !important;
-    }
+    .dist-filter-bar-pill,
+    .dist-boxshadow-card { grid-template-columns: minmax(0, 1fr) !important; }
+    .dist-sidebar-col, .dist-map-col { grid-column: auto; }
   }
+  .dist-count-header { padding: 8px 14px !important; font-size: 13px !important; }
+  .dist-list-scroll .dist-item { padding: 8px 14px !important; }
+  .dist-item-name { font-size: 12.5px !important; margin-bottom: 2px !important; }
+  .dist-item-block { margin-top: 3px !important; }
+  .dist-item-lbl { font-size: 10px !important; }
+  .dist-item-val { font-size: 12.5px !important; line-height: 1.35 !important; }
+  .dist-item-foot { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 6px 10px; margin-top: 4px; }
+  .dist-item-foot .dist-item-block { margin-top: 0 !important; }
+  .dist-item-more { margin: 0 0 0 auto !important; padding: 3px 10px !important; font-size: 12px !important; white-space: nowrap; }
+  .dist-pager { padding: 8px 14px !important; }
+  #distDetailBar { padding: 12px 18px !important; }
+  #distDetailBar #detName { font-size: 14px !important; }
+  #distDetailBar #detAddress { font-size: 12.5px !important; }
 </style>
 {% endblock %}
 
@@ -286,7 +321,7 @@
                data-extra-links="{{ dist.extra_links_json|default:'[]' }}">
             
             <div class="dist-item-info">
-              <h4 class="dist-item-name">{{ dist.name }}</h4>
+              <h4 class="dist-item-name">{% if dist.detail and dist.detail.is_active %}<a href="{% url 'distributor_detail' dist.detail.slug %}" class="dist-item-name-link" title="Xem chi tiết {{ dist.name }}">{{ dist.name }}</a>{% else %}{{ dist.name }}{% endif %}</h4>
               
               <div class="dist-item-block">
                 <div class="dist-item-lbl">
@@ -295,14 +330,16 @@
                 <div class="dist-item-val">{{ dist.address }}</div>
               </div>
 
-              {% if dist.phone %}
-              <div class="dist-item-block" style="margin-top: 6px;">
-                <div class="dist-item-lbl">HOTLINE</div>
-                <div class="dist-item-val" style="color: #8C5A2B; font-weight: 600;">{{ dist.phone }}</div>
+              <!-- Hotline và nút "Xem chi tiết" chung một hàng cho gọn -->
+              <div class="dist-item-foot">
+                {% if dist.phone %}
+                <div class="dist-item-block">
+                  <div class="dist-item-lbl">HOTLINE</div>
+                  <div class="dist-item-val" style="color: #8C5A2B; font-weight: 600;">{{ dist.phone }}</div>
+                </div>
+                {% endif %}
+                {% if dist.detail and dist.detail.is_active %}<a href="{% url 'distributor_detail' dist.detail.slug %}" class="dist-item-more">Xem chi tiết</a>{% endif %}
               </div>
-              {% endif %}
-
-              {% if dist.detail and dist.detail.is_active %}<a href="{% url 'distributor_detail' dist.detail.slug %}" class="dist-item-more">Xem chi tiết</a>{% endif %}
             </div>
           </div>
           {% endfor %}
@@ -313,6 +350,10 @@
             <h4 class="dist-empty-title" id="distEmptyProvTitle">Chưa có đại lý phân phối</h4>
             <p id="distEmptyProvDesc" style="font-size: 13px; color: #6B7280; margin-top: 6px;">Khu vực này hiện chưa có đại lý chính thức. Vui lòng liên hệ Hotline 0938 016 788 để được hỗ trợ!</p>
           </div>
+        </div>
+
+        <!-- Phân trang danh sách: 4 đại lý / trang -->
+        <div class="dist-pager" id="distPager" style="display: none;">
         </div>
       </div>
 
@@ -334,7 +375,7 @@
         </div>
 
         <!-- Thanh thông tin chi tiết đại lý ở dưới bản đồ -->
-        <div class="dist-active-detail-bar" id="distDetailBar" style="padding: 18px 24px; background: #FFFFFF; border-top: 1px solid rgba(0,0,0,0.08); display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; font-family: 'Bai Jamjuree', sans-serif;">
+        <div class="dist-active-detail-bar" id="distDetailBar" style="padding: 18px 24px; background: #FFFFFF; border: 1px solid rgba(0,0,0,0.08); display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; font-family: 'Barlow', sans-serif;">
           <div class="dist-adb-left" style="display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0;">
             <h3 class="dist-adb-title" id="detName" style="font-size: 16px; font-weight: 700; color: #8C5A2B; text-transform: uppercase; margin: 0; line-height: 1.4;"></h3>
             
@@ -442,6 +483,46 @@ document.addEventListener('DOMContentLoaded', function() {
   const emptyProvDesc = document.getElementById('distEmptyProvDesc');
   const btnResetView = document.getElementById('btnResetView');
 
+  // Phân trang danh sách bên trái: mỗi trang 4 đại lý (chỉ tính các đại lý khớp bộ lọc)
+  const PAGE_SIZE = 4;
+  const listScroll = document.getElementById('distListScroll');
+  const pager = document.getElementById('distPager');
+  let matchedItems = Array.from(items);
+  let currentPage = 1;
+
+  function renderPage(animate = true) {
+    const totalPages = Math.max(1, Math.ceil(matchedItems.length / PAGE_SIZE));
+    currentPage = Math.min(Math.max(currentPage, 1), totalPages);
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const pageItems = new Set(matchedItems.slice(start, start + PAGE_SIZE));
+    items.forEach(item => { item.style.display = pageItems.has(item) ? 'flex' : 'none'; });
+
+    // Chấm chuyển trang: trang hiện tại là thanh dài, các trang khác là ô nhỏ
+    pager.style.display = totalPages > 1 ? 'flex' : 'none';
+    pager.innerHTML = '';
+    for (let p = 1; p <= totalPages; p++) {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'dist-pager-dot' + (p === currentPage ? ' active' : '');
+      dot.setAttribute('aria-label', 'Trang ' + p);
+      if (p === currentPage) dot.setAttribute('aria-current', 'true');
+      dot.addEventListener('click', function() {
+        if (p === currentPage) return;
+        currentPage = p;
+        renderPage();
+      });
+      pager.appendChild(dot);
+    }
+
+    if (animate) {
+      listScroll.classList.remove('dist-page-anim');
+      void listScroll.offsetWidth; // khởi động lại animation
+      listScroll.classList.add('dist-page-anim');
+    }
+  }
+
+  renderPage(false);
+
   // Dữ liệu danh sách đại lý truyền từ view
   let distributorsData = [];
   try {
@@ -457,6 +538,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const map = L.map('distVietnamMap', {
     center: VIETNAM_CENTER,
     zoom: DEFAULT_ZOOM,
+    zoomSnap: 0.25,
+    maxBoundsViscosity: 1.0,
     zoomControl: true,
     scrollWheelZoom: true
   });
@@ -528,6 +611,26 @@ document.addEventListener('DOMContentLoaded', function() {
     map.fitBounds(markersGroup.getBounds(), { padding: [50, 50], maxZoom: 10 });
   }
 
+  // Giới hạn bản đồ quanh khu vực có đại lý: không cho kéo / thu nhỏ ra biển và các nước láng giềng.
+  // Vùng giới hạn tự tính theo vị trí các đại lý hiện có, thêm đại lý ở nơi khác thì vùng tự mở rộng.
+  const dealerBounds = markersGroup.getBounds();
+  function lockMapToDealers() {
+    if (!dealerBounds.isValid()) return;
+    const MIN_SPAN = 1.2; // độ — tránh khung quá nhỏ khi chỉ có 1-2 đại lý gần nhau
+    const sw = dealerBounds.getSouthWest();
+    const ne = dealerBounds.getNorthEast();
+    const latLack = Math.max(0, MIN_SPAN - (ne.lat - sw.lat)) / 2;
+    const lngLack = Math.max(0, MIN_SPAN - (ne.lng - sw.lng)) / 2;
+    const bounds = L.latLngBounds(
+      [sw.lat - latLack, sw.lng - lngLack],
+      [ne.lat + latLack, ne.lng + lngLack]
+    ).pad(0.3);
+    map.setMaxBounds(bounds);
+    map.setMinZoom(map.getBoundsZoom(bounds));
+  }
+  lockMapToDealers();
+  map.on('resize', lockMapToDealers);
+
   // 4. Hàm chọn đại lý (Đồng bộ giữa Danh sách cột trái, Bản đồ & Thanh thông tin bên dưới)
   window.selectStoreById = function(distId, shouldFly = true) {
     const item = document.getElementById(`dist-item-${distId}`);
@@ -536,7 +639,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Highlight item ở sidebar
     items.forEach(el => el.classList.remove('active'));
     item.classList.add('active');
-    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    // Đại lý nằm ở trang khác thì chuyển sang đúng trang chứa nó
+    const idx = matchedItems.indexOf(item);
+    if (idx >= 0) {
+      const targetPage = Math.floor(idx / PAGE_SIZE) + 1;
+      if (targetPage !== currentPage) {
+        currentPage = targetPage;
+        renderPage();
+      }
+    }
 
     // Cập nhật thanh chi tiết bên dưới bản đồ
     const detName = document.getElementById('detName');
@@ -675,6 +786,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let visibleCount = 0;
     let firstVisibleId = null;
     const visibleBounds = L.latLngBounds([]);
+    matchedItems = [];
 
     items.forEach(item => {
       const distId = item.dataset.id;
@@ -689,7 +801,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const marker = markersMap[distId];
 
       if (matchesSearch && matchesProvince) {
-        item.style.display = 'flex';
+        matchedItems.push(item);
         visibleCount++;
         if (!firstVisibleId) firstVisibleId = distId;
 
@@ -698,12 +810,14 @@ document.addEventListener('DOMContentLoaded', function() {
           visibleBounds.extend(marker.getLatLng());
         }
       } else {
-        item.style.display = 'none';
         if (marker && map.hasLayer(marker)) {
           map.removeLayer(marker);
         }
       }
     });
+
+    currentPage = 1;
+    renderPage();
 
     if (countNumber) countNumber.textContent = visibleCount;
 

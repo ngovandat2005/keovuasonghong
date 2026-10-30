@@ -17,6 +17,8 @@
     <meta property="og:title" content="{% block og_title %}Keo Vữa Sông Hồng - SHK Mortar{% endblock %}">
     <meta property="og:description" content="{% block og_desc %}Keo Vữa Sông Hồng – Nhà sản xuất vữa khô trộn sẵn, keo dán gạch và cát sạch chất lượng cao tại Hưng Yên{% endblock %}">
     <meta property="og:url" content="{% absolute_url request.path %}">
+    <!-- Canonical: gộp các URL trùng (có query ?page=, ?category=, thiếu "/"...) về một URL chuẩn -->
+    <link rel="canonical" href="{% block canonical %}{% absolute_url request.path %}{% endblock %}">
     <meta property="og:image" content="{% block og_image %}{% if theme and theme.logo %}{% absolute_url theme.logo.url %}{% else %}{% static 'images/logo.png' as default_og_image %}{% absolute_url default_og_image %}{% endif %}{% endblock %}">
     <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon-32x32.png' %}?v=2">
@@ -27,10 +29,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,600&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=317">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=332">
     {% block extra_css %}{% endblock %}
 </head>
 
@@ -249,7 +251,7 @@
         <!-- Bottom Bar -->
         <div class="footer-bottom">
             <div class="footer-bottom-inner">
-                <p>{{ theme.footer_copyright|default:'© 2026. Mọi bản quyền được bảo lưu bởi Công ty TNHH Keo Vữa Sông Hồng' }} &nbsp;|&nbsp; <a href="{% url 'site_map' %}" class="footer-sitemap-link">Sơ đồ trang</a></p>
+                <p>{{ theme.footer_copyright|default:'© 2026. Mọi bản quyền được bảo lưu bởi Công ty TNHH Keo Vữa Sông Hồng' }}</p>
             </div>
         </div>
     </footer>

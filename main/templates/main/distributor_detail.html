@@ -1,102 +1,916 @@
 {% extends 'main/base.html' %}
 {% load static %}
 
-{% block title %}{{ dist.name }} – Đại lý phân phối – Keo Vữa Sông Hồng{% endblock %}
-{% block meta_desc %}Thông tin chi tiết đại lý {{ dist.name }} và hệ thống đại lý con trực thuộc.{% endblock %}
+{% block title %}{{ detail.title|default:dist.name }} – Đại lý phân phối Keo Vữa Sông Hồng{% endblock %}
+{% block meta_desc %}Thông tin địa chỉ, số điện thoại hotline và bản đồ chỉ đường đại lý {{ dist.name }} tại {{ dist.province }} - Keo Vữa Sông Hồng.{% endblock %}
 
 {% block content %}
 <style>
-.dd-wrap { background: #f4f7fc; font-family: 'Bai Jamjuree', sans-serif; }
-.dd-layout { width: 100%; display: grid; grid-template-columns: 1fr 460px; align-items: stretch; background: #fff; overflow: hidden; }
-.dd-main { padding: 50px 55px; min-width: 0; }
-.dd-side { position: relative; align-self: center; }
-.dd-side img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
-@media (max-width: 900px) {
-  .dd-layout { grid-template-columns: 1fr; }
-  .dd-side { display: none; }
-  .dd-main { padding: 32px 20px; }
+/* ── TRANG CHI TIẾT ĐẠI LÝ (GIAO DIỆN TINH GỌN, RÕ RÀNG, DỄ NHÌN) ── */
+.dd-page {
+  background: #f8fafc;
+  padding: 30px 0 60px;
+  font-family: 'Barlow', sans-serif;
+  color: #1e293b;
 }
-.dd-crumb { font-size: 13px; color: #6B7280; margin-bottom: 18px; }
-.dd-crumb a { color: #8C5A2B; text-decoration: none; }
-.dd-crumb .sep { margin: 0 6px; }
-.dd-title { color: rgb(140, 90, 43); font-size: 28px; font-weight: 800; text-transform: uppercase; line-height: 1.3; margin: 0 0 24px; text-align: left; }
-.dd-subtitle { color: rgb(140, 90, 43); font-size: 14px; font-weight: 700; margin: 0 0 22px; }
-.dd-article { font-size: 15px; line-height: 1.75; color: #1f2937; margin-bottom: 30px; }
-.dd-article p { margin: 0 0 14px; }
-.dd-article img { max-width: 100%; height: auto; }
-.dd-article h2, .dd-article h3 { color: #8C5A2B; margin: 22px 0 10px; }
-.dd-article ul { list-style: disc; padding-left: 24px; margin: 0 0 14px; }
-.dd-article ol { list-style: decimal; padding-left: 24px; margin: 0 0 14px; }
-.dd-article iframe { max-width: 100%; }
-.dd-sec-title { font-size: 17px; font-weight: 800; color: #1f2937; margin: 0 0 14px; }
-.dd-contact { display: grid; grid-template-columns: 1fr 200px; gap: 28px; align-items: center; margin-bottom: 30px; border: 1px solid #8C5A2B; background: #fff; padding: 24px 28px; }
-@media (max-width: 700px) { .dd-contact { grid-template-columns: 1fr; } }
-.dd-row { display: flex; gap: 12px; margin-bottom: 14px; font-size: 14.5px; line-height: 1.5; color: #111827; }
-.dd-row i { color: #8C5A2B; width: 18px; margin-top: 3px; text-align: center; flex-shrink: 0; }
-.dd-row b { display: block; font-size: 11px; font-weight: 700; color: #808080; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; }
-.dd-row a { color: #0B7BD6; text-decoration: none; }
-.dd-qr { text-align: center; }
-.dd-qr img { width: 100%; max-width: 172px; height: auto; display: block; margin: 0 auto 8px; }
-.dd-qr span { font-size: 13px; font-weight: 700; color: #8C5A2B; }
-.dd-map { border: 1px solid #8C5A2B; margin-bottom: 14px; }
-.dd-map iframe { width: 100%; height: 340px; border: 0; display: block; }
-.dd-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; background: #8C5A2B; color: #fff !important; font-size: 13.5px; font-weight: 700; text-decoration: none; border: 1px solid #8C5A2B; }
-.dd-btn.alt { background: #fff; color: #8C5A2B !important; }
+
+.dd-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Breadcrumb tinh gọn */
+.dd-breadcrumb {
+  font-size: 13.5px;
+  color: #64748b;
+  margin-bottom: 20px;
+}
+.dd-breadcrumb a {
+  color: #8C5A2B;
+  text-decoration: none;
+}
+.dd-breadcrumb a:hover {
+  text-decoration: underline;
+}
+.dd-breadcrumb .sep {
+  margin: 0 8px;
+  color: #cbd5e1;
+}
+
+/* Bố cục 2 cột chính */
+.dd-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  align-items: stretch;
+}
+
+@media (max-width: 900px) {
+  .dd-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+}
+
+.dd-main-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.dd-box {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.dd-main-col > .dd-box:last-child {
+  margin-bottom: 0;
+}
+
+/* Card màu trắng chuẩn */
+.dd-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 28px 32px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 600px) {
+  .dd-box {
+    padding: 20px 16px;
+  }
+}
+
+
+.dd-tag {
+  display: inline-block;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  margin-bottom: 10px;
+}
+
+.dd-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #8C5A2B;
+  text-transform: uppercase;
+  line-height: 1.3;
+  margin: 0;
+  text-align: center;
+}
+
+/* Tiêu đề đứng riêng phía trên cả lưới, không nằm trong khung */
+.dd-title--page {
+  max-width: 1000px;
+  margin: 0 auto 28px;
+}
+
+@media (max-width: 600px) {
+  .dd-title {
+    font-size: 20px;
+  }
+}
+
+/* Khung group thông tin liên hệ */
+.dd-contact-group {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 20px 22px;
+}
+
+.dd-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: 15px;
+}
+
+.dd-info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px dashed #e2e8f0;
+}
+
+.dd-info-row:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.dd-info-row i {
+  color: #8C5A2B;
+  font-size: 16px;
+  width: 20px;
+  margin-top: 3px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.dd-info-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 3px;
+}
+
+.dd-info-val {
+  font-size: 15px;
+  color: #0f172a;
+  line-height: 1.5;
+}
+
+.dd-info-val strong {
+  font-weight: 700;
+}
+
+.dd-info-val a {
+  color: #8C5A2B;
+  text-decoration: none;
+}
+.dd-info-val a:hover {
+  text-decoration: underline;
+}
+
+/* Nút gọi hotline nổi bật, số to rõ */
+.dd-phone-numbers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.dd-phone-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: #fff7ed;
+  color: #c2410c !important;
+  border: 1px solid #ffedd5;
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none !important;
+  transition: all 0.2s ease;
+}
+
+.dd-phone-btn:hover {
+  background: #ea580c;
+  color: #ffffff !important;
+  border-color: #ea580c;
+}
+
+/* Khối bài viết giới thiệu nếu có */
+.dd-section-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #8C5A2B;
+  text-transform: uppercase;
+  margin: 0 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Ảnh bên trái – bài viết bên phải */
+.dd-intro-row {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 24px;
+  align-items: stretch;
+  margin-bottom: 24px;
+}
+
+/* Thẻ bài viết: dải tab phía trên + nội dung căn đều hai bên */
+.dd-intro-text {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+}
+
+.dd-intro-tabs {
+  display: flex;
+  gap: 40px;
+  padding: 0 30px;
+  border-bottom: 1px solid #e2e8f0;
+  overflow-x: auto;
+}
+
+.dd-intro-tab {
+  padding: 18px 0 16px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  color: #8a7a68;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.dd-intro-tab:hover {
+  color: #8C5A2B;
+}
+
+.dd-intro-tab.active {
+  color: #8C5A2B;
+  border-bottom-color: #8C5A2B;
+  cursor: default;
+}
+
+/* Nội dung từng tab */
+.dd-tab-panel {
+  display: none;
+  padding: 26px 30px 30px;
+}
+
+.dd-tab-panel.active {
+  display: block;
+}
+
+.dd-tab-panel .dd-content--article {
+  padding: 0;
+}
+
+.dd-content--article {
+  padding: 26px 30px 30px;
+  font-size: 15.5px;
+  line-height: 1.9;
+  color: #1e293b;
+  text-align: justify;
+}
+
+.dd-content--article strong,
+.dd-content--article b {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+@media (max-width: 600px) {
+  .dd-intro-tabs { padding: 0 16px; gap: 24px; }
+  .dd-tab-panel { padding: 20px 16px 24px; }
+}
+
+.dd-intro-row--solo {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.dd-intro-img {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dd-intro-img img {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+@media (max-width: 800px) {
+  .dd-intro-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+}
+
+.dd-content {
+  font-size: 15px;
+  line-height: 1.75;
+  color: #334155;
+}
+
+.dd-content p {
+  margin: 0 0 14px 0;
+}
+
+.dd-content p:last-child {
+  margin-bottom: 0;
+}
+
+.dd-content img {
+  max-width: 100%;
+  height: auto;
+  margin: 12px 0;
+}
+
+/* Hàng bản đồ + QR Zalo: hai thẻ cạnh nhau */
+.dd-map-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 24px;
+  align-items: stretch;
+}
+
+.dd-map-row--solo {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.dd-map-row > .dd-box {
+  margin-bottom: 0;
+}
+
+.dd-map-row .dd-zalo-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+@media (max-width: 900px) {
+  .dd-map-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Bản đồ */
+.dd-map-box {
+  width: 100%;
+  height: 280px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.dd-map-box iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.dd-map-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.dd-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  background: #8C5A2B;
+  color: #ffffff !important;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 3px;
+  text-decoration: none;
+  border: 1px solid #8C5A2B;
+  transition: background 0.2s;
+}
+
+.dd-btn-primary:hover {
+  background: #734820;
+  border-color: #734820;
+}
+
+.dd-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  background: #ffffff;
+  color: #475569 !important;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 3px;
+  text-decoration: none;
+  border: 1px solid #cbd5e1;
+  transition: all 0.2s;
+}
+
+.dd-btn-outline:hover {
+  background: #f1f5f9;
+  color: #0f172a !important;
+}
+
+/* CỘT PHẢI (SIDEBAR) */
+.dd-side-col {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.dd-side-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 18px;
+  margin-bottom: 24px;
+}
+
+.dd-side-col > .dd-side-box:last-child {
+  margin-bottom: 0;
+}
+
+/* Ảnh poster đại lý (dãn đầy bằng phẳng với đáy bản đồ bên trái) */
+.dd-poster-wrap {
+  flex: 1 1 0px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.dd-poster-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@media (max-width: 900px) {
+  .dd-side-col {
+    height: auto;
+  }
+  .dd-poster-wrap {
+    flex: none;
+    height: auto;
+    margin-bottom: 24px;
+  }
+  .dd-poster-wrap img {
+    height: 260px;
+  }
+}
+
+/* Khung Zalo */
+.dd-zalo-card {
+  text-align: center;
+}
+
+.dd-zalo-qr {
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 10px;
+  padding: 6px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.dd-zalo-qr img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.dd-btn-zalo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px;
+  background: #0068FF;
+  color: #ffffff !important;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.dd-btn-zalo:hover {
+  background: #0052cc;
+}
+
+/* Danh sách đại lý khác cùng khu vực (dàn ngang) */
+.dd-related-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 14px;
+}
+
+.dd-related-card {
+  display: block;
+  padding: 14px 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.dd-related-card:hover {
+  background: #ffffff;
+  border-color: #8C5A2B;
+  box-shadow: 0 4px 12px rgba(140, 90, 43, 0.08);
+  transform: translateY(-2px);
+}
+
+.dd-related-card-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #8C5A2B;
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+
+.dd-related-card-info {
+  font-size: 12.5px;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.dd-related-card-info span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dd-related-card-info i {
+  color: #8C5A2B;
+  width: 14px;
+  text-align: center;
+}
+
+/* Toggle arrow for collapsible sections */
+.dd-toggle-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #fff7ed;
+  border: 1px solid #fde68a;
+  color: #92400e;
+  font-size: 13px;
+  transition: transform 0.3s ease, background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.dd-section-title--toggle:hover .dd-toggle-arrow {
+  background: #fef3c7;
+}
+
+.dd-toggle-arrow.collapsed {
+  transform: rotate(-90deg);
+}
+
+/* Smooth collapse animation */
+#contactGroupBody {
+  overflow: hidden;
+  transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.3s ease;
+  max-height: 2000px;
+  opacity: 1;
+}
+
+#contactGroupBody.dd-collapsed {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  border: none !important;
+}
 </style>
 
-<div class="dd-wrap">
-  <div class="dd-layout">
+<!-- ── FULL-WIDTH HERO BANNER (cùng ảnh nền với trang Đại lý phân phối) ── -->
+<div class="cat-hero-banner-wrap">
+  <div class="cat-hero-bg" {% if theme and theme.get_distributors_hero_url %}style="background-image: url('{{ theme.get_distributors_hero_url }}');"{% endif %}>
+    <div class="cat-hero-overlay">
+      <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 0 32px;">
+        <div class="cat-hero-content">
+          <!-- Dùng div thay vì h1 vì tên đại lý bên dưới đã là h1 của trang -->
+          <div class="cat-hero-title">Đại lý phân phối</div>
+          <nav class="cat-hero-breadcrumb" style="flex-wrap: wrap;">
+            <a href="{% url 'home' %}">Trang chủ</a>
+            <span class="sep">&gt;</span>
+            <a href="{% url 'distributors' %}">Đại lý phân phối</a>
+            {% if dist.province %}
+            <span class="sep">&gt;</span>
+            <a href="{% url 'distributors' %}?province={{ dist.province|urlencode }}">{{ dist.province }}</a>
+            {% endif %}
+            <span class="sep">&gt;</span>
+            <span class="curr">{{ dist.name }}</span>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-    <!-- TRÁI: thông tin đại lý + danh sách đại lý con -->
-    <div class="dd-main">
+<div class="dd-page">
+  <div class="dd-container">
 
-      <h1 class="dd-title">{{ detail.title|default:dist.name }}</h1>
+    <!-- Tên đại lý: chỉ chữ, căn giữa cả trang, không khung -->
+    <h1 class="dd-title dd-title--page">{{ detail.title|default:dist.name }}</h1>
 
-      <div class="dd-article">
-        {% if detail.content %}{{ detail.content|safe }}{% else %}<p>{{ dist.name }} là đại lý phân phối chính thức các sản phẩm Keo Vữa Sông Hồng (SHK Mortar) tại {{ dist.province }}. Quý khách vui lòng liên hệ trực tiếp để được tư vấn sản phẩm, báo giá và giao hàng.</p>{% endif %}
+    <div class="dd-grid">
+
+      <!-- CỘT TRÁI: THÔNG TIN CHI TIẾT ĐẠI LÝ -->
+      <div class="dd-main-col">
+
+        <!-- Ảnh đại lý (trái) + thẻ 3 tab (phải): Tên nhà phân phối / Khu vực phân phối / Thông tin liên hệ -->
+        <div class="dd-intro-row">
+          <div class="dd-intro-img">
+            <img src="{% if detail.image %}{{ detail.image.url }}{% elif theme and theme.dealer_hero_image %}{{ theme.dealer_hero_image.url }}{% else %}{% static 'images/dealer_hero.jpg' %}{% endif %}" alt="{{ detail.title|default:dist.name }}">
+          </div>
+
+          <div class="dd-intro-text">
+            <div class="dd-intro-tabs" role="tablist">
+              <button type="button" class="dd-intro-tab active" role="tab" aria-selected="true" data-tab="ddTabName">Tên nhà phân phối</button>
+              <button type="button" class="dd-intro-tab" role="tab" aria-selected="false" data-tab="ddTabArea">Khu vực phân phối</button>
+              <button type="button" class="dd-intro-tab" role="tab" aria-selected="false" data-tab="ddTabContact">Thông tin liên hệ</button>
+            </div>
+
+            <!-- Tab 1: Tên nhà phân phối + bài viết giới thiệu -->
+            <div class="dd-tab-panel active" id="ddTabName" role="tabpanel">
+              <div class="dd-content dd-content--article">
+                <p><strong>{{ dist.name }}</strong></p>
+                {% if detail.content %}{{ detail.content|safe }}{% endif %}
+              </div>
+            </div>
+
+            <!-- Tab 2: Khu vực phân phối -->
+            <div class="dd-tab-panel" id="ddTabArea" role="tabpanel">
+              <div class="dd-info-list">
+                <div class="dd-info-row">
+                  <i class="fa-solid fa-location-dot"></i>
+                  <div>
+                    <span class="dd-info-label">{% if dist.address_type == 'distribution_area' %}Khu vực phân phối{% else %}Địa chỉ cửa hàng / Trụ sở{% endif %}</span>
+                    <div class="dd-info-val"><strong>{{ dist.address }}</strong></div>
+                  </div>
+                </div>
+                {% if detail.warehouse_address %}
+                <div class="dd-info-row">
+                  <i class="fa-solid fa-warehouse"></i>
+                  <div>
+                    <span class="dd-info-label">Địa chỉ kho bãi</span>
+                    <div class="dd-info-val">{{ detail.warehouse_address }}</div>
+                  </div>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Tab 3: Thông tin liên hệ -->
+            <div class="dd-tab-panel" id="ddTabContact" role="tabpanel">
+              <div class="dd-info-list">
+
+              <!-- Hotline / Điện thoại -->
+              <div class="dd-info-row">
+                <i class="fa-solid fa-phone"></i>
+                <div>
+                  <span class="dd-info-label">{{ dist.hotline_label|default:"Hotline tư vấn & đặt hàng" }}</span>
+                  <div class="dd-phone-numbers">
+                    {% for ph in phones %}
+                    <a href="tel:{{ ph|cut:' ' }}" class="dd-phone-btn">
+                      <i class="fa-solid fa-phone-volume"></i> {{ ph }}
+                    </a>
+                    {% empty %}
+                    <span class="dd-info-val">{{ dist.phone|default:"Chưa cập nhật" }}</span>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Email (nếu có) -->
+              {% if dist.email %}
+              <div class="dd-info-row">
+                <i class="fa-solid fa-envelope"></i>
+                <div>
+                  <span class="dd-info-label">Email liên hệ</span>
+                  <div class="dd-info-val"><a href="mailto:{{ dist.email }}">{{ dist.email }}</a></div>
+                </div>
+              </div>
+              {% endif %}
+
+              <!-- Website (nếu có) -->
+              {% if dist.website %}
+              <div class="dd-info-row">
+                <i class="fa-solid fa-globe"></i>
+                <div>
+                  <span class="dd-info-label">Website</span>
+                  <div class="dd-info-val"><a href="{{ dist.website }}" target="_blank" rel="noopener noreferrer">{{ dist.website }}</a></div>
+                </div>
+              </div>
+              {% endif %}
+
+              <!-- Kênh mạng xã hội / Liên kết khác nếu có -->
+              {% if dist.youtube_url or dist.tiktok_url or extra_links %}
+              <div class="dd-info-row">
+                <i class="fa-solid fa-share-nodes"></i>
+                <div>
+                  <span class="dd-info-label">Kênh truyền thông</span>
+                  <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:4px;">
+                    {% if dist.youtube_url %}
+                    <a href="{{ dist.youtube_url }}" target="_blank" rel="noopener noreferrer" style="font-size:13.5px; color:#ef4444; text-decoration:none;">
+                      <i class="fa-brands fa-youtube"></i> YouTube
+                    </a>
+                    {% endif %}
+                    {% if dist.tiktok_url %}
+                    <a href="{{ dist.tiktok_url }}" target="_blank" rel="noopener noreferrer" style="font-size:13.5px; color:#000; text-decoration:none;">
+                      <i class="fa-brands fa-tiktok"></i> TikTok
+                    </a>
+                    {% endif %}
+                    {% for lk in extra_links %}
+                    <a href="{{ lk.url }}" target="_blank" rel="noopener noreferrer" style="font-size:13.5px; color:#8C5A2B; text-decoration:none;">
+                      <i class="fa-solid fa-link"></i> {{ lk.label|default:"Liên kết" }}
+                    </a>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+
+              <!-- Thông tin liên hệ phụ nếu có -->
+              {% for ex in detail.extra_contacts %}
+              {% if ex.value %}
+              <div class="dd-info-row">
+                <i class="fa-solid fa-circle-info"></i>
+                <div>
+                  <span class="dd-info-label">{{ ex.label|default:"Thông tin khác" }}</span>
+                  <div class="dd-info-val">
+                    {% if ex.value|slice:":4" == "http" %}
+                    <a href="{{ ex.value }}" target="_blank" rel="noopener noreferrer">{{ ex.value }}</a>
+                    {% else %}
+                    {{ ex.value }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+              {% endfor %}
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hàng dưới: bản đồ (trái) + mã QR Zalo (phải), hai thẻ riêng -->
+        <div class="dd-map-row{% if not zalo_url %} dd-map-row--solo{% endif %}">
+
+          <!-- Phần 1: Bản đồ chỉ đường -->
+          <div class="dd-box" id="ddMapCard">
+            <h2 class="dd-section-title"><i class="fa-solid fa-map-location-dot"></i> Bản đồ vị trí</h2>
+            <div class="dd-map-box">
+              <iframe src="{{ map_embed_url }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Bản đồ {{ dist.name }}"></iframe>
+            </div>
+            <div class="dd-map-actions">
+              <a href="{{ maps_url }}" target="_blank" rel="noopener noreferrer" class="dd-btn-primary">
+                <i class="fa-solid fa-diamond-turn-right"></i> Chỉ đường Google Maps
+              </a>
+              <a href="{% url 'distributors' %}" class="dd-btn-outline">
+                <i class="fa-solid fa-arrow-left"></i> Xem danh sách đại lý toàn quốc
+              </a>
+            </div>
+          </div>
+
+          <!-- Phần 2: Mã QR Zalo tư vấn -->
+          {% if zalo_url %}
+          <div class="dd-box dd-zalo-card">
+            <h2 class="dd-section-title" style="justify-content:center;"><i class="fa-solid fa-qrcode"></i> Quét mã Zalo</h2>
+            <div class="dd-zalo-qr">
+              <img src="{% if zalo_qr %}{{ zalo_qr }}{% else %}https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=0&data={{ zalo_url|urlencode:'' }}{% endif %}" alt="QR Zalo {{ dist.name }}">
+            </div>
+            <p style="font-size:13px; color:#64748b; margin:0 0 14px; line-height:1.45;">
+              Quét mã để nhắn tin Zalo trực tiếp với đại lý hoặc nhấn nút bên dưới:
+            </p>
+            <a href="{{ zalo_url }}" target="_blank" rel="noopener noreferrer" class="dd-btn-zalo">
+              <i class="fa-solid fa-comment-dots"></i> Chat Zalo ngay
+            </a>
+          </div>
+          {% endif %}
+
+        </div>
+
       </div>
 
-      <h2 class="dd-sec-title">Thông tin liên hệ</h2>
-      <div class="dd-contact">
-        <div>
-          {% if phones %}
-          <div class="dd-row"><i class="fa-solid fa-phone"></i><div><b>Số điện thoại</b>{% for ph in phones %}<a href="tel:{{ ph|cut:' ' }}">{{ ph }}</a>{% if not forloop.last %} · {% endif %}{% endfor %}</div></div>
-          {% endif %}
-          {% if dist.email %}
-          <div class="dd-row"><i class="fa-solid fa-envelope"></i><div><b>Email</b><a href="mailto:{{ dist.email }}">{{ dist.email }}</a></div></div>
-          {% endif %}
-          {% if dist.address %}
-          <div class="dd-row"><i class="fa-solid fa-location-dot"></i><div><b>{% if dist.address_type == 'distribution_area' %}Khu vực phân phối{% else %}Địa chỉ trụ sở{% endif %}</b>{{ dist.address }}</div></div>
-          {% endif %}
-          {% if detail.warehouse_address %}
-          <div class="dd-row"><i class="fa-solid fa-warehouse"></i><div><b>Địa chỉ kho</b>{{ detail.warehouse_address }}</div></div>
-          {% endif %}
-          {% for ex in detail.extra_contacts %}
-          <div class="dd-row"><i class="fa-solid fa-circle-info"></i><div>{% if ex.label %}<b>{{ ex.label }}</b>{% endif %}{% if ex.value|slice:":4" == "http" %}<a href="{{ ex.value }}" target="_blank" rel="noopener noreferrer">{{ ex.value }}</a>{% else %}{{ ex.value }}{% endif %}</div></div>
-          {% endfor %}
-          {% if dist.website %}
-          <div class="dd-row"><i class="fa-solid fa-globe"></i><div><b>Website</b><a href="{{ dist.website }}" target="_blank" rel="noopener noreferrer">{{ dist.website }}</a></div></div>
-          {% endif %}
-        </div>
-        {% if zalo_url %}
-        <div class="dd-qr">
-          <img src="{% if zalo_qr %}{{ zalo_qr }}{% else %}https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&data={{ zalo_url|urlencode:'' }}{% endif %}" alt="Mã QR Zalo" width="240" height="240">
-          <span>Quét mã QR để chat Zalo</span>
-        </div>
-        {% endif %}
+    </div>
+
+    <!-- ĐẠI LÝ KHÁC TRONG KHU VỰC (DÀN HÀNG NGANG) -->
+    {% if related_distributors %}
+    <div class="dd-box" style="margin-top: 24px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; border-bottom: 2px solid #8C5A2B; padding-bottom: 12px;">
+        <h2 class="dd-section-title" style="margin-bottom: 0;">
+          <i class="fa-solid fa-store"></i> Đại lý khác trong khu vực
+        </h2>
+        <a href="{% url 'distributors' %}" style="font-size: 13px; font-weight: 600; color: #8C5A2B; text-decoration: none;">
+          Xem tất cả đại lý toàn quốc &rarr;
+        </a>
       </div>
-
-      <h2 class="dd-sec-title">Bản đồ</h2>
-      <div class="dd-map"><iframe src="{{ map_embed_url }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Bản đồ {{ dist.name }}"></iframe></div>
-      <a class="dd-btn" href="{{ maps_url }}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-diamond-turn-right"></i> Chỉ đường Google Maps</a>
-      <a href="{% url 'distributors' %}" class="dd-btn alt" style="margin-left:8px;"><i class="fa-solid fa-arrow-left"></i> Quay lại danh sách</a>
+      <div class="dd-related-grid">
+        {% for other in related_distributors %}
+        <a href="{{ other.get_absolute_url }}" class="dd-related-card">
+          <div class="dd-related-card-name">{{ other.name }}</div>
+          <div class="dd-related-card-info">
+            <span><i class="fa-solid fa-location-dot"></i> {{ other.province }}</span>
+            {% if other.phone %}
+            <span><i class="fa-solid fa-phone"></i> {{ other.phone }}</span>
+            {% endif %}
+          </div>
+        </a>
+        {% endfor %}
+      </div>
     </div>
-
-    <!-- PHẢI: ảnh poster -->
-    <div class="dd-side">
-      <img src="{% if theme.dealer_hero_image %}{{ theme.dealer_hero_image.url }}{% else %}{% static 'images/dealer_hero.jpg' %}{% endif %}" alt="SHK Mortar">
-    </div>
+    {% endif %}
 
   </div>
 </div>
+
+<script>
+function alignPosterWithMap() {
+  if (window.innerWidth <= 900) {
+    var p = document.getElementById('ddPosterCard');
+    if (p) p.style.height = '';
+    return;
+  }
+  var mapCard = document.getElementById('ddMapCard');
+  var posterCard = document.getElementById('ddPosterCard');
+  if (!mapCard || !posterCard) return;
+  
+  posterCard.style.height = '';
+  var mapBottom = mapCard.getBoundingClientRect().bottom;
+  var posterTop = posterCard.getBoundingClientRect().top;
+  var targetHeight = Math.round(mapBottom - posterTop);
+  if (targetHeight > 80) {
+    posterCard.style.height = targetHeight + 'px';
+  }
+}
+
+window.addEventListener('load', alignPosterWithMap);
+window.addEventListener('resize', alignPosterWithMap);
+setTimeout(alignPosterWithMap, 150);
+setTimeout(alignPosterWithMap, 600);
+
+// Chuyển tab: Tên nhà phân phối / Khu vực phân phối / Thông tin liên hệ
+document.querySelectorAll('.dd-intro-tab').forEach(function (tab) {
+  tab.addEventListener('click', function () {
+    document.querySelectorAll('.dd-intro-tab').forEach(function (t) {
+      var on = t === tab;
+      t.classList.toggle('active', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    document.querySelectorAll('.dd-tab-panel').forEach(function (p) {
+      p.classList.toggle('active', p.id === tab.dataset.tab);
+    });
+  });
+});
+</script>
 {% endblock %}

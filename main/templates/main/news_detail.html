@@ -372,7 +372,7 @@
 
     @media (max-width: 992px) {
         .article-layout-grid {
-            grid-template-columns: 1fr;
+            grid-template-columns: minmax(0, 1fr);
             gap: 24px;
         }
     }
@@ -465,8 +465,12 @@
         text-align: justify;
     }
 
+    .article-content h1 { font-size: 32px; font-weight: 700; line-height: 1.4; margin: 28px 0 12px 0; }
+    .article-content h5 { font-size: 15px; font-weight: 700; line-height: 1.45; margin: 16px 0 8px 0; }
+    .article-content h6 { font-size: 13px; font-weight: 700; line-height: 1.45; margin: 14px 0 8px 0; }
+
     .article-content h2 {
-        font-size: 20px;
+        font-size: 22px;
         font-weight: 700;
         color: #111827;
         margin: 28px 0 12px 0;
@@ -476,7 +480,7 @@
     }
 
     .article-content h3 {
-        font-size: 17px;
+        font-size: 19px;
         font-weight: 700;
         color: #8C5A2B;
         margin: 22px 0 10px 0;
@@ -486,7 +490,7 @@
     }
 
     .article-content h4 {
-        font-size: 15px;
+        font-size: 17px;
         font-weight: 700;
         color: #1F2937;
         margin: 16px 0 8px 0;
