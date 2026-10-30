@@ -36,3 +36,6 @@ db.sqlite3
 *.log
 passenger_wsgi.py
 /*.pdf
+
+# Dữ liệu người dùng tải lên (không đưa vào git)
+media/
