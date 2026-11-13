@@ -296,9 +296,16 @@ def news_detail_legacy(request, category, slug):
 def news_detail(request, slug):
     news = get_object_or_404(News, slug=slug, is_active=True)
 
-    related = news.related_articles.filter(is_active=True)[:4]
-    if not related:
-        related = News.objects.filter(category=news.category, is_active=True).exclude(pk=news.pk)[:4]
+    related = list(news.related_articles.filter(is_active=True).order_by('-published_at')[:10])
+    if len(related) < 6:
+        exclude_ids = [news.pk] + [item.pk for item in related]
+        cat_filter = {'category': news.category} if news.category else {}
+        cat_related = list(News.objects.filter(is_active=True, **cat_filter).exclude(pk__in=exclude_ids).order_by('-published_at')[:10 - len(related)])
+        related.extend(cat_related)
+    if len(related) < 6:
+        exclude_ids = [news.pk] + [item.pk for item in related]
+        fallback_news = list(News.objects.filter(is_active=True).exclude(pk__in=exclude_ids).order_by('-published_at')[:10 - len(related)])
+        related.extend(fallback_news)
     featured_news = News.objects.filter(is_active=True).exclude(pk=news.pk).order_by('-published_at')[:5]
     categories = NewsCategory.objects.all()
     return render(request, 'main/news_detail.html', {
